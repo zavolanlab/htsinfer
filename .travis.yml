@@ -1,0 +1,30 @@
+os:
+- linux
+dist: bionic
+language: python
+
+services:
+- docker
+
+if: type != pull_request  # do not build anything for PRs
+
+stages:
+- name: test
+
+jobs:
+  include:
+  - stage: test
+    name: Run style, unit and integration tests
+    script:
+    # style tests
+    - flake8
+    - pylint --rcfile pylint.cfg setup.py
+    - pylint --rcfile pylint.cfg src/
+    # unit tests
+    - python -m pytest
+    - coverage run --source src -m pytest
+    - coveralls
+    # integration tests
+    - src/htsinfer.py --help
+    - src/htsinfer.py --debug
+

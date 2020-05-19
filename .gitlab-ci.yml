@@ -1,0 +1,15 @@
+image: python:3.7.4
+
+test:
+  script:
+    # run style tests
+    - flake8
+    - pylint --rcfile pylint.cfg setup.py
+    - pylint --rcfile pylint.cfg src/
+    # run unit tests
+    - python -m pytest
+    - coverage run --source src -m pytest
+    # run integration tests
+    - src/htsinfer.py --help
+    - src/htsinfer.py --debug
+
