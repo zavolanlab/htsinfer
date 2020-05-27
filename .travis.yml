@@ -6,29 +6,20 @@ language: python
 services:
 - docker
 
-if: type != pull_request  # do not build anything for PRs
-
+if: (type == push) OR (type == pull_request AND fork == true)  # do not build anything for PRs
 
 stages: 
-- name: build_image
 - name: test
-- name: push_image
-  if: branch = master
 
 jobs:
   include:
-  - stage: build_image
-    name: Build/Run Docker Image
+  - stage: test
+    name: Run build, style, unit and integration tests
     script:
     # docker build image
-    - docker build -t zavolab/htsinfer:<TAG> .
+    - docker build -t zavolab/htsinfer .
     # docker run image
-    - docker run zavolab/htsinfer:<TAG>
-
-    
-  - stage: test
-    name: Run style, unit and integration tests
-    script:
+    - docker run zavolab/htsinfer
     # style tests
     - flake8 
     - pylint --rcfile pylint.cfg setup.py
@@ -40,10 +31,8 @@ jobs:
     # integration tests
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
-  
-  - stage: push_image
-    name: Push image to Docker hub
-    script:
+
+    # push image to Docker Hub
     # docker login
     - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
     - echo Pushing Docker Image
