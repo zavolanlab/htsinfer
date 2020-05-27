@@ -8,16 +8,29 @@ services:
 
 if: type != pull_request  # do not build anything for PRs
 
-stages:
+
+stages: 
+- name: build_image
 - name: test
+- name: push_image
+  if: branch = master
 
 jobs:
   include:
+  - stage: build_image
+    name: Build/Run Docker Image
+    script:
+    # docker build image
+    - docker build -t zavolab/htsinfer:<TAG> .
+    # docker run image
+    - docker run zavolab/htsinfer:<TAG>
+
+    
   - stage: test
     name: Run style, unit and integration tests
     script:
     # style tests
-    - flake8
+    - flake8 
     - pylint --rcfile pylint.cfg setup.py
     - pylint --rcfile pylint.cfg src/
     # unit tests
@@ -27,4 +40,16 @@ jobs:
     # integration tests
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
+  
+  - stage: push_image
+    name: Push image to Docker hub
+    script:
+    # docker login
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - echo Pushing Docker Image
+    - # Version : 
+    - docker tag ${DOCKER_REPO}:latest ${DOCKER_REPO}:${Version}
+    - docker push ${DOCKER_ORGANIZATiON}/${DOCKER_REPO}:${Version}
+     
+
 
