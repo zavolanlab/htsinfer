@@ -57,19 +57,19 @@ deploy:
     tags: true  
     repo: zavolanlab/htsinfer 
 
-    
-after sucess:
+after_success:
+- export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO} 
   # docker build image
-- docker build -t zavolab/htsinfer .
+- docker build -t ${REPO} .
   # docker run image
-- docker run zavolab/htsinfer
-- docker tag ${DOCKER_REPO}:latest
-- docker tag ${DOCKER_REPO}:${VERSION}
+- docker run ${REPO}
+- docker tag ${REPO} ${REPO}:${VERSION}
+- docker tag ${REPO} ${REPO}:latest
   # push image to Docker Hub
   # docker login
-- docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-- echo Pushing Docker Image
-- docker push ${DOCKER_ORGANIZATiON}/${DOCKER_REPO}:${VERSION}
+- echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
+- echo PUSHING DOCKER IMAGE
+- docker push ${REPO}
 
      
 
