@@ -8,6 +8,10 @@ services:
 
 if: (type == push) OR (type == pull_request AND fork == true)  # do not build anything for PRs
 
+env:
+  global:
+  - VERSION: <Version> 
+
 stages: 
 - name: test
 
@@ -32,13 +36,41 @@ jobs:
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
 
-    # push image to Docker Hub
-    # docker login
-    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-    - echo Pushing Docker Image
-    - # Version : 
-    - docker tag ${DOCKER_REPO}:latest ${DOCKER_REPO}:${Version}
-    - docker push ${DOCKER_ORGANIZATiON}/${DOCKER_REPO}:${Version}
+deploy:
+  # Publishing on TestPyPI
+- provider: pypi
+  user: "rohank63"
+  password: ${PTEST_TOKEN}  
+  skip_existing: true
+  distributions: "sdist bdist_wheel"
+  server: https://test.pypi.org/
+  on:
+    tags: true 
+    repo: zavolanlab/htsinfer  
+  # Publishing on PyPI  
+- provider: pypi
+  user: "rohank63"
+  password: ${PYPI_TOKEN} 
+  skip_existing: true 
+  distributions: "sdist bdist_wheel"
+  on:
+    tags: true  
+    repo: zavolanlab/htsinfer 
+
+    
+after sucess:
+  # docker build image
+- docker build -t zavolab/htsinfer .
+  # docker run image
+- docker run zavolab/htsinfer
+- docker tag ${DOCKER_REPO}:latest
+- docker tag ${DOCKER_REPO}:${VERSION}
+  # push image to Docker Hub
+  # docker login
+- docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+- echo Pushing Docker Image
+- docker push ${DOCKER_ORGANIZATiON}/${DOCKER_REPO}:${VERSION}
+
      
 
 
