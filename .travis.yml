@@ -14,6 +14,8 @@ env:
 
 stages: 
 - name: test
+- name: publish
+  if: branch = master
 
 jobs:
   include:
@@ -35,6 +37,23 @@ jobs:
     # integration tests
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
+    
+  - stage: publish
+    name: Pushing Docker image to Docker Hub
+    script:
+    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO} 
+    # docker build image
+    - docker build -t ${REPO} .
+      # docker run image
+    - docker run ${REPO}
+    - docker tag ${REPO} ${REPO}:${VERSION}
+    - docker tag ${REPO} ${REPO}:latest
+      # push image to Docker Hub
+      # docker login
+    - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
+    - echo PUSHING DOCKER IMAGE
+    - docker push ${REPO}
+
 
 deploy:
   # Publishing on TestPyPI
@@ -57,19 +76,7 @@ deploy:
     tags: true  
     repo: zavolanlab/htsinfer 
 
-after_success:
-- export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO} 
-  # docker build image
-- docker build -t ${REPO} .
-  # docker run image
-- docker run ${REPO}
-- docker tag ${REPO} ${REPO}:${VERSION}
-- docker tag ${REPO} ${REPO}:latest
-  # push image to Docker Hub
-  # docker login
-- echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
-- echo PUSHING DOCKER IMAGE
-- docker push ${REPO}
+
 
      
 
