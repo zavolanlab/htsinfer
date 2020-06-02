@@ -59,6 +59,7 @@ jobs:
       user: "rohank63"
       password: ${PTEST_TOKEN}
       skip_existing: true
+      skip_cleanup: true
       distributions: "sdist bdist_wheel"
       server: https://test.pypi.org/
       on:
