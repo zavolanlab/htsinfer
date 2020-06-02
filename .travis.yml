@@ -17,7 +17,7 @@ env:
 stages:
 - name: test
 - name: publish
-  if: branch = master AND type = push AND fork = false
+#  if: branch = master AND type = push AND fork = false
 
 jobs:
   include:
