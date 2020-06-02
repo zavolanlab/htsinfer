@@ -55,11 +55,10 @@ jobs:
     script: skip
     deploy:
     - provider: pypi
-      twine_version: 3.1.1
-      user: "rohank63"
+      edge: true
+      user: ${PYPI_USER}
       password: ${PTEST_TOKEN}
       skip_existing: true
-      skip_cleanup: true
       distributions: "sdist bdist_wheel"
       server: https://test.pypi.org/
       on:
