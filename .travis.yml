@@ -6,16 +6,27 @@ language: python
 services:
 - docker
 
-if: type != pull_request  # do not build anything for PRs
+if: (type == push) OR (type == pull_request AND fork == true)
+
+env:
+  global:
+  - DOCKER_ORGANIZATION: "zavolab"
+  - DOCKER_REPO: "htsinfer"
+  - VERSION: "0.1.0"
 
 stages:
 - name: test
+- name: publish
+  if: branch = master AND type = push AND fork = false
 
 jobs:
   include:
   - stage: test
-    name: Run style, unit and integration tests
+    name: Run build, style, unit and integration tests
     script:
+    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
+    # build tests
+    - docker build -t ${REPO} .
     # style tests
     - flake8
     - pylint --rcfile pylint.cfg setup.py
@@ -25,6 +36,36 @@ jobs:
     - coverage run --source src -m pytest
     - coveralls
     # integration tests
+    - docker run ${REPO}
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
+  - stage: publish
+    name: Pushing Docker image to Docker Hub
+    script:
+    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
+    - docker build -t ${REPO}:latest .
+    - docker tag ${REPO}:latest ${REPO}:${VERSION}
+    - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
+    - docker push ${REPO}:latest
+    - docker push ${REPO}:${VERSION}
 
+deploy:
+  # Publishing on TestPyPI
+- provider: pypi
+  user: "rohank63"
+  password: ${PTEST_TOKEN}
+  skip_existing: true
+  distributions: "sdist bdist_wheel"
+  server: https://test.pypi.org/
+  on:
+    repo: zavolanlab/htsinfer
+    branch: master
+#  # Publishing on PyPI
+#- provider: pypi
+#  user: "rohank63"
+#  password: ${PYPI_TOKEN}
+#  skip_existing: true
+#  distributions: "sdist bdist_wheel"
+#  on:
+#    repo: zavolanlab/htsinfer
+#    branch: master
