@@ -16,6 +16,7 @@ env:
 
 stages:
 - name: test
+  if: branch = abcdef
 - name: publish
   #if: branch = master AND type = push AND fork = false
 
@@ -40,7 +41,8 @@ jobs:
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
   - stage: publish
-    name: Pushing Docker image to Docker Hub
+    name: Push image to Docker Hub
+    if: branch = abcdef
     script:
     - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
     - docker build -t ${REPO}:latest .
