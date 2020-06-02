@@ -64,6 +64,7 @@ jobs:
       on:
         repo: zavolanlab/htsinfer
         #branch: master
+        all_branches: true
 
   # Publishing on PyPI
 #- provider: pypi
