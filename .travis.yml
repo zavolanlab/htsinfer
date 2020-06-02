@@ -6,28 +6,29 @@ language: python
 services:
 - docker
 
-if: (type == push) OR (type == pull_request AND fork == true)  # do not build anything for PRs
+if: (type == push) OR (type == pull_request AND fork == true)
 
 env:
   global:
-  - VERSION: <Version> 
+  - DOCKER_ORGANIZATION: "zavolab"
+  - DOCKER_REPO: "htsinfer"
+  - VERSION: "0.1.0"
 
-stages: 
+stages:
 - name: test
 - name: publish
-  if: branch = master
+  if: branch = master AND type = push AND fork = false
 
 jobs:
   include:
   - stage: test
     name: Run build, style, unit and integration tests
     script:
-    # docker build image
-    - docker build -t zavolab/htsinfer .
-    # docker run image
-    - docker run zavolab/htsinfer
+    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
+    # build tests
+    - docker build -t ${REPO} .
     # style tests
-    - flake8 
+    - flake8
     - pylint --rcfile pylint.cfg setup.py
     - pylint --rcfile pylint.cfg src/
     # unit tests
@@ -35,49 +36,36 @@ jobs:
     - coverage run --source src -m pytest
     - coveralls
     # integration tests
+    - docker run ${REPO}
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
-    
   - stage: publish
     name: Pushing Docker image to Docker Hub
     script:
-    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO} 
-    # docker build image
-    - docker build -t ${REPO} .
-      # docker run image
-    - docker run ${REPO}
-    - docker tag ${REPO} ${REPO}:${VERSION}
-    - docker tag ${REPO} ${REPO}:latest
-      # push image to Docker Hub
-      # docker login
+    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
+    - docker build -t ${REPO}:latest .
+    - docker tag ${REPO}:latest ${REPO}:${VERSION}
     - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
-    - echo PUSHING DOCKER IMAGE
-    - docker push ${REPO}
-
+    - docker push ${REPO}:latest
+    - docker push ${REPO}:${VERSION}
 
 deploy:
   # Publishing on TestPyPI
 - provider: pypi
   user: "rohank63"
-  password: ${PTEST_TOKEN}  
+  password: ${PTEST_TOKEN}
   skip_existing: true
   distributions: "sdist bdist_wheel"
   server: https://test.pypi.org/
   on:
-    tags: true 
-    repo: zavolanlab/htsinfer  
-  # Publishing on PyPI  
-- provider: pypi
-  user: "rohank63"
-  password: ${PYPI_TOKEN} 
-  skip_existing: true 
-  distributions: "sdist bdist_wheel"
-  on:
-    tags: true  
-    repo: zavolanlab/htsinfer 
-
-
-
-     
-
-
+    repo: zavolanlab/htsinfer
+    branch: master
+#  # Publishing on PyPI
+#- provider: pypi
+#  user: "rohank63"
+#  password: ${PYPI_TOKEN}
+#  skip_existing: true
+#  distributions: "sdist bdist_wheel"
+#  on:
+#    repo: zavolanlab/htsinfer
+#    branch: master
