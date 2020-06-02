@@ -17,7 +17,7 @@ env:
 stages:
 - name: test
 - name: publish
-#  if: branch = master AND type = push AND fork = false
+  #if: branch = master AND type = push AND fork = false
 
 jobs:
   include:
@@ -48,20 +48,21 @@ jobs:
     - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
     - docker push ${REPO}:latest
     - docker push ${REPO}:${VERSION}
+  - stage: publish
+    name: Publish on PyPI
+    deploy:
+      provider: pypi
+      twine_version: 3.1.1
+      user: "rohank63"
+      password: ${PTEST_TOKEN}
+      skip_existing: true
+      distributions: "sdist bdist_wheel"
+      server: https://test.pypi.org/
+      on:
+        repo: zavolanlab/htsinfer
+        branch: master
 
-#deploy:
-#  # Publishing on TestPyPI
-#- provider: pypi
-#  twine_version: 3.1.1
-#  user: "rohank63"
-#  password: ${PTEST_TOKEN}
-#  skip_existing: true
-#  distributions: "sdist bdist_wheel"
-#  server: https://test.pypi.org/
-#  on:
-#    repo: zavolanlab/htsinfer
-#    branch: master
-#  # Publishing on PyPI
+  # Publishing on PyPI
 #- provider: pypi
 #  user: "rohank63"
 #  password: ${PYPI_TOKEN}
