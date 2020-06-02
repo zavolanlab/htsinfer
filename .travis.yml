@@ -49,17 +49,18 @@ jobs:
     - docker push ${REPO}:latest
     - docker push ${REPO}:${VERSION}
 
-deploy:
-  # Publishing on TestPyPI
-- provider: pypi
-  user: "rohank63"
-  password: ${PTEST_TOKEN}
-  skip_existing: true
-  distributions: "sdist bdist_wheel"
-  server: https://test.pypi.org/
-  on:
-    repo: zavolanlab/htsinfer
-    branch: master
+#deploy:
+#  # Publishing on TestPyPI
+#- provider: pypi
+#  twine_version: 3.1.1
+#  user: "rohank63"
+#  password: ${PTEST_TOKEN}
+#  skip_existing: true
+#  distributions: "sdist bdist_wheel"
+#  server: https://test.pypi.org/
+#  on:
+#    repo: zavolanlab/htsinfer
+#    branch: master
 #  # Publishing on PyPI
 #- provider: pypi
 #  user: "rohank63"
