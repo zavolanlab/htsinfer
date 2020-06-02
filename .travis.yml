@@ -63,7 +63,7 @@ jobs:
       server: https://test.pypi.org/
       on:
         repo: zavolanlab/htsinfer
-        branch: master
+        #branch: master
 
   # Publishing on PyPI
 #- provider: pypi
