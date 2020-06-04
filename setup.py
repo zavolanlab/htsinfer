@@ -13,7 +13,7 @@ with open("requirements.txt") as fh:
 
 setup(
     name="htsinfer",
-    version="0.1.1",
+    version="0.1.0",
     description=(
         "HTSinfer infers metadata from High Throughput Sequencing (HTS) data"
     ),
