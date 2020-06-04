@@ -22,7 +22,7 @@ stages:
 jobs:
   include:
   - stage: test
-    name: Run build, style, unit and integration tests
+    name: Run build, style, unit & integration tests
     script:
     - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
     # build tests
@@ -40,7 +40,7 @@ jobs:
     - src/htsinfer.py --help
     - src/htsinfer.py --debug
   - stage: publish
-    name: Pushing Docker image to Docker Hub
+    name: Push image to Docker Hub
     script:
     - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
     - docker build -t ${REPO}:latest .
@@ -48,24 +48,15 @@ jobs:
     - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
     - docker push ${REPO}:latest
     - docker push ${REPO}:${VERSION}
+  - stage: publish
+    name: Publish on PyPI
+    script: skip
+    deploy:
+    - provider: pypi
+      username: "__token__"
+      password: ${PYPI_TOKEN}
+      edge: true
+      skip_existing: true
+      cleanup: false
+      distributions: "sdist bdist_wheel"
 
-deploy:
-  # Publishing on TestPyPI
-- provider: pypi
-  user: "rohank63"
-  password: ${PTEST_TOKEN}
-  skip_existing: true
-  distributions: "sdist bdist_wheel"
-  server: https://test.pypi.org/
-  on:
-    repo: zavolanlab/htsinfer
-    branch: master
-#  # Publishing on PyPI
-#- provider: pypi
-#  user: "rohank63"
-#  password: ${PYPI_TOKEN}
-#  skip_existing: true
-#  distributions: "sdist bdist_wheel"
-#  on:
-#    repo: zavolanlab/htsinfer
-#    branch: master
