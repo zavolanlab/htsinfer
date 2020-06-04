@@ -17,55 +17,54 @@ env:
 stages:
 - name: test
 - name: publish
-  #if: branch = master AND type = push AND fork = false
+  if: branch = master AND type = push AND fork = false
 
 jobs:
   include:
-  - stage: test
-    name: Run build, style, unit and integration tests
-    script:
-    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
-    # build tests
-    - docker build -t ${REPO} .
-    # style tests
-    - flake8
-    - pylint --rcfile pylint.cfg setup.py
-    - pylint --rcfile pylint.cfg src/
-    # unit tests
-    - python -m pytest
-    - coverage run --source src -m pytest
-    - coveralls
-    # integration tests
-    - docker run ${REPO}
-    - src/htsinfer.py --help
-    - src/htsinfer.py --debug
-
-  - stage: publish
-    name: Pushing image to Docker Hub
-    script:
-    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
-    - docker build -t ${REPO}:latest .
-    - docker tag ${REPO}:latest ${REPO}:${VERSION}
-    - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
-    - docker push ${REPO}:latest
-    - docker push ${REPO}:${VERSION}
+#  - stage: test
+#    name: Run build, style, unit and integration tests
+#    script:
+#    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
+#    # build tests
+#    - docker build -t ${REPO} .
+#    # style tests
+#    - flake8
+#    - pylint --rcfile pylint.cfg setup.py
+#    - pylint --rcfile pylint.cfg src/
+#    # unit tests
+#    - python -m pytest
+#    - coverage run --source src -m pytest
+#    - coveralls
+#    # integration tests
+#    - docker run ${REPO}
+#    - src/htsinfer.py --help
+#    - src/htsinfer.py --debug
+#  - stage: publish
+#    name: Pushing image to Docker Hub
+#    script:
+#    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
+#    - docker build -t ${REPO}:latest .
+#    - docker tag ${REPO}:latest ${REPO}:${VERSION}
+#    - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
+#    - docker push ${REPO}:latest
+#    - docker push ${REPO}:${VERSION}
   - stage: publish
     name: Publish on PyPI
     script: skip
     deploy:
     - provider: pypi
       username: "__token__"
-      password: ${PTEST_TOKEN}
+      password: ${PYPI_TOKEN}
       edge: true
       skip_existing: true
       cleanup: false
       distributions: "sdist bdist_wheel"
       server: https://test.pypi.org/legacy/
-      on:
-        repo: zavolanlab/htsinfer
-        #branch: master
-        all_branches: true
-
+#      on:
+#        repo: zavolanlab/htsinfer
+#        branch: master
+#        all_branches: true
+#
 # Publishing on PyPI
 #- provider: pypi
 #  username: "__token__"
