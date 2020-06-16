@@ -13,6 +13,7 @@ import argparse
 import logging
 import sys
 from typing import (Optional, Sequence)
+import infer_single_paired
 
 # TODO AUTHOR: add here third party modules
 
@@ -34,6 +35,11 @@ def parse_args(
     # TODO AUTHOR: add here optional and positional arguments as per argparse
     # docs; for many optional arguments, consider adding argument groups for
     # clarity
+    parser.add_argument('-f1', '--file1_name', metavar="",
+                        type=str, default=None, help="File Name to be Parsed")
+    parser.add_argument('-f2', '--file2_name', metavar="",
+                        type=str, default=None, help="File Name to be Parsed")
+
     parser.add_argument(
         '--verbose', "-v",
         action='store_true',
@@ -88,6 +94,9 @@ def main():
     # TODO AUTHOR: Put main code here. Options and positional arguments are in
     # `args`, logging can be used with `logger`; see (and delete) example log
     # message below
+    obj = infer_single_paired.End_parser()
+    obj.fastq(args.file1_name, args.file2_name)
+
     logger.info("Started script.")
     logger.info(f"CLI options: {args}")
 
