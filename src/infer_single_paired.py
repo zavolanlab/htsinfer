@@ -3,7 +3,7 @@ import sys
 import gzip
 import subprocess as sp
 from itertools import islice
-sys.tracebacklimit=0
+sys.tracebacklimit = 0
 
 messages = {
     1: "Single End or First_mate \n",
@@ -12,6 +12,7 @@ messages = {
     5: "First_mate or Second_mate \n"
 }
 
+
 class End_parser:
 
     """ Infer Single or Paired """
@@ -19,23 +20,23 @@ class End_parser:
     def __init__(self):
         print("\nRunning Parser\n")
 
-    def SRA_contents(self,name,filename): 
+    def SRA_contents(self, name, filename): 
 
         """ Runs fastq-dump """
 
         try:
             with open(os.devnull, "w") as fnull:
-                contents = sp.check_output(["fastq-dump","-X","1","-Z","--split-spot", name], stderr=fnull)
+                contents = sp.check_output(["fastq-dump", "-X", "1", "-Z", "--split-spot", name], stderr=fnull)
         except sp.CalledProcessError:
-            raise Exception("Error running fastq-dump on",filename)
+            raise Exception("Error running fastq-dump on", filename)
         contents = contents.decode('utf-8')
         return contents
 
-    def isPairedSRA(self,name,filename):
+    def isPairedSRA(self, name, filename):
 
         """ Checks if SRA file is Single end or Paired """
         
-        string_from_function = self.SRA_contents(name,filename)
+        string_from_function = self.SRA_contents(name, filename)
         string_from_file_4 = ""
         string_from_file_8 = ""
 
@@ -44,9 +45,8 @@ class End_parser:
         else:
             file_in = open(filename)
 
-        #file_in = open(filename)
         i = 1
-        for l in islice(file_in,8):
+        for l in islice(file_in, 8):
             string_from_file_8 += l
             if i == 4:
                 string_from_file_4 = string_from_file_8
@@ -63,10 +63,10 @@ class End_parser:
                 return 0
 
         elif count == 8:
-            inp = list(map(str,string_from_function.split("\n")))
+            inp = list(map(str, string_from_function.split("\n")))
             first_half = inp[0] + "\n" + inp[1] + "\n" + inp[2] + "\n" + inp[3] + "\n"
             second_half = inp[4] + "\n" + inp[5] + "\n" + inp[6] + "\n" + inp[7] + "\n"
-            if string_from_function ==  string_from_file_8:
+            if string_from_function == string_from_file_8:
                 return 3
             elif first_half == string_from_file_4:
                 return 1
@@ -75,26 +75,25 @@ class End_parser:
             else:
                 return 0
 
-
-    def validate_1(self,line):
+    def validate_1(self, line):
 
         """ Validate for First type Wiki Convention : @HWUSI-EAS100R:6:73:941:1973#0/1 """
 
         if line[0] == '@':
             line = line[1:]
             c = True
-            inp = list(map(str,line.split(':')))
+            inp = list(map(str, line.split(':')))
             if len(inp) == 5:
                 p = list(map(str, inp[4].split('#')))
                 inp[4] = p[0]
                 
-                for i in range(1,5,1):
+                for i in range(1, 5, 1):
                     if not inp[i].isnumeric():
                         return False
 
                 if len(p) == 2:
                     c = list(map(str, p[1].split('/')))
-                    if len(c)  == 1:
+                    if len(c) == 1:
                         if c[0].isnumeric():
                             return True
                         else:
@@ -127,10 +126,10 @@ class End_parser:
 
         if line[0] == '@':
             line = line[1:]
-            inp = list(map(str,line.split()))                         
+            inp = list(map(str, line.split()))                         
             if len(inp) == 2:
-                c = list(map(str,inp[0].split(':')))
-                d = list(map(str,inp[1].split(':')))
+                c = list(map(str, inp[0].split(':')))
+                d = list(map(str, inp[1].split(':')))
                 if len(c) == 7 and len(d) == 4:
                     e = []
                     e.append(c[1])
@@ -145,7 +144,7 @@ class End_parser:
                         if d[0] == '1' or d[0] == '2':
                             if d[1] == 'Y' or d[1] == 'N':
                                 if d[2].isnumeric():
-                                    if int(d[2])%2 == 0:
+                                    if int(d[2]) % 2 == 0:
                                         return True
                                     else:
                                         return False
@@ -161,9 +160,8 @@ class End_parser:
                     return False
         else:
             return False
-
-    
-    def read_line_in_fastq(self,line, count,type,Seq_count):
+   
+    def read_line_in_fastq(self, line, count, type, Seq_count):
 
         """ Update Count whether First Mate or Second Mate """
 
@@ -171,7 +169,7 @@ class End_parser:
         
         if type == 1:
             if inp[0][len(inp[0])-2] == '/':
-                count[ int(line[len(line) - 1]) - 1] += 1
+                count[int(line[len(line) - 1]) - 1] += 1
                 if line[:len(line) - 2] in Seq_count:
                     Seq_count[line[:len(line) - 2]] += 1
                 else:
@@ -183,19 +181,19 @@ class End_parser:
                     Seq_count[line] = 1	
         else:
             if inp[0] in Seq_count:
-                Seq_count[inp[0]]+=1
+                Seq_count[inp[0]] += 1
             else:
                 Seq_count[inp[0]] = 1
             count[int(inp[1][0]) - 1] += 1
 
-    def read_fastq(self,file,Seq_count,filename,emp_str):
+    def read_fastq(self, file, Seq_count, filename, emp_str):
 
         """ Reads FastQ file """
 
         count = [0]*2
         for i, line in enumerate(file):
             line = line[:-1]
-            if i%4 == 0 and line:
+            if i % 4 == 0 and line:
                 x = line
                 inp = list(map(str, x.split()))     
                 x = ""
@@ -206,21 +204,20 @@ class End_parser:
                 
                 if len(inp) == 1:
                     if self.validate_1(x):
-                        self.read_line_in_fastq(x, count,1,Seq_count)
+                        self.read_line_in_fastq(x, count, 1, Seq_count)
                     else:
-                        return 0     
+                        return 0      
                 elif len(inp) == 2:
                     if self.validate_2(x):
-                        self.read_line_in_fastq(x, count,2,Seq_count)
+                        self.read_line_in_fastq(x, count, 2, Seq_count)
                     else:
                         return 0    
                 elif len(inp) == 3:
                     q = list(map(str, x.split('.')))
                     name = q[0][1:]
                     emp_str = name
-                    return self.isPairedSRA(name,filename)
-                                      
-        
+                    return self.isPairedSRA(name, filename)
+                                         
         # 5 - first/second mate
         # 3 - mixed
         # 2 - second mate
@@ -236,7 +233,7 @@ class End_parser:
                     if Seq_count[i] == 2:
                         c2 += 1
                 n = len(Seq_count)
-                if n == 0 :
+                if n == 0:
                     return 0
                 if n == c1:
                     return 5
@@ -252,7 +249,7 @@ class End_parser:
         else:
             return 3
 
-    def check_file(self,file1_name, file2_name):
+    def check_file(self, file1_name, file2_name):
 
         """ Checks if file exists and has proper extensions """
 
@@ -271,8 +268,7 @@ class End_parser:
             if (file2_name.endswith(".fastq.gz") or file2_name.endswith(".fastq")) == False:
                 raise TypeError("Invalid file type : {}".format(file2_name))
 
-
-    def print_mssg(self,parse1,parse2,Seq_count1,Seq_count2,emp_str1,emp_str2,file1_name,file2_name):
+    def print_mssg(self, parse1, parse2, Seq_count1, Seq_count2, emp_str1, emp_str2, file1_name, file2_name):
 
         """ Prints whether Single or Paired """ 
 

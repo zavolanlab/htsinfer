@@ -13,7 +13,7 @@ import argparse
 import logging
 import sys
 from typing import (Optional, Sequence)
-import infer_single_paired
+# import infer_single_paired
 
 # TODO AUTHOR: add here third party modules
 
@@ -94,9 +94,6 @@ def main():
     # TODO AUTHOR: Put main code here. Options and positional arguments are in
     # `args`, logging can be used with `logger`; see (and delete) example log
     # message below
-    obj = infer_single_paired.End_parser()
-    obj.fastq(args.file1_name, args.file2_name)
-
     logger.info("Started script.")
     logger.info(f"CLI options: {args}")
 

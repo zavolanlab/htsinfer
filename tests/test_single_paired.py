@@ -1,13 +1,14 @@
-""" Unit Tests for infer_single_paired.py """ 
+"""Unit Tests for infer_single_paired.py"""
 
 import os
 import pytest
 import importlib.util
-from src import infer_single_paired
+from src.infer_single_paired import End_parser
 
-obj = infer_single_paired.End_parser()
+obj = End_parser()
 path = os.path.dirname(__file__)
 path = os.path.join(path, "sample_files")
+
 
 def test_invalid_identifier():
     """ Invalid Identifier """
@@ -22,11 +23,12 @@ def test_empty():
     p1, p2 = obj.fastq(file1)
     assert p1 == 0 and p2 == -1
 
+
 def test_mixed_identifier_1():
     """ Mixed - Second Mate : Identifier type 1"""
     file1 = os.path.join(path, "SRR11971718_1.fastq")
     file2 = os.path.join(path, "SRR11971713_2.fastq")
-    p1, p2 = obj.fastq(file1,file2)
+    p1, p2 = obj.fastq(file1, file2)
     assert p1 == 3 and p2 == 2
 
 
@@ -60,4 +62,3 @@ def test_sra_files_single_mixed():
     file2 = os.path.join(path, "sra_combined.fastq")
     p1, p2 = obj.fastq(file1, file2)
     assert p1 == 1 and p2 == 3
-
