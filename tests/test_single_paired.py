@@ -2,7 +2,6 @@
 
 import os
 import pytest
-import importlib.util
 from src.infer_single_paired import End_parser
 
 obj = End_parser()

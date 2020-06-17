@@ -20,13 +20,15 @@ class End_parser:
     def __init__(self):
         print("\nRunning Parser\n")
 
-    def SRA_contents(self, name, filename): 
+    def SRA_contents(self, name, filename):
 
         """ Runs fastq-dump """
 
         try:
             with open(os.devnull, "w") as fnull:
-                contents = sp.check_output(["fastq-dump", "-X", "1", "-Z", "--split-spot", name], stderr=fnull)
+                contents = sp.check_output(
+                    ["fastq-dump", "-X", "1", "-Z", "--split-spot", name],
+                    stderr=fnull)
         except sp.CalledProcessError:
             raise Exception("Error running fastq-dump on", filename)
         contents = contents.decode('utf-8')
@@ -35,7 +37,7 @@ class End_parser:
     def isPairedSRA(self, name, filename):
 
         """ Checks if SRA file is Single end or Paired """
-        
+
         string_from_function = self.SRA_contents(name, filename)
         string_from_file_4 = ""
         string_from_file_8 = ""
@@ -46,8 +48,8 @@ class End_parser:
             file_in = open(filename)
 
         i = 1
-        for l in islice(file_in, 8):
-            string_from_file_8 += l
+        for lin in islice(file_in, 8):
+            string_from_file_8 += lin
             if i == 4:
                 string_from_file_4 = string_from_file_8
             i += 1
@@ -64,20 +66,21 @@ class End_parser:
 
         elif count == 8:
             inp = list(map(str, string_from_function.split("\n")))
-            first_half = inp[0] + "\n" + inp[1] + "\n" + inp[2] + "\n" + inp[3] + "\n"
-            second_half = inp[4] + "\n" + inp[5] + "\n" + inp[6] + "\n" + inp[7] + "\n"
+            f_h = inp[0] + "\n" + inp[1] + "\n" + inp[2] + "\n" + inp[3] + "\n"
+            s_h = inp[4] + "\n" + inp[5] + "\n" + inp[6] + "\n" + inp[7] + "\n"
             if string_from_function == string_from_file_8:
                 return 3
-            elif first_half == string_from_file_4:
+            elif f_h == string_from_file_4:
                 return 1
-            elif second_half == string_from_file_4:
+            elif s_h == string_from_file_4:
                 return 2
             else:
                 return 0
 
     def validate_1(self, line):
 
-        """ Validate for First type Wiki Convention : @HWUSI-EAS100R:6:73:941:1973#0/1 """
+        """Validate for First type Wiki Convention:
+            @HWUSI-EAS100R:6:73:941:1973#0/1"""
 
         if line[0] == '@':
             line = line[1:]
@@ -86,7 +89,7 @@ class End_parser:
             if len(inp) == 5:
                 p = list(map(str, inp[4].split('#')))
                 inp[4] = p[0]
-                
+
                 for i in range(1, 5, 1):
                     if not inp[i].isnumeric():
                         return False
@@ -122,11 +125,12 @@ class End_parser:
 
     def validate_2(self, line):
 
-        """ Validate for Second Type Wiki Convention : @EAS139:136:FC706VJ:2:2104:15343:197393 1:Y:18:ATCACG """
+        """ Validate for Second Type Wiki Convention :
+             @EAS139:136:FC706VJ:2:2104:15343:197393 1:Y:18:ATCACG """
 
         if line[0] == '@':
             line = line[1:]
-            inp = list(map(str, line.split()))                         
+            inp = list(map(str, line.split()))
             if len(inp) == 2:
                 c = list(map(str, inp[0].split(':')))
                 d = list(map(str, inp[1].split(':')))
@@ -160,13 +164,13 @@ class End_parser:
                     return False
         else:
             return False
-   
+
     def read_line_in_fastq(self, line, count, type, Seq_count):
 
         """ Update Count whether First Mate or Second Mate """
 
         inp = list(map(str, line.split()))
-        
+
         if type == 1:
             if inp[0][len(inp[0])-2] == '/':
                 count[int(line[len(line) - 1]) - 1] += 1
@@ -178,7 +182,7 @@ class End_parser:
                 if line in Seq_count:
                     Seq_count[line] += 1
                 else:
-                    Seq_count[line] = 1	
+                    Seq_count[line] = 1
         else:
             if inp[0] in Seq_count:
                 Seq_count[inp[0]] += 1
@@ -195,29 +199,27 @@ class End_parser:
             line = line[:-1]
             if i % 4 == 0 and line:
                 x = line
-                inp = list(map(str, x.split()))     
+                inp = list(map(str, x.split()))
                 x = ""
                 for p in inp:
                     x += p
                     x += " "
                 x = x[:len(x) - 1]
-                
                 if len(inp) == 1:
                     if self.validate_1(x):
                         self.read_line_in_fastq(x, count, 1, Seq_count)
                     else:
-                        return 0      
+                        return 0
                 elif len(inp) == 2:
                     if self.validate_2(x):
                         self.read_line_in_fastq(x, count, 2, Seq_count)
                     else:
-                        return 0    
+                        return 0
                 elif len(inp) == 3:
                     q = list(map(str, x.split('.')))
                     name = q[0][1:]
-                    emp_str = name
+                    # emp_str = name
                     return self.isPairedSRA(name, filename)
-                                         
         # 5 - first/second mate
         # 3 - mixed
         # 2 - second mate
@@ -253,73 +255,94 @@ class End_parser:
 
         """ Checks if file exists and has proper extensions """
 
-        if file1_name == None and file2_name == None:
+        if file1_name is None and file2_name is None:
             raise SystemError("Specify at least one file name.")
 
-        if file1_name != None:
-            if os.path.isfile(file1_name) == False:
+        if file1_name is not None:
+            if os.path.isfile(file1_name) is False:
                 raise FileNotFoundError(file1_name)
-            if (file1_name.endswith(".fastq.gz") or file1_name.endswith(".fastq")) == False:
+            if (file1_name.endswith(".fastq.gz") or
+                    file1_name.endswith(".fastq")) is False:
                 raise TypeError("Invalid file type : {}".format(file1_name))
 
-        if file2_name != None:
-            if os.path.isfile(file2_name) == False:
+        if file2_name is not None:
+            if os.path.isfile(file2_name) is False:
                 raise FileNotFoundError(file2_name)
-            if (file2_name.endswith(".fastq.gz") or file2_name.endswith(".fastq")) == False:
+            if (file2_name.endswith(".fastq.gz") or
+                    file2_name.endswith(".fastq")) is False:
                 raise TypeError("Invalid file type : {}".format(file2_name))
 
-    def print_mssg(self, parse1, parse2, Seq_count1, Seq_count2, emp_str1, emp_str2, file1_name, file2_name):
+    def print_mssg(
+                   self, parse1, parse2, Seq_count1,
+                   Seq_count2, emp_str1, emp_str2, file1_name, file2_name):
 
-        """ Prints whether Single or Paired """ 
-
+        """Prints whether Single or Paired"""
         file_info = 0
         if parse2 == -1:
             if parse1 == 0:
                 print(
-                    "\nRead IDs do not adhere to Illumina or SRA format : {} \n".format(file1_name))
+                    "\nRead IDs do not adhere to Illumina or SRA format",
+                    " : {} \n".format(file1_name))
             else:
                 print(messages[parse1])
 
         else:
             if parse1*parse2 == 0:
                 if parse1 == 0:
-                    print("\nRead IDs do not adhere to Illumina or SRA format : {} \n".format(file1_name))
+                    print("\nRead IDs do not adhere to Illumina or SRA format",
+                          " : {} \n".format(file1_name))
                 if parse2 == 0:
-                    print("\nRead IDs do not adhere to Illumina or SRA format : {} \n".format(file2_name))
+                    print("\nRead IDs do not adhere to Illumina or SRA format",
+                          " : {} \n".format(file2_name))
                 return
 
             elif parse1 == 1 or parse1 == 5:
                 if parse2 == 2 or parse2 == 5:
                     if emp_str1 == "" and emp_str2 == "":
                         if Seq_count1 == Seq_count1:
-                            print("\nSplit Paired End Library :\n{}: First Mate \n\n{}: Second Mate \n".format(file1_name, file2_name))
+                            print("\nSplit Paired End Library\n:")
+                            print("{}: First Mate\n".format(file1_name))
+                            print("{}: Second Mate\n".format(file2_name))
                             file_info = 1
                         else:
-                            print("\nError: Read ID's don't match. Files are of different Experiments \n")
+                            print("\nError: Read ID's don't match.",
+                                  "Files are of different Experiments \n")
                     else:
                         if emp_str1 == emp_str2:
-                            print("\nSplit Paired End Library :\n{}: First Mate \n\n{}: Second Mate \n".format(file1_name, file2_name))
+                            print("\nSplit Paired End Library:\n")
+                            print("{}: First Mate\n".format(file1_name))
+                            print("{}: Second Mate\n".format(file2_name))
                             file_info = 1
                         else:
-                            print("\nError: Read ID's don't match. Files are of different Experiments \n")
+                            print("\nError: Read ID's don't match.",
+                                  "Files are of different Experiments \n")
 
             elif parse1 == 2 or parse1 == 5:
                 if parse2 == 1 or parse2 == 5:
                     if emp_str1 == "" and emp_str2 == "":
                         if Seq_count1 == Seq_count1:
-                            print("\nSplit Paired End Library :\n{}: First Mate \n\n{}: Second Mate \n".format(file2_name, file1_name))
+                            print("\nSplit Paired End Library:\n")
+                            print("{}: First Mate\n".format(file2_name))
+                            print("{}: Second Mate\n".format(file1_name))
                             file_info = 1
                         else:
-                            print("\nError: Read ID's don't match. Files are of different Experiments \n")
+                            print("\nError: Read ID's don't match.",
+                                  "Files are of different Experiments \n")
                     else:
                         if emp_str1 == emp_str2:
-                            print("\nSplit Paired End Library :\n{}: First Mate \n\n{}: Second Mate \n".format(file2_name, file1_name))
+                            print("\nSplit Paired End Library:\n")
+                            print("{}: First Mate\n".format(file2_name))
+                            print("{}: Second Mate\n".format(file1_name))
                             file_info = 1
                         else:
-                            print("\nError: Read ID's don't match. Files are of different Experiments \n")
+                            print("\nError: Read ID's don't match.",
+                                  "Files are of different Experiments \n")
 
             if file_info == 0:
-                print("\n{} : {} \n{} : {}\n".format(file1_name, messages[parse1], file2_name, messages[parse2]))
+                print(
+                    "\n{} : {} \n{} : {}\n".format(
+                        file1_name, messages[parse1],
+                        file2_name, messages[parse2]))
 
     def fastq(self, file1_name=None, file2_name=None):
 
@@ -334,7 +357,7 @@ class End_parser:
         emp_str1 = ""
         emp_str2 = ""
 
-        if file1_name != None:
+        if file1_name is not None:
             if file1_name.endswith(".gz"):
                 file = gzip.open(file1_name, 'rt')
             else:
@@ -342,7 +365,7 @@ class End_parser:
             parse1 = self.read_fastq(file, Seq_count1, file1_name, emp_str1)
             file.close()
 
-        if file2_name != None:
+        if file2_name is not None:
             if file2_name.endswith(".gz"):
                 file = gzip.open(file2_name, 'rt')
             else:
@@ -350,7 +373,8 @@ class End_parser:
             parse2 = self.read_fastq(file, Seq_count2, file2_name, emp_str2)
             file.close()
 
-        self.print_mssg(parse1, parse2, Seq_count1, Seq_count2,emp_str1, emp_str2, file1_name, file2_name)
+        self.print_mssg(parse1, parse2, Seq_count1, Seq_count2, emp_str1,
+                        emp_str2, file1_name, file2_name)
         return parse1, parse2
 
 
