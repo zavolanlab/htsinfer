@@ -1,382 +1,262 @@
-import os
+"""Infers single or paired end library for a given file.
+
+This module parses fastq files and depending on whether they are
+first mate or second mate, it returns tuple of values accordingly.
+Tuple description :
+    First member of the tuple corresponds to the result for the
+    first file with possible values- 0,1,2,3,None.
+    (None) if no file provided.
+    Second member of the tuple corresponds to the result for the
+    second file with possible values- 0,1,2,3,None.
+    (None) if no file provided.
+    Third member of the tuple indicates 4 if the files have split paired
+    end library and 5 if the read id's don't match among the two files.
+
+The modules parses sucessfully for fastq files that are strictly
+as per as wiki convention.
+
+Examples:
+    @HWUSI-EAS100R:6:73:941:1973#0/1
+    @EAS139:136:FC706VJ:2:2104:15343:197393 1:Y:18:ATCACG
+
+"""
 import sys
 import gzip
-import subprocess as sp
-from itertools import islice
+import re
+from functools import partial
+from enum import Enum
+from Bio.SeqIO.QualityIO import FastqGeneralIterator
 sys.tracebacklimit = 0
 
-messages = {
-    1: "Single End or First_mate \n",
-    2: "Second_mate \n",
-    3: "Mixed \n",
-    5: "First_mate or Second_mate \n"
-}
+
+class Messages(Enum):
+    invalid_file = 0
+    first_mate = 1
+    second_mate = 2
+    mixed_paired_end = 3
+    split_paired_end = 4
+    different_read_ids = 5
 
 
-class End_parser:
+class EndParser:
+    def __init__(self, file1_name: str, file2_name: str):
+        """Constructor to assign filenames and initialize file pointers.
 
-    """ Infer Single or Paired """
+        Args:
+            file1_name (str) : First file name provided by the user.
+            file2_name (str) : Second file name provide by the user.
 
-    def __init__(self):
-        print("\nRunning Parser\n")
+        Attributes:
+            file1 : File pointer to first file.
+            file2 : File pointer to second file.
+        """
+        self.file1_name = file1_name
+        self.file2_name = file2_name
+        self.file1 = None
+        self.file2 = None
 
-    def SRA_contents(self, name, filename):
+    def validate(self, seq_id: str):
+        """Validates the type of identifier for the seq_id.
 
-        """ Runs fastq-dump """
+        Args:
+            seq_id (str) : Sequence identifier.
 
-        try:
-            with open(os.devnull, "w") as fnull:
-                contents = sp.check_output(
-                    ["fastq-dump", "-X", "1", "-Z", "--split-spot", name],
-                    stderr=fnull)
-        except sp.CalledProcessError:
-            raise Exception("Error running fastq-dump on", filename)
-        contents = contents.decode('utf-8')
-        return contents
+        Returns:
+            int : 0 , 1 , 2
+            Depending on the sequence id whether it matches the
+            wiki conventions it returns 0 for invalid identifier
+            and 1 and 2 for first mate read and second mate read
+            respectively.
 
-    def isPairedSRA(self, name, filename):
-
-        """ Checks if SRA file is Single end or Paired """
-
-        string_from_function = self.SRA_contents(name, filename)
-        string_from_file_4 = ""
-        string_from_file_8 = ""
-
-        if filename.endswith(".gz"):
-            file_in = gzip.open(filename, 'rt')
-        else:
-            file_in = open(filename)
-
-        i = 1
-        for lin in islice(file_in, 8):
-            string_from_file_8 += lin
-            if i == 4:
-                string_from_file_4 = string_from_file_8
-            i += 1
-        file_in.close()
-        count = 0
-        for i in string_from_function:
-            if ord(i) == 10:
-                count += 1
-        if count == 4:
-            if string_from_function == string_from_file_4:
+        """
+        first_convention = re.compile(r'^[^:#/ ]+:\d+:\d+:\d+:\d+#\d+/[1-2]\s*')
+        second_convention = re.compile(r'^[^:#/ ]+:\d+:[^:#/ ]+:\d+:\d+:\d+:\d+ [1-2]:(Y|N):\d*[02468]:([ATCG]+|\d+)\s*')
+        match_1 = first_convention.finditer(seq_id)
+        match_2 = second_convention.finditer(seq_id)
+        len_match_1 = None
+        len_match_2 = None
+        len_seq_id = len(seq_id)
+        for match in match_2:
+            len_match_2 = match.end() - match.start()
+            break
+        for match in match_1:
+            len_match_1 = match.end() - match.start()
+            break
+        if len_match_1 is not None:
+            if len_seq_id == len_match_1:
                 return 1
             else:
                 return 0
-
-        elif count == 8:
-            inp = list(map(str, string_from_function.split("\n")))
-            f_h = inp[0] + "\n" + inp[1] + "\n" + inp[2] + "\n" + inp[3] + "\n"
-            s_h = inp[4] + "\n" + inp[5] + "\n" + inp[6] + "\n" + inp[7] + "\n"
-            if string_from_function == string_from_file_8:
-                return 3
-            elif f_h == string_from_file_4:
-                return 1
-            elif s_h == string_from_file_4:
-                return 2
-            else:
+        else:
+            if len_match_2 is None:
                 return 0
-
-    def validate_1(self, line):
-
-        """Validate for First type Wiki Convention:
-            @HWUSI-EAS100R:6:73:941:1973#0/1"""
-
-        if line[0] == '@':
-            line = line[1:]
-            c = True
-            inp = list(map(str, line.split(':')))
-            if len(inp) == 5:
-                p = list(map(str, inp[4].split('#')))
-                inp[4] = p[0]
-
-                for i in range(1, 5, 1):
-                    if not inp[i].isnumeric():
-                        return False
-
-                if len(p) == 2:
-                    c = list(map(str, p[1].split('/')))
-                    if len(c) == 1:
-                        if c[0].isnumeric():
-                            return True
-                        else:
-                            return False
-                    elif len(c) == 2:
-                        if c[0].isnumeric():
-                            if c[1].isnumeric():
-                                if c[1] == '1' or c[1] == '2':
-                                    return True
-                                else:
-                                    return False
-                            else:
-                                return False
-                        else:
-                            return False
-                    else:
-                        return False
-                elif len(p) == 1:
-                    return True
-                else:
-                    return False
             else:
-                return False
-        else:
-            return False
-
-    def validate_2(self, line):
-
-        """ Validate for Second Type Wiki Convention :
-             @EAS139:136:FC706VJ:2:2104:15343:197393 1:Y:18:ATCACG """
-
-        if line[0] == '@':
-            line = line[1:]
-            inp = list(map(str, line.split()))
-            if len(inp) == 2:
-                c = list(map(str, inp[0].split(':')))
-                d = list(map(str, inp[1].split(':')))
-                if len(c) == 7 and len(d) == 4:
-                    e = []
-                    e.append(c[1])
-                    e.append(c[3])
-                    e.append(c[4])
-                    e.append(c[5])
-                    e.append(c[6])
-                    for i in e:
-                        if not i.isnumeric():
-                            return False
-                    if d[0].isnumeric():
-                        if d[0] == '1' or d[0] == '2':
-                            if d[1] == 'Y' or d[1] == 'N':
-                                if d[2].isnumeric():
-                                    if int(d[2]) % 2 == 0:
-                                        return True
-                                    else:
-                                        return False
-                                else:
-                                    return False
-                            else:
-                                return False
-                        else:
-                            return False
-                    else:
-                        return False
-                else:
-                    return False
-        else:
-            return False
-
-    def read_line_in_fastq(self, line, count, type, Seq_count):
-
-        """ Update Count whether First Mate or Second Mate """
-
-        inp = list(map(str, line.split()))
-
-        if type == 1:
-            if inp[0][len(inp[0])-2] == '/':
-                count[int(line[len(line) - 1]) - 1] += 1
-                if line[:len(line) - 2] in Seq_count:
-                    Seq_count[line[:len(line) - 2]] += 1
-                else:
-                    Seq_count[line[:len(line) - 2]] = 1
-            else:
-                if line in Seq_count:
-                    Seq_count[line] += 1
-                else:
-                    Seq_count[line] = 1
-        else:
-            if inp[0] in Seq_count:
-                Seq_count[inp[0]] += 1
-            else:
-                Seq_count[inp[0]] = 1
-            count[int(inp[1][0]) - 1] += 1
-
-    def read_fastq(self, file, Seq_count, filename, emp_str):
-
-        """ Reads FastQ file """
-
-        count = [0]*2
-        for i, line in enumerate(file):
-            line = line[:-1]
-            if i % 4 == 0 and line:
-                x = line
-                inp = list(map(str, x.split()))
-                x = ""
-                for p in inp:
-                    x += p
-                    x += " "
-                x = x[:len(x) - 1]
-                if len(inp) == 1:
-                    if self.validate_1(x):
-                        self.read_line_in_fastq(x, count, 1, Seq_count)
-                    else:
-                        return 0
-                elif len(inp) == 2:
-                    if self.validate_2(x):
-                        self.read_line_in_fastq(x, count, 2, Seq_count)
-                    else:
-                        return 0
-                elif len(inp) == 3:
-                    q = list(map(str, x.split('.')))
-                    name = q[0][1:]
-                    # emp_str = name
-                    return self.isPairedSRA(name, filename)
-        # 5 - first/second mate
-        # 3 - mixed
-        # 2 - second mate
-        # 1 - first mate
-        # 0 - Invalid file
-        c1 = 0
-        c2 = 0
-        if count[0]*count[1] == 0:
-            if count[0] + count[1] == 0:
-                for i in Seq_count:
-                    if Seq_count[i] == 1:
-                        c1 += 1
-                    if Seq_count[i] == 2:
-                        c2 += 1
-                n = len(Seq_count)
-                if n == 0:
-                    return 0
-                if n == c1:
-                    return 5
-                elif n == c2:
-                    return 3
-                else:
-                    return 3
-            else:
-                if count[0] == 0:
+                if len_seq_id == len_match_2:
                     return 2
                 else:
-                    return 1
+                    return 0
+
+    def check_file1(self):
+        """Opening and checking errors for first file by the user.
+
+        Attribute Error:
+            Function can raise error if file doesn't exist or
+            something wrong with opening of file.
+
+        """
+        try:
+            _open = partial(
+                gzip.open, mode='rt') if self.file1_name.endswith(".gz") else open
+            self.file1 = _open(self.file1_name)
+        except OSError:
+            print("Could not open/read file:", self.file1_name)
+            sys.exit()
+
+    def check_file2(self):
+        # Opening and checking errors for second file by the user
+        try:
+            _open = partial(
+                gzip.open, mode='rt') if self.file2_name.endswith(".gz") else open
+            self.file2 = _open(self.file2_name)
+        except OSError:
+            print("Could not open/read file:", self.file2_name)
+            sys.exit()
+
+    def read_line_in_fastq(self, seq_id: str, seq_id_dict: dict):
+        """This function processes for every seq_id in a fastq file.
+
+        Args:
+            seq_id (str): Sequence identifier.
+            seq_id_dict (dict) : Dictionary to maintain frequency
+            of every seq_id.
+
+        Atrributes:
+            id_type (int): Determines to which wiki convention it corresponds.
+
+        """
+        seq_id.strip(' ')
+        id_type = self.validate(seq_id)
+        if id_type == 0:
+            return 0
+        else:
+            if id_type == 1:
+                split_id = list(map(str, seq_id.split('/')))
+                if split_id[0] in seq_id_dict:
+                    seq_id_dict[split_id[0]] += 1
+                else:
+                    seq_id_dict[split_id[0]] = 1
+                return int(split_id[1])
+            elif id_type == 2:
+                split_id = list(map(str, seq_id.split()))
+                if split_id[0] in seq_id_dict:
+                    seq_id_dict[split_id[0]] += 1
+                else:
+                    seq_id_dict[split_id[0]] = 1
+                return int(split_id[1][0])
+
+    def result_from_count(self, count: list):
+        """This function on basis of count values returns final result.
+
+        Returns:
+            int : 0 , 1 , 2 , 3 where each points to it's corresponding
+            memeber in the enumerator.
+
+        """
+        if sum(count) == 0:
+            return 0
+        if count[0]*count[1] == 0:
+            if count[1] == 0:
+                return 1
+            elif count[0] == 0:
+                return 2
         else:
             return 3
 
-    def check_file(self, file1_name, file2_name):
+    def read_file1(self, seq_id_dict: dict):
+        """Function reads file1 and calls other helper functions.
 
-        """ Checks if file exists and has proper extensions """
+        Args:
+            seq_id_dict (dict): Dictionary to maintain frequency of every
+            seq_id.
 
-        if file1_name is None and file2_name is None:
-            raise SystemError("Specify at least one file name.")
+        Attributes:
+            count (list) : List to maintain count of number of 1's and
+                2's that will decide further whether first mate or
+                second mate.
+            result (int) : Stores final result among the enumerator values
+                whether invalid, first mate or second mate.
 
-        if file1_name is not None:
-            if os.path.isfile(file1_name) is False:
-                raise FileNotFoundError(file1_name)
-            if (file1_name.endswith(".fastq.gz") or
-                    file1_name.endswith(".fastq")) is False:
-                raise TypeError("Invalid file type : {}".format(file1_name))
+        Function calls self.read_line_in_fast() to further process
+        the seq_id, and calls self.result_from_count to get result.
 
-        if file2_name is not None:
-            if os.path.isfile(file2_name) is False:
-                raise FileNotFoundError(file2_name)
-            if (file2_name.endswith(".fastq.gz") or
-                    file2_name.endswith(".fastq")) is False:
-                raise TypeError("Invalid file type : {}".format(file2_name))
+        """
 
-    def print_mssg(
-                   self, parse1, parse2, Seq_count1,
-                   Seq_count2, emp_str1, emp_str2, file1_name, file2_name):
-
-        """Prints whether Single or Paired"""
-        file_info = 0
-        if parse2 == -1:
-            if parse1 == 0:
-                print(
-                    "\nRead IDs do not adhere to Illumina or SRA format",
-                    " : {} \n".format(file1_name))
+        self.check_file1()
+        count = [0]*2
+        for seq_id, seq, qual in FastqGeneralIterator(self.file1):
+            x = self.read_line_in_fastq(seq_id, seq_id_dict)
+            if x == 0:
+                return 0
             else:
-                print(messages[parse1])
+                count[x-1] += 1
+        result = self.result_from_count(count)
+        return result
 
-        else:
-            if parse1*parse2 == 0:
-                if parse1 == 0:
-                    print("\nRead IDs do not adhere to Illumina or SRA format",
-                          " : {} \n".format(file1_name))
-                if parse2 == 0:
-                    print("\nRead IDs do not adhere to Illumina or SRA format",
-                          " : {} \n".format(file2_name))
-                return
-
-            elif parse1 == 1 or parse1 == 5:
-                if parse2 == 2 or parse2 == 5:
-                    if emp_str1 == "" and emp_str2 == "":
-                        if Seq_count1 == Seq_count1:
-                            print("\nSplit Paired End Library\n:")
-                            print("{}: First Mate\n".format(file1_name))
-                            print("{}: Second Mate\n".format(file2_name))
-                            file_info = 1
-                        else:
-                            print("\nError: Read ID's don't match.",
-                                  "Files are of different Experiments \n")
-                    else:
-                        if emp_str1 == emp_str2:
-                            print("\nSplit Paired End Library:\n")
-                            print("{}: First Mate\n".format(file1_name))
-                            print("{}: Second Mate\n".format(file2_name))
-                            file_info = 1
-                        else:
-                            print("\nError: Read ID's don't match.",
-                                  "Files are of different Experiments \n")
-
-            elif parse1 == 2 or parse1 == 5:
-                if parse2 == 1 or parse2 == 5:
-                    if emp_str1 == "" and emp_str2 == "":
-                        if Seq_count1 == Seq_count1:
-                            print("\nSplit Paired End Library:\n")
-                            print("{}: First Mate\n".format(file2_name))
-                            print("{}: Second Mate\n".format(file1_name))
-                            file_info = 1
-                        else:
-                            print("\nError: Read ID's don't match.",
-                                  "Files are of different Experiments \n")
-                    else:
-                        if emp_str1 == emp_str2:
-                            print("\nSplit Paired End Library:\n")
-                            print("{}: First Mate\n".format(file2_name))
-                            print("{}: Second Mate\n".format(file1_name))
-                            file_info = 1
-                        else:
-                            print("\nError: Read ID's don't match.",
-                                  "Files are of different Experiments \n")
-
-            if file_info == 0:
-                print(
-                    "\n{} : {} \n{} : {}\n".format(
-                        file1_name, messages[parse1],
-                        file2_name, messages[parse2]))
-
-    def fastq(self, file1_name=None, file2_name=None):
-
-        """ Open Fastq files """
-
-        self.check_file(file1_name, file2_name)
-
-        parse1 = -1
-        parse2 = -1
-        Seq_count1 = dict()
-        Seq_count2 = dict()
-        emp_str1 = ""
-        emp_str2 = ""
-
-        if file1_name is not None:
-            if file1_name.endswith(".gz"):
-                file = gzip.open(file1_name, 'rt')
+    def read_file2(self, seq_id_dict: dict):
+        # Function reads file2 and calls other functions.
+        self.check_file2()
+        count = [0]*2
+        for seq_id, seq, qual in FastqGeneralIterator(self.file2):
+            x = self.read_line_in_fastq(seq_id, seq_id_dict)
+            if x == 0:
+                return 0
             else:
-                file = open(file1_name)
-            parse1 = self.read_fastq(file, Seq_count1, file1_name, emp_str1)
-            file.close()
+                count[x-1] += 1
+        result = self.result_from_count(count)
+        return result
 
-        if file2_name is not None:
-            if file2_name.endswith(".gz"):
-                file = gzip.open(file2_name, 'rt')
+    def fastq(self):
+        """This function calls self.read_file to read fastq files.
+
+        Attributes:
+            seq_id_dict1 (dict) : Dictionary to maintain frequency of every
+            seq_id in file1.
+            seq_id_dict2 (dict) : Dictionary to maintain frequency of every
+            seq_id in file2.
+
+            result1 (int) : Stores final result among the enumerator
+            values for the first file.
+            result2 (int) : Stores final result among the enumerator
+            values for the second file.
+
+        Returns:
+            tuple : a tuple of length 3 is returned.
+
+        Examples: for return type
+            (1,2,4): first mate , second mate , split paired end.
+            (1,2,5): first mate , second mate , read id's don't
+            match among the two files.
+
+        """
+        seq_id_dict1 = dict()
+        seq_id_dict2 = dict()
+        result1 = None
+        result2 = None
+        tuple_third_element = None
+        files = 0
+        if self.file1_name is not None:
+            files += 1
+            result1 = self.read_file1(seq_id_dict1)
+            self.file1.close()
+
+        if self.file2_name is not None:
+            files += 1
+            result2 = self.read_file2(seq_id_dict2)
+            self.file2.close()
+
+        if files == 2 and result1*result2 == 2:
+            if seq_id_dict1 == seq_id_dict2:
+                tuple_third_element = 4
             else:
-                file = open(file2_name)
-            parse2 = self.read_fastq(file, Seq_count2, file2_name, emp_str2)
-            file.close()
-
-        self.print_mssg(parse1, parse2, Seq_count1, Seq_count2, emp_str1,
-                        emp_str2, file1_name, file2_name)
-        return parse1, parse2
-
-
-def main():
-    pass
+                tuple_third_element = 5
+        return (result1, result2, tuple_third_element)

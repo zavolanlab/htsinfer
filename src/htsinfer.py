@@ -35,10 +35,12 @@ def parse_args(
     # TODO AUTHOR: add here optional and positional arguments as per argparse
     # docs; for many optional arguments, consider adding argument groups for
     # clarity
-    parser.add_argument('-f1', '--file1_name', metavar="",
-                        type=str, default=None, help="File Name to be Parsed")
-    parser.add_argument('-f2', '--file2_name', metavar="",
-                        type=str, default=None, help="File Name to be Parsed")
+    parser.add_argument('-f1', metavar="FILE",
+                        type=str, default=None,
+                        help="file file to be parsed")
+    parser.add_argument('-f2', metavar="FILE",
+                        type=str, default=None,
+                        help="second file to be parsed")
 
     parser.add_argument(
         '--verbose', "-v",
