@@ -33,7 +33,7 @@ jobs:
     - flake8 setup.py htsinfer/
     - pylint --rcfile pylint.cfg setup.py htsinfer/
     # unit tests
-    - coverage run --source src -m pytest
+    - coverage run --source htsinfer -m pytest
     - coveralls
     # integration tests
     - htsinfer --help

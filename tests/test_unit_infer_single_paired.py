@@ -1,4 +1,4 @@
-"""Unit Tests for infer_single_paired.py"""
+"""Unit tests for infer_single_paired.py"""
 
 import os
 from htsinfer.infer_single_paired import infer
