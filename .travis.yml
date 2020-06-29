@@ -31,13 +31,12 @@ jobs:
     - flake8 setup.py htsinfer/
     - pylint --rcfile pylint.cfg setup.py htsinfer/
     # unit tests
-    - python -m pytest
     - coverage run --source src -m pytest
     - coveralls
     # integration tests
     - docker run ${REPO}
-    - src/htsinfer.py --help
-    - src/htsinfer.py --debug
+    - htsinfer/htsinfer.py --help
+    - htsinfer/htsinfer.py --debug -f1 tests/sample_files/first_mate.fastq
   - stage: publish
     name: Push image to Docker Hub
     script:
