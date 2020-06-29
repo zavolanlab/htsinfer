@@ -35,7 +35,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'htsinfer = src.htsinfer:main',
+            'htsinfer = htsinfer.htsinfer:main',
         ],
     },
     keywords=[

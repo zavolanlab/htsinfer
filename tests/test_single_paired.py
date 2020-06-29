@@ -2,7 +2,7 @@
 
 import os
 import pytest
-from src.infer_single_paired import EndParser
+from htsinfer.infer_single_paired import infer
 
 
 path = os.path.dirname(__file__)
