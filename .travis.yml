@@ -37,8 +37,13 @@ jobs:
     - coveralls
     # integration tests
     - htsinfer --help
-    - htsinfer --debug -f1 tests/sample_files/first_mate.fastq
-    - docker run ${REPO}
+    - htsinfer \
+        --debug \
+        -f1 tests/sample_files/first_mate.fastq
+    - docker run ${REPO} --help
+    - docker run ${REPO} \
+        --debug \
+        -f1 tests/sample_files/first_mate.fastq
   - stage: publish
     name: Push image to Docker Hub
     script:
