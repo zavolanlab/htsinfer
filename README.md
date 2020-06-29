@@ -4,22 +4,35 @@
 [![CI][badge-ci]][badge-url-ci]
 [![coverage][badge-coverage]][badge-url-coverage]
 
-HTSinfer infers metadata from High Throughput Sequencing (HTS) data
+HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 
 ## Usage
 
 ```sh
-htsinfer [-hv]
+htsinfer [-h] -f1 FILE [-f2 FILE] [-n INT] [--verbose] [--debug] [--version]
 ```
 
 ## Parameters
 
 ```console
+required arguments:
+  -f1 FILE, --file-1 FILE
+      file path to read/first mate library
+
 optional arguments:
-  -h, --help     show this help message and exit
-  --version      show version information and exit
-  -v, --verbose  print logging messages to STDERR
-  --debug        also print debugging messages to STDERR
+  -f2 FILE, --file-2 FILE
+      file path to second mate library
+  -n INT, --max-records INT
+      maximum number of records to process, starting with
+      first record; set to 0 to process entire file(s)
+  --verbose, -v
+      print logging messages to STDERR
+  --debug
+      print debugging messages to STDERR
+  --version
+      show version information and exit
+  -h, --help
+      show this help message and exit
 ```
 
 ## Extended usage

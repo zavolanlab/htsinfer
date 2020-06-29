@@ -23,14 +23,9 @@ def parse_args(
 ) -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        # TODO AUTHOR: add here detailed tool description; leave a blank line
-        # in between synopsis and extended description
         description=sys.modules[__name__].__doc__,
     )
 
-    # TODO AUTHOR: add here optional and positional arguments as per argparse
-    # docs; for many optional arguments, consider adding argument groups for
-    # clarity
     parser.add_argument(
         '-f1', '--file-1',
         metavar="FILE",
@@ -95,12 +90,13 @@ def setup_logging(
     )
 
 
-def main(args: argparse.Namespace) -> None:
+def main() -> None:
     """Main function.
 
     Args:
         args: Command-line arguments and their values.
     """
+    args = parse_args()
     setup_logging(
         verbose=args.verbose,
         debug=args.debug,
@@ -117,4 +113,4 @@ def main(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    main(args=parse_args())
+    main()

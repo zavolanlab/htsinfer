@@ -27,9 +27,13 @@ COPY ./requirements.txt ${WORKDIR}
 RUN pip install -r requirements.txt
 
 ## Copy remaining files
+COPY setup.py ${WORKDIR}
 COPY htsinfer/ ${WORKDIR}/htsinfer
 COPY tests/ ${WORKDIR}/tests
 COPY LICENSE README.md ${WORKDIR}
+
+## Install app
+RUN python setup.py install
 
 ## Set up environment
 RUN groupadd -r ${GROUP} && \
@@ -37,4 +41,4 @@ RUN groupadd -r ${GROUP} && \
     chown -R ${USER}:${GROUP} ${WORKDIR} && \
     chmod 700 ${WORKDIR}
 USER ${USER}
-ENTRYPOINT ["htsinfer/htsinfer.py"]
+ENTRYPOINT ["htsinfer"]

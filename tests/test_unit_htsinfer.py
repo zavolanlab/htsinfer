@@ -3,6 +3,7 @@
 import importlib.util
 import logging
 import os
+import sys
 
 import pytest
 
@@ -45,15 +46,20 @@ def test_main_as_script():
         spec.loader.exec_module(module)
 
 
-def test_main_with_args():
-    args = parse_args([
-        "--file-1", TEST_FILE,
-        "--file-2", TEST_FILE,
-        "--debug",
-    ])
-    ret = main(args=args)
-    assert ret is None
+def test_main():
+    with pytest.raises(SystemExit):
+        main()
 
+
+def test_main_with_args(monkeypatch):
+    monkeypatch.setattr(
+        sys, 'argv', [
+            'htsinfer',
+            '--file-1', TEST_FILE,
+            '--file-2', TEST_FILE,
+        ]
+    )
+    assert main() == None
 
 # parse_args()
 def test_help_option():
