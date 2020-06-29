@@ -1,68 +1,74 @@
-"""Unit Tests for infer_single_paired.py"""
+"""Unit Tests for regex_script.py"""
 
 import os
-import pytest
 from htsinfer.infer_single_paired import infer
-
 
 path = os.path.dirname(__file__)
 path = os.path.join(path, "sample_files")
 
 
-@pytest.mark.skip()
-def test_invalid_identifier():
-    """ Invalid Identifier """
-    file1 = os.path.join(path, "SRR11972507_1.fastq")
-    p1, p2 = obj.fastq(file1)
-    assert p1 == 0 and p2 == -1
+def test_single_file():
+    file_1 = os.path.join(path, "first_mate.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file_1)
+    assert result_lib_1 == "first_mate" and \
+        result_lib_2 == "not_available" and \
+        mate_relationship == "not_available"
 
 
-@pytest.mark.skip()
-def test_empty():
-    """ Empty File """
-    file1 = os.path.join(path, "empty.fastq")
-    p1, p2 = obj.fastq(file1)
-    assert p1 == 0 and p2 == -1
-
-
-@pytest.mark.skip()
-def test_mixed_identifier_1():
-    """ Mixed - Second Mate : Identifier type 1"""
-    file1 = os.path.join(path, "SRR11971718_1.fastq")
-    file2 = os.path.join(path, "SRR11971713_2.fastq")
-    p1, p2 = obj.fastq(file1, file2)
-    assert p1 == 3 and p2 == 2
-
-
-@pytest.mark.skip()
-def test_single_identifier_2():
-    """ Single End : Identifier type 2"""
-    file1 = os.path.join(path, "SRR11972514_1.fastq")
-    p1, p2 = obj.fastq(file1)
-    assert p1 == 1 and p2 == -1
-
-
-@pytest.mark.skip()
-def test_compressed():
-    """ Compressed fastq """
+def test_compressed_file():
     file1 = os.path.join(path, "SRR11971558_1.fastq.gz")
-    p1, p2 = obj.fastq(file1)
-    assert p1 == 3 and p2 == -1
+    result_lib_1, result_lib_2, mate_relationship = infer(file1)
+    assert result_lib_1 == "mixed_mates" and \
+        result_lib_2 == "not_available" and \
+        mate_relationship == "not_available"
 
 
-@pytest.mark.skip(reason="SRA toolkit dependency")
-def test_sra_files_single_double():
-    """ First Mate - Second Mate """
-    file1 = os.path.join(path, "sra_1.fastq")
-    file2 = os.path.join(path, "sra_2.fastq")
-    p1, p2 = obj.fastq(file1, file2)
-    assert p1 == 1 and p2 == 2
+def test_second_mate():
+    file1 = os.path.join(path, "SRR11971713_2.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1)
+    assert result_lib_1 == "second_mate" and \
+        result_lib_2 == "not_available" and \
+        mate_relationship == "not_available"
 
 
-@pytest.mark.skip(reason="SRA toolkit dependency")
-def test_sra_files_single_mixed():
-    """ First Mate - Mixed """
-    file1 = os.path.join(path, "sra_1.fastq")
-    file2 = os.path.join(path, "sra_combined.fastq")
-    p1, p2 = obj.fastq(file1, file2)
-    assert p1 == 1 and p2 == 3
+def test_split_mates():
+    file1 = os.path.join(path, "first_mate.fastq")
+    file2 = os.path.join(path, "second_mate.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1, file2)
+    assert result_lib_1 == "first_mate" and \
+        result_lib_2 == "second_mate" and \
+        mate_relationship == "split_mates"
+
+
+def test_invalid_identifiers():
+    file1 = os.path.join(path, "SRR11971713_1.fastq")
+    file2 = os.path.join(path, "SRR11971558_2.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1, file2)
+    assert result_lib_1 == "no_mate_info" and \
+        result_lib_2 == "no_mate_info" and \
+        mate_relationship == "not_mates"
+
+
+def test_empty_file():
+    file1 = os.path.join(path, "empty.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1)
+    assert result_lib_1 == "invalid_file" and \
+        result_lib_2 == "not_available" and \
+        mate_relationship == "not_available"
+
+
+def test_not_mates():
+    file1 = os.path.join(path, "SRR11972514_1.fastq")
+    file2 = os.path.join(path, "SRR11971713_2.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1, file2)
+    assert result_lib_1 == "first_mate" and \
+        result_lib_2 == "second_mate" and \
+        mate_relationship == "not_mates"
+
+
+def test_invalid_file():
+    file1 = os.path.join(path, "SRR11972514_1.fast")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1)
+    assert result_lib_1 == "invalid_file" and \
+        result_lib_2 == "not_available" and \
+        mate_relationship == "not_available"
