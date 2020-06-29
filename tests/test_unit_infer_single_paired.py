@@ -72,3 +72,12 @@ def test_invalid_file():
     assert result_lib_1 == "invalid_file" and \
         result_lib_2 == "not_available" and \
         mate_relationship == "not_available"
+
+
+def test_max_records():
+    file1 = os.path.join(path, "first_mate.fastq")
+    file2 = os.path.join(path, "second_mate.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1, file2, 2)
+    assert result_lib_1 == "first_mate" and \
+        result_lib_2 == "second_mate" and \
+        mate_relationship == "split_mates"
