@@ -1,4 +1,4 @@
-"""Unit Tests for regex_script.py"""
+"""Unit Tests for infer_single_paired.py"""
 
 import os
 from htsinfer.infer_single_paired import infer
