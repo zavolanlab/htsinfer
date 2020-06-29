@@ -243,11 +243,10 @@ def summarize_mate_info(
     if counts[1] and not counts[2]:
         return Outcomes.first_mate.value
     # Second mate
-    elif counts[2] and not counts[1]:
+    if counts[2] and not counts[1]:
         return Outcomes.second_mate.value
     # First and second mates mixed
-    elif counts[1] and counts[2]:
+    if counts[1] and counts[2]:
         return Outcomes.mixed_mates.value
     # No reads
-    else:
-        raise ValueError(f"No records in file")
+    raise ValueError(f"No records in file")

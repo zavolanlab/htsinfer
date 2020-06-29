@@ -28,9 +28,8 @@ jobs:
     # build tests
     - docker build -t ${REPO} .
     # style tests
-    - flake8
-    - pylint --rcfile pylint.cfg setup.py
-    - pylint --rcfile pylint.cfg src/
+    - flake8 setup.py htsinfer/
+    - pylint --rcfile pylint.cfg setup.py htsinfer/
     # unit tests
     - python -m pytest
     - coverage run --source src -m pytest
