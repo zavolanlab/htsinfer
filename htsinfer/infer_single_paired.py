@@ -125,8 +125,7 @@ def process_fastq_file(
                 if seq_id_no_mate in seq_ids:
                     if seq_ids[seq_id_no_mate][mate-1]:
                         raise ValueError(f"Duplicate read names")
-                    else:
-                        seq_ids[seq_id_no_mate][mate-1] = True
+                    seq_ids[seq_id_no_mate][mate-1] = True
                 else:
                     seq_ids[seq_id_no_mate] = [False, False]
                     seq_ids[seq_id_no_mate][mate-1] = True
