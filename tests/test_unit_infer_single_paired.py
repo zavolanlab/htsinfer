@@ -81,3 +81,11 @@ def test_max_records():
     assert result_lib_1 == "first_mate" and \
         result_lib_2 == "second_mate" and \
         mate_relationship == "split_mates"
+
+
+def test_duplicate_seq_ids():
+    file1 = os.path.join(path, "duplicate_names.fastq")
+    result_lib_1, result_lib_2, mate_relationship = infer(file1)
+    assert result_lib_1 == "invalid_file" and \
+        result_lib_2 == "not_available" and \
+        mate_relationship == "not_available"

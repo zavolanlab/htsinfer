@@ -98,7 +98,7 @@ def process_fastq_file(
     Returns:
         Mate information for set of reads and corresponding identifiers.
     """
-    seq_ids: Dict[str, bool] = {}
+    seq_ids: Dict[str, List] = {}
 
     _open = partial(
         gzip.open, mode='rt'
@@ -116,15 +116,20 @@ def process_fastq_file(
                 seq_id = record[0]
                 logger.debug(f"Processing read: {seq_id}")
 
-                # Check FASTQ consistency
-                if seq_id in seq_ids:
-                    raise ValueError(f"Duplicate read names")
-
                 # Get mate information
                 logger.debug("Extracting mate information...")
                 mate, seq_id_no_mate = parse_mate_info_from_id(seq_id)
                 logger.debug(f"Mate information: {mate}")
-                seq_ids[seq_id_no_mate] = True
+
+                # Check FASTQ consistency
+                if seq_id_no_mate in seq_ids:
+                    if seq_ids[seq_id_no_mate][mate-1]:
+                        raise ValueError(f"Duplicate read names")
+                    else:
+                        seq_ids[seq_id_no_mate][mate-1] = True
+                else:
+                    seq_ids[seq_id_no_mate] = [False, False]
+                    seq_ids[seq_id_no_mate][mate-1] = True
 
                 # Mate information could not be parsed
                 if not mate:
