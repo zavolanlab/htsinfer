@@ -23,22 +23,23 @@ jobs:
   include:
   - stage: test
     name: Run build, style, unit & integration tests
+    before_script:
+    - python setup.py install
     script:
     - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
     # build tests
     - docker build -t ${REPO} .
     # style tests
-    - flake8
-    - pylint --rcfile pylint.cfg setup.py
-    - pylint --rcfile pylint.cfg src/
+    - flake8 setup.py htsinfer/
+    - pylint --rcfile pylint.cfg setup.py htsinfer/
     # unit tests
-    - python -m pytest
-    - coverage run --source src -m pytest
+    - coverage run --source htsinfer -m pytest
     - coveralls
     # integration tests
-    - docker run ${REPO}
-    - src/htsinfer.py --help
-    - src/htsinfer.py --debug
+    - htsinfer --help
+    - htsinfer --debug -f1 tests/sample_files/first_mate.fastq
+    - docker run ${REPO} --help
+    - docker run ${REPO} --debug -f1 tests/sample_files/first_mate.fastq
   - stage: publish
     name: Push image to Docker Hub
     script:

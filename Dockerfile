@@ -2,9 +2,7 @@
 FROM python:3.7.4
 
 ## Set metadata
-LABEL base.image="python:3.7.4"
 LABEL software="HTSinfer"
-LABEL software.version="0.1.0"
 LABEL software.description="HTSinfer infers metadata from High Throughput Sequencing (HTS) data"
 LABEL software.website="https://github.com/zavolanlab/htsinfer"
 LABEL software.documentation="https://github.com/zavolanlab/htsinfer/blob/master/README.md"
@@ -29,9 +27,13 @@ COPY ./requirements.txt ${WORKDIR}
 RUN pip install -r requirements.txt
 
 ## Copy remaining files
-COPY src/ ${WORKDIR}/src
+COPY setup.py ${WORKDIR}
+COPY htsinfer/ ${WORKDIR}/htsinfer
 COPY tests/ ${WORKDIR}/tests
 COPY LICENSE README.md ${WORKDIR}
+
+## Install app
+RUN python setup.py install
 
 ## Set up environment
 RUN groupadd -r ${GROUP} && \
@@ -39,4 +41,4 @@ RUN groupadd -r ${GROUP} && \
     chown -R ${USER}:${GROUP} ${WORKDIR} && \
     chmod 700 ${WORKDIR}
 USER ${USER}
-ENTRYPOINT ["src/htsinfer.py"]
+ENTRYPOINT ["htsinfer"]
