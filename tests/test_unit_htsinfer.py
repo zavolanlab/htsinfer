@@ -59,7 +59,8 @@ def test_main_with_args(monkeypatch):
             '--file-2', TEST_FILE,
         ]
     )
-    assert main() == None
+    assert main() is None
+
 
 # parse_args()
 def test_help_option():
@@ -87,20 +88,16 @@ def test_invalid_option():
 
 # setup_logging()
 def test_log_level_default():
-    logger = logging.getLogger("my_logger")
     setup_logging()
 
 
 def test_log_level_verbose():
-    logger = logging.getLogger("my_logger")
     setup_logging(
         verbose=True,
     )
 
 
 def test_log_level_debug():
-    logger = logging.getLogger("my_logger")
     setup_logging(
         debug=True,
     )
-
