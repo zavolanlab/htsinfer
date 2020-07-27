@@ -34,11 +34,11 @@ for (gene in genes){
         id = data.frame(df[i,"Species"], id, df[i,"Tax ID"])
         # print(x)
         # Merging dataframe for every organism's iteration
-        gene_ids_df = rbind(as.matrix(table), as.matrix(id))
+        gene_ids_df = rbind(as.matrix(gene_ids_df), as.matrix(id))
     }
 
     colnames(gene_ids_df) = c("Species", "Type", "Orthologue", "Target %id", 
                                 "Query %id", "High Confidence", "Tax ID")
-    file_name = paste(gene, ".csv",sep="")
+    file_name = paste("hsapiens_",gene, ".csv",sep="")
     write.csv(gene_ids_df, file=file_name, row.names = FALSE)
 }
