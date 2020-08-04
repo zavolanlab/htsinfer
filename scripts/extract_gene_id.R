@@ -13,7 +13,7 @@ genes = c("RPSA", "RPS2", "RPS3", "RPS3A", "RPS4X", "RPS4Y1", "RPS5",
 
 ## Prerequisite ****************
 # Create an .csv file, before running the script, that will store the desired attributes needed for every organism 
-df = read.csv('attributes.csv', header = FALSE)
+df = read.csv('attributes.csv', header = TRUE)
 df = sapply(df, as.character)
 ##******************************
 
@@ -30,9 +30,9 @@ for (gene in genes){
                                     df[i,"Query %id"], df[i,"High Confidence"]),
                     values = gene,
                     mart = ensembl)
-        id = unname(x)
+        id = unname(id)
         id = data.frame(df[i,"Species"], id, df[i,"Tax ID"])
-        # print(x)
+        # print(id)
         # Merging dataframe for every organism's iteration
         gene_ids_df = rbind(as.matrix(gene_ids_df), as.matrix(id))
     }

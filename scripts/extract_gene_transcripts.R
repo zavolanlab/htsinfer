@@ -34,7 +34,7 @@ for (i in 1:number_genes){
         gene_ensembl_name = df[j,"Orthologue"]
 
         # If no Gene ID for that organism then skip it 
-        if(is.na(gene_ensembl_name))
+        if(is.na(gene_ensembl_name) || gene_ensembl_name="")
         {
             next
         }
@@ -67,7 +67,7 @@ for (i in 1:number_genes){
                         transcript_df[k,1], organism_name, 
                             df[j,"Tax ID"], sep="|")
             # Appending transcripts to the gene's fasta file
-            write.fasta(sequences = transcript_df[t,2], names=id, 
+            write.fasta(sequences = transcript_df[k,2], names=id, 
                                 file.out = gene_transcript_file, 
                                 open = "a", nbchar = 60, 
                                 as.string = TRUE)
@@ -77,3 +77,10 @@ for (i in 1:number_genes){
     }
     
 }
+
+## Post-run ****************
+## Once this is done for all the genes, we need to run getBM() one for time 
+## to get the transcripts for the organism itself, as in the case we are running
+## the script for Scerevisiae so we will run the getBM() for scerevisiae to 
+## retrieve transcripts for all the aformentioned genes.
+##******************************
