@@ -33,6 +33,7 @@ optional arguments:
       show version information and exit
   -h, --help
       show this help message and exit
+  blabla
 ```
 
 ## Extended usage
