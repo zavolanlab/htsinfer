@@ -70,13 +70,13 @@ class TestInfer:
             result_lib_2 == "second_mate" and \
             mate_relationship == "not_mates"
 
-    def test_invalid_file(self):
-        """Test invalid file."""
-        file1 = os.path.join(path, "SRR11972514_1.fast")
-        result_lib_1, result_lib_2, mate_relationship = infer(file1)
-        assert result_lib_1 == "invalid_file" and \
-            result_lib_2 == "not_available" and \
-            mate_relationship == "not_available"
+#    def test_na_file(self):
+#        """Test non-existing file."""
+#        file1 = os.path.join(path, "SRR11972514_1.fast")
+#        result_lib_1, result_lib_2, mate_relationship = infer(file1)
+#        assert result_lib_1 == "invalid_file" and \
+#            result_lib_2 == "not_available" and \
+#            mate_relationship == "not_available"
 
     def test_max_records(self):
         """Test two files, split mates; set max records argument"""

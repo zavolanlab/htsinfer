@@ -156,6 +156,7 @@ def process_fastq_file(
             return (result, set(seq_ids.keys()))
 
     except OSError:
+        raise
         LOGGER.error(
             f"Invalid input file '{file}'. Error: Could not open file"
         )
