@@ -1,63 +1,39 @@
 os:
-- linux
+  - linux
 dist: bionic
 language: python
-
-services:
-- docker
+python:
+  - "3.7"
+  - "3.8"
 
 if: (type == push) OR (type == pull_request AND fork == true)
 
-env:
-  global:
-  - DOCKER_ORGANIZATION: "zavolab"
-  - DOCKER_REPO: "htsinfer"
-  - VERSION: "0.2.0"
-
-stages:
-- name: test
-- name: publish
-  if: branch = master AND type = push AND fork = false
+install:
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda env create --file environment.yml
+  - conda env update --file environment-dev.yml
+  - conda activate htsinfer
 
 jobs:
   include:
-  - stage: test
-    name: Run build, style, unit & integration tests
-    before_script:
-    - python setup.py install
-    script:
-    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
-    # build tests
-    - docker build -t ${REPO} .
-    # style tests
-    - flake8 setup.py htsinfer/
-    - pylint --rcfile pylint.cfg setup.py htsinfer/
-    # unit tests
-    - coverage run --source htsinfer -m pytest
-    - coveralls
-    # integration tests
-    - htsinfer --help
-    - htsinfer --debug -f1 tests/sample_files/first_mate.fastq
-    - docker run ${REPO} --help
-    - docker run ${REPO} --debug -f1 tests/sample_files/first_mate.fastq
-  - stage: publish
-    name: Push image to Docker Hub
-    script:
-    - export REPO=${DOCKER_ORGANIZATION}/${DOCKER_REPO}
-    - docker build -t ${REPO}:latest .
-    - docker tag ${REPO}:latest ${REPO}:${VERSION}
-    - echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin
-    - docker push ${REPO}:latest
-    - docker push ${REPO}:${VERSION}
-  - stage: publish
-    name: Publish on PyPI
-    script: skip
-    deploy:
-    - provider: pypi
-      username: "__token__"
-      password: ${PYPI_TOKEN}
-      edge: true
-      skip_existing: true
-      cleanup: false
-      distributions: "sdist bdist_wheel"
-
+    - stage: test
+      name: Run build, style, unit & integration tests
+      before_script:
+        - python setup.py install
+      script:
+        # style tests
+        - flake8
+        - pylint --rcfile pylint.cfg setup.py htsinfer/
+        - mypy htsinfer
+        # unit tests
+        - coverage run --source htsinfer -m pytest
+        - coveralls
+        # integration tests
+        - htsinfer --help
+        - htsinfer --debug -f1 tests/test_files/first_mate.fastq

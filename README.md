@@ -81,8 +81,8 @@ docker run --rm -it zavolab/htsinfer:latest --help
 ```
 
 > **NOTE:** To run the tool on your own data in that manner, you will probably
-> need to [mount a volume][res-docker-volume] to allow the container read input
-> files and write persistent output from/to the host file system.
+> need to [mount a volume][res-docker-volume] to allow the container to read
+> input files and write persistent output from/to the host file system.
 
 ## Contributing
 

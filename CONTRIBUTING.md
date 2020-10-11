@@ -2,7 +2,7 @@
 
 ## General workflow
 
-We are using [Git][res-git], [GitHub][res-github] and [Git Flow][res-git-flow].
+We are using [Git][git], [GitHub][github] and [Git Flow][git-flow].
 
 > **Note:** If you are a **beginner** and do not have a lot of experience with
 > this sort of workflow, please do not feel overwhelmed. We will guide you
@@ -11,9 +11,15 @@ We are using [Git][res-git], [GitHub][res-github] and [Git Flow][res-git-flow].
 > it very very hard for anyone to cause irreversible harm, so relax, try things
 > out, take your time and enjoy the work! :)
 
+We would kindly ask you to abide by our [Code of Conduct][coc] in all
+interactions with the community when contributing to this project, regardless
+of the type of contribution. We will not accept any offensive or demeaning
+behavior towards others and will take any necessary steps to ensure that
+everyone is treated with respect and dignity.
+
 ## Issue tracker
 
-Please use each project's GitHub [issue tracker][res-issue-tracker] to:
+Please use each project's GitHub [issue tracker][issue-tracker] to:
 
 - find issues to work on
 - report bugs
@@ -22,17 +28,17 @@ Please use each project's GitHub [issue tracker][res-issue-tracker] to:
 
 ## Submitting issues
 
-Please choose a template when submitting an issue: choose the [Bug report
-template][res-bug-report] only when reporting bugs; for all other issues,
-choose the [Feature request template][res-bug-report]. Please follow the
-instructions in the template.
+Please choose a template when submitting an issue: choose the [**bug report**
+template][bug-report] only when reporting bugs; for all other issues,
+choose the [**feature request** template][bug-report]. Please follow the
+instructions in the templates.
 
 You do not need to worry about adding labels or milestones for an issue, the
 project maintainers will do that for you. However, it is important that all
 issues are written concisely, yet with enough detail and with proper
 references (links, screenshots, etc.) to allow other contributors to start
-working on them. For bug reports, it is essential that they include
-reproducible examples.
+working on them. For bug reports, it is essential that they include all
+information required to reproduce the bug.
 
 Please **do not** use the issue tracker to ask usage questions, installation
 problems etc., unless they appear to be bugs. For these issues, please use
@@ -40,8 +46,8 @@ the [communication channels](#communication) outlined below.
 
 ## Communication
 
-If you want to reach out to us (e.g., to discuss potential issues for you to
-work on), check the [main documentation][res-docs] for contact information.
+Send us an [email][contact] if you want to reach out to us
+work on)
 
 ## Code style & testing
 
@@ -50,26 +56,26 @@ as well as to ensure that the code base is robust and of high quality, we
 would kindly ask you to stick to the following guidelines for code style and
 testing.
 
-- Please use a recent version of [Python 3][res-py] (3.7.4+)
+- Please use a recent version of [Python 3][py] (3.7.4+)
 - Please try to conform to the used code, docstring and commenting style within
   a project to maintain consistency
 - Please use [type hints][py-typing] for all function/method signatures
   (exception: tests)
-- Please use the following linters (use default settings unless otherwise
-  stated):
-  - [`flake8`][res-py-flake8]
-  - [`pylint`][res-py-pylint] (use available [configuration][res-py-pylint-conf])
-  - [`mypy`][res-py-mypy] OR [`pyright`][res-py-pyright] to help with type hints
+- Please use the following linters (see configuration files in repository root
+  directory, e.g., `setup.cfg`, for settings):
+  - [`flake8`][py-flake8]
+  - [`pylint`][py-pylint] (use available [configuration][py-pylint-conf])
+  - [`mypy`][py-mypy] OR [`pyright`][py-pyright] to help with type hints
 - Please use the following test suites:
-  - [`pytest`][res-py-pytest]
-  - [`coverage`][res-py-coverage]
+  - [`pytest`][py-pytest]
+  - [`coverage`][py-coverage]
 
 ## Commit messages
 
 In an effort to increase consistency, simplify maintenance and enable automated
 change logs, we would like to kindly ask you to write _semantic commit
 messages_, as described in the [Conventional Commits
-specification][res-conv-commits].
+specification][conv-commits].
 
 The general structure of _Conventional Commits_ is as follows:
 
@@ -98,9 +104,9 @@ Depending on the changes, please use one of the following **type** prefixes:
 
 In order to ensure that the format of your commit messages adheres to the
 Conventional Commits specification and the defined type vocabulary, you can
-use the [dedicated linter][res-conv-commits-lint]. More information about
+use the [dedicated linter][conv-commits-lint]. More information about
 _Conventional Commits_ can also be found in this [blog
-post][res-conv-commits-blog].
+post][conv-commits-blog].
 
 ## Merging your code
 
@@ -113,7 +119,7 @@ happen smoothly:
 2. Clone the repository, create a feature branch off of the default branch
    (never commit changes to protected branches directly) and implement your
    code changes
-3. If applicable, update relevant sections of the [documentation][res-docs]
+3. If applicable, update relevant sections of the [documentation][docs]
 4. Add or update tests; untested code will not be merged; refer to the
    [guidelines](#code-style-&-testing) above for details
 5. Ensure that your coding style is in line with the
@@ -126,30 +132,40 @@ happen smoothly:
 8. Push your clean, tested and documented feature branch to the remote; make
    sure the [Travis CI][travis-docs] [CI][ci-cd] pipeline passes
 9. Issue a pull request against the default branch; follow the instructions in
-   the [template][res-pull-request]; importantly, describe your changes in
+   the [template][pull-request]; importantly, describe your changes in
    detail, yet with concise language, and do not forget to indicate which
    issue(s) the code changes resolve or refer to; assign a project maintainer
    to review your changes
 
-[res-bug-report]: .github/ISSUE_TEMPLATE/bug_report.mdrequest.md
-[res-ci-cd]: <https://en.wikipedia.org/wiki/Continuous_integration>
-[res-conv-commits]: <https://www.conventionalcommits.org/en/v1.0.0-beta.2/#specification>
-[res-conv-commits-blog]: <https://nitayneeman.com/posts/understanding-semantic-commit-messages-using-git-and-angular/>
-[res-conv-commits-lint]: <https://github.com/conventional-changelog/commitlint>
-[res-docs]: README.md
-[res-feature-request]: .github/ISSUE_TEMPLATE/feature_request.md
-[res-git]: <https://git-scm.com/>
-[res-git-flow]: <https://nvie.com/posts/a-successful-git-branching-model/>
-[res-github]: <https://github.com>
-[res-issue-tracker]: <https://github.com/zavolanlab/htsinfer/issues>
-[res-pull-request]: PULL_REQUEST_TEMPLATE.md
-[res-py]: <https://www.python.org/>
-[res-py-flake8]: <https://gitlab.com/pycqa/flake8>
-[res-py-mypy]: <http://mypy-lang.org/>
-[res-py-pylint]: <https://www.pylint.org/>
-[res-py-pylint-conf]: pylint.cfg
-[res-py-pyright]: <https://github.com/microsoft/pyright>
-[res-py-pytest]: <https://docs.pytest.org/en/latest/>
-[res-py-coverage]: <https://pypi.org/project/coverage/>
-[res-py-typing]: <https://docs.python.org/3/library/typing.html>
-[res-travis-docs]: <https://docs.travis-ci.com/>
+## Becoming a co-maintainer
+
+If you are as interested in the project as we are and have contributed some
+code, suggested some features or bug reports and have taken part in
+discussions on where to go with the project, we will very likely to have you
+on board as a co-maintainer. If you are intersted in that, please let us
+know. You can reach us by [email][contact].
+
+[bug-report]: .github/ISSUE_TEMPLATE/bug_report.mdrequest.md
+[ci-cd]: <https://en.wikipedia.org/wiki/Continuous_integration>
+[coc]: CODE_OF_CONDUCT.md
+[contact]: <zavolab-biozentrum@unibas.ch>
+[conv-commits]: <https://www.conventionalcommits.org/en/v1.0.0-beta.2/#specification>
+[conv-commits-blog]: <https://nitayneeman.com/posts/understanding-semantic-commit-messages-using-git-and-angular/>
+[conv-commits-lint]: <https://github.com/conventional-changelog/commitlint>
+[docs]: README.md
+[feature-request]: .github/ISSUE_TEMPLATE/feature_request.md
+[git]: <https://git-scm.com/>
+[git-flow]: <https://nvie.com/posts/a-successful-git-branching-model/>
+[github]: <https://github.com>
+[issue-tracker]: <https://github.com/zavolanlab/htsinfer/issues>
+[pull-request]: PULL_REQUEST_TEMPLATE.md
+[py]: <https://www.python.org/>
+[py-flake8]: <https://gitlab.com/pycqa/flake8>
+[py-mypy]: <http://mypy-lang.org/>
+[py-pylint]: <https://www.pylint.org/>
+[py-pylint-conf]: pylint.cfg
+[py-pyright]: <https://github.com/microsoft/pyright>
+[py-pytest]: <https://docs.pytest.org/en/latest/>
+[py-coverage]: <https://pypi.org/project/coverage/>
+[py-typing]: <https://docs.python.org/3/library/typing.html>
+[travis-docs]: <https://docs.travis-ci.com/>
