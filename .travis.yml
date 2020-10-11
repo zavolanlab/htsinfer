@@ -1,10 +1,7 @@
 os:
   - linux
 dist: bionic
-language: python
-python:
-  - "3.7"
-  - "3.8"
+language: minimal
 
 if: (type == push) OR (type == pull_request AND fork == true)
 
@@ -30,7 +27,7 @@ jobs:
         # style tests
         - flake8
         - pylint --rcfile pylint.cfg setup.py htsinfer/
-        - mypy htsinfer
+#        - mypy htsinfer
         # unit tests
         - coverage run --source htsinfer -m pytest
         - coveralls

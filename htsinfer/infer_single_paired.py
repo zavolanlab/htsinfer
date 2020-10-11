@@ -107,7 +107,7 @@ def process_fastq_file(
 
     try:
         LOGGER.debug("Opening file...")
-        with _open(file) as _file:  # type: ignore
+        with _open(file) as _file:
 
             records: int = 0
             mate_counts: Dict[int, int] = {1: 0, 2: 0}
