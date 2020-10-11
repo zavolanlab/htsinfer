@@ -107,7 +107,7 @@ def process_fastq_file(
 
     try:
         LOGGER.debug("Opening file...")
-        with _open(file) as _file:
+        with _open(file) as _file:  # type: ignore
 
             records: int = 0
             mate_counts: Dict[int, int] = {1: 0, 2: 0}
@@ -156,7 +156,6 @@ def process_fastq_file(
             return (result, set(seq_ids.keys()))
 
     except OSError:
-        raise
         LOGGER.error(
             f"Invalid input file '{file}'. Error: Could not open file"
         )
