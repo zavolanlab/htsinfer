@@ -35,54 +35,30 @@ optional arguments:
       show this help message and exit
 ```
 
-## Extended usage
+## Installation
 
-### Run locally
-
-In order to use the package, clone the repository and install the dependencies:
+In order to use the HTSinfer, clone the repository and install the
+dependencies with [Conda][res-conda]:
 
 ```sh
 git clone https://github.com/zavolanlab/htsinfer
 cd htsinfer
-pip install -r requirements.txt
+conda env create --file environment.yml
+conda env update --file environment-dev.yml  # optional: install development/testing dependencies
+conda activate htsinfer
 python setup.py install
 ```
 
-> **NOTE:** You may want to install dependencies inside a virtual environment,
-> e.g., using [`virtualenv`][res-virtualenv].
-
-To verify the correct installation, you can run the tests that are shipped with
+If you have installed the development/testing dependencies, you can verify
+that HTSinfer was installed correctly by executing the tests shipped with
 the package:
 
 ```sh
 python -m pytest
 ```
 
-You can then run the package via the CLI script `htsinfer` as described in the
-[Usage](#Usage) section.
-
-### Run inside container
-
-If you have [Docker][res-docker] installed, you can also pull the Docker
-image:
-
-```sh
-docker pull zavolab/htsinfer:latest
-```
-
-The script can be found in directory `/home/user/htsinfer/src` inside the
-Docker container.
-
-The Docker image contains an entry point for the CLI script `htsinfer` so that
-you can run it, e.g., with:
-
-```sh
-docker run --rm -it zavolab/htsinfer:latest --help
-```
-
-> **NOTE:** To run the tool on your own data in that manner, you will probably
-> need to [mount a volume][res-docker-volume] to allow the container to read
-> input files and write persistent output from/to the host file system.
+Run HTSinfer via the CLI script `htsinfer` as described in the [Usage](#Usage)
+section.
 
 ## Contributing
 
