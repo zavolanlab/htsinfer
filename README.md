@@ -38,7 +38,7 @@ optional arguments:
 ## Installation
 
 In order to use the HTSinfer, clone the repository and install the
-dependencies with [Conda][res-conda]:
+dependencies with [Conda][conda]:
 
 ```sh
 git clone https://github.com/zavolanlab/htsinfer
@@ -71,10 +71,10 @@ interactions with the community.
 ## Contact
 
 For questions or suggestions regarding the code, please use the
-[issue tracker][res-issue-tracker]. For any other inquiries, please contact us
+[issue tracker][issue-tracker]. For any other inquiries, please contact us
 by email: <zavolab-biozentrum@unibas.ch>
 
-(c) 2020 [Zavolan lab, Biozentrum, University of Basel][res-zavolab]
+(c) 2020 [Zavolan lab, Biozentrum, University of Basel][contact]
 
 [badge-ci]: <https://travis-ci.com/zavolanlab/htsinfer.svg?branch=master>
 [badge-coverage]: <https://img.shields.io/coveralls/github/zavolanlab/htsinfer/master>
@@ -82,8 +82,6 @@ by email: <zavolab-biozentrum@unibas.ch>
 [badge-url-ci]: <https://travis-ci.com/zavolanlab/htsinfer>
 [badge-url-coverage]: <https://coveralls.io/github/zavolanlab/htsinfer>
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
-[res-docker]: <https://www.docker.com/>
-[res-docker-vol]: <https://docs.docker.com/storage/volumes/>
-[res-issue-tracker]: <https://github.com/zavolanlab/htsinfer/issues>
-[res-virtualenv]: <https://virtualenv.pypa.io/en/latest/>
-[res-zavolab]: <https://zavolan.biozentrum.unibas.ch/>
+[conda]: <https://docs.conda.io/en/latest/miniconda.html>
+[contact]: <https://zavolan.biozentrum.unibas.ch/>
+[issue-tracker]: <https://github.com/zavolanlab/htsinfer/issues>
