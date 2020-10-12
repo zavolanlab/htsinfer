@@ -1,21 +1,17 @@
 #!/usr/bin/env python
-"""HTSinfer infers metadata from High Throughput Sequencing (HTS) data"""
-
-__version__ = "0.1.0"
-__copyright__ = "Copyright 2020 Zavolan lab, Biozentrum, University of Basel"
-__license__ = "Apache license 2.0"
-__author__ = "Rohan Kandhari"
-__maintainer__ = "Rohan Kandhari"
-__email__ = "rohan.kandhari.bme16@iitbhu.ac.in"
+"""Infer experiment metadata from High Throughput Sequencing (HTS) data."""
 
 import argparse
 import logging
 import sys
 from typing import (Optional, Sequence)
 
-from htsinfer import infer_single_paired
+from htsinfer import (
+    infer_single_paired,
+    __version__,
+)
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def parse_args(
@@ -101,15 +97,15 @@ def main() -> None:
         verbose=args.verbose,
         debug=args.debug,
     )
-    logger.info("Started script...")
-    logger.debug(f"CLI options: {args}")
+    LOGGER.info("Started script...")
+    LOGGER.debug(f"CLI options: {args}")
     results = {}
     results['single_paired'] = infer_single_paired.infer(
         file_1=args.file_1,
         file_2=args.file_2,
     )
-    logger.info(f"Results: {results}")
-    logger.info("Done.")
+    LOGGER.info(f"Results: {results}")
+    LOGGER.info("Done.")
 
 
 if __name__ == "__main__":

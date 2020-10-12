@@ -1,4 +1,5 @@
-"""Infer mate information for sequencing library."""
+"""Infer mate information from sample data."""
+
 
 from enum import Enum
 from functools import partial
@@ -7,9 +8,9 @@ import logging
 import re
 from typing import (Dict, List, Tuple)
 
-from Bio.SeqIO.QualityIO import FastqGeneralIterator
+from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class Outcomes(Enum):
@@ -42,11 +43,11 @@ def infer(
         Mate information for each input file and mate relationship.
 
     Examples:
-        >>> infer(file_1="../tests/sample_files/first_mate.fastq")
+        >>> infer(file_1="../tests/test_files/first_mate.fastq")
         ('first_mate', 'not_available', 'not_available')
         >>> infer(
-        ...     file_1="../tests/sample_files/first_mate.fastq",
-        ...     file_2="../tests/sample_files/second_mate.fastq",
+        ...     file_1="../tests/test_files/first_mate.fastq",
+        ...     file_2="../tests/test_files/second_mate.fastq",
         ...     max_records=10
         ('first_mate', 'second_mate', 'split_mates')
     """
@@ -55,7 +56,7 @@ def infer(
     mate_relationship: str = Outcomes.not_available.value
 
     # Process file 1
-    logger.debug(f"Processing file 1: {file_1}")
+    LOGGER.debug(f"Processing file 1: {file_1}")
     result_lib_1, seq_ids_1 = process_fastq_file(
         file=file_1,
         max_records=max_records
@@ -63,23 +64,23 @@ def infer(
 
     # Process file 2
     if file_2:
-        logger.debug(f"Processing file 2: {file_2}")
+        LOGGER.debug(f"Processing file 2: {file_2}")
         result_lib_2, seq_ids_2 = process_fastq_file(
             file=file_2,
             max_records=max_records
         )
 
         # Check whether libraries are from a pair
-        logger.debug("Checking mate relationship between files...")
+        LOGGER.debug("Checking mate relationship between files...")
         if result_lib_1 == "first_mate" and \
                 result_lib_2 == "second_mate" and \
                 seq_ids_1 == seq_ids_2:
             mate_relationship = Outcomes.split_mates.value
         else:
             mate_relationship = Outcomes.not_mates.value
-        logger.debug(f"Mate relationship: {mate_relationship}")
+        LOGGER.debug(f"Mate relationship: {mate_relationship}")
 
-    logger.debug(f"Returning results...")
+    LOGGER.debug("Returning results...")
     return (result_lib_1, result_lib_2, mate_relationship)
 
 
@@ -105,32 +106,32 @@ def process_fastq_file(
     ) if file.endswith(".gz") else open
 
     try:
-        logger.debug(f"Opening file...")
-        with _open(file) as fp:
+        LOGGER.debug("Opening file...")
+        with _open(file) as _file:  # type: ignore
 
             records: int = 0
             mate_counts: Dict[int, int] = {1: 0, 2: 0}
 
-            for record in FastqGeneralIterator(source=fp):
+            for record in FastqGeneralIterator(source=_file):
                 # Get next read
                 seq_id = record[0]
-                logger.debug(f"Processing read: {seq_id}")
+                LOGGER.debug(f"Processing read: {seq_id}")
 
                 # Get mate information
-                logger.debug("Extracting mate information...")
+                LOGGER.debug("Extracting mate information...")
                 mate, seq_id_no_mate = parse_mate_info_from_id(seq_id)
-                logger.debug(f"Mate information: {mate}")
+                LOGGER.debug(f"Mate information: {mate}")
 
                 # Check FASTQ consistency
                 if seq_id_no_mate not in seq_ids:
                     seq_ids[seq_id_no_mate] = [False, False]
                 elif seq_ids[seq_id_no_mate][mate-1]:
-                    raise ValueError(f"Duplicate read names")
+                    raise ValueError("Duplicate read names")
                 seq_ids[seq_id_no_mate][mate-1] = True
 
                 # Mate information could not be parsed
                 if not mate:
-                    logger.debug(
+                    LOGGER.debug(
                         "Could not extract mate information for read"
                         f"identifier '{seq_id}'."
                     )
@@ -144,24 +145,24 @@ def process_fastq_file(
                 if max_records and records >= max_records:
                     break
 
-            logger.debug(
-                f"Summarizing mate info..."
+            LOGGER.debug(
+                "Summarizing mate info..."
             )
             result = summarize_mate_info(counts=mate_counts)
-            logger.debug(
+            LOGGER.debug(
                 f"Mate info: {result}"
             )
 
             return (result, set(seq_ids.keys()))
 
     except OSError:
-        logger.error(
+        LOGGER.error(
             f"Invalid input file '{file}'. Error: Could not open file"
         )
         return (Outcomes.invalid_file.value, set(seq_ids.keys()))
 
-    except ValueError as e:
-        logger.error(f"Invalid input file '{file}'. Error: {str(e)}")
+    except ValueError as exc:
+        LOGGER.error(f"Invalid input file '{file}'. Error: {str(exc)}")
         return (Outcomes.invalid_file.value, set(seq_ids.keys()))
 
 
@@ -251,4 +252,4 @@ def summarize_mate_info(
     if counts[1] and counts[2]:
         return Outcomes.mixed_mates.value
     # No reads
-    raise ValueError(f"No records in file")
+    raise ValueError("No records in file")

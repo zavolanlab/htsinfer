@@ -2,34 +2,32 @@
 
 from setuptools import setup, find_packages
 
+from htsinfer import __version__
+
 # Read long description from file
 with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
-# Read requirements from file
-INSTALL_REQUIRES = []
-with open("requirements.txt") as fh:
-    INSTALL_REQUIRES = fh.read().splitlines()
-
 setup(
     name="htsinfer",
-    version="0.2.0",
+    version=__version__,
     description=(
-        "HTSinfer infers metadata from High Throughput Sequencing (HTS) data"
+        "Infer experiment metadata from High Throughput Sequencing (HTS) data"
     ),
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://github.com/zavolanlab/htsinfer",
     author="Rohan Kandhari",
     author_email="rohan.kandhari.bme16@iitbhu.ac.in",
-    maintainer="Rohan Kandhari",
-    maintainer_email="rohan.kandhari.bme16@iitbhu.ac.in",
+    maintainer="Alexander Kanitz",
+    maintainer_email="alexander.kanitz@alumni.ethz.ch",
     classifiers=[
         "Environment :: Console",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Utilities",
     ],
@@ -49,7 +47,6 @@ setup(
         "Tracker": "https://github.com/zavolanlab/htsinfer/issues",
     },
     packages=find_packages(),
-    install_requires=INSTALL_REQUIRES,
     include_package_data=True,
     setup_requires=[
         "setuptools_git == 1.2",
