@@ -1,5 +1,3 @@
-Issue number 19.
-
 # HTSinfer
 
 [![license][badge-license]][badge-url-license]
