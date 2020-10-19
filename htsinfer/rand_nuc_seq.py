@@ -73,7 +73,22 @@ def create_random_sequence(input_seqs: list, markov_matrix: np.array,
         number_random_seq.
     """
 
-    
+    # Iterate through all the input strings
+    # Iterate through all the input strings
+    random_list_all = []
+
+    for input_string in input_seqs:
+        random_list = []
+        for i in range(number_random_seq):
+            random_string = np.random.choice(a = [*key])
+            for i in range(len(input_string)-1):
+                random_string += np.random.choice(a = [*key], 
+                    p = markov_matrix[key[random_string[i]]])
+            random_list.append(random_string)
+        random_list_all.append(random_list)
+
+    return(random_list_all)
+
 
 
 
