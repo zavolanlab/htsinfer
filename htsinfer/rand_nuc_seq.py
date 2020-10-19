@@ -42,22 +42,40 @@ def make_markov_matrix(input_sequence: str) -> np.matrix:
     """
     pass
 
-def create_random_sequence(input_sequence: str,
-    markov_matrix: np.matrix, number_random_seq: int = 1) -> list:
+
+def create_random_sequence(input_seqs: list, markov_matrix: np.array,
+    key: str, ignore_special_char: bool = 1,
+    number_random_seq: int = 1) -> list:
     """
-    Returns a list with number_random_seq randomized strings, each with length
-        of the input string, and based on the probabilities from
-        the markov_matrix.
+    Returns a list with number_random_seq randomised strings for each input 
+        string in the input_seqs list, each with length of the corresponding
+        input string and based on the probablilities from the markov_matrix.
+        The key is used to link the matrix values to the bases: e.g. the matrix
+                A      T      G      C
+            A P(AA)  P(AT)  P(AG)  P(AC)
+            T P(TA)  P(TT)  P(TG)  P(TC)
+            G P(GA)  P(GT)  P(GG)  P(GC)
+            C P(CA)  P(CT)  P(CG)  P(CC)
+        has the corresponding key "ATGC".
 
     Args:
-        input_sequence: Input sequence.
-        markov_matrix: Probability matrix.
-        number_random_seq: Number of randomised sequences returned.
+        input_seqs: List of input sequences.
+        markov_matrix: Markov matrix of the probabilities of nucleotide pairs.
+        key: Possible nucleotides and key to matrix.
+        ignore_special_char: If it is set to true, in case of a non ATGC
+            character in a input string, the following base will be randomly
+            chosen from ATGC.
+        number_random_seq: Number of random sequences return per input sequence.
 
     Returns:
-        List of randomised sequences with number_random_seq entries.
+        List of lists with random sequences seuqences, each list is based on
+        one input string. The length of each list corresponds to
+        number_random_seq.
     """
-    pass
+
+    
+
+
 
 """
 Comments:
