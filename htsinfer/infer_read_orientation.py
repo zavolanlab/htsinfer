@@ -8,8 +8,8 @@ def infer(
     file_2: str = None,  # pylint: disable=unused-argument
     organism: Union[int, str] = "hsapiens",  # pylint: disable=unused-argument
 ) -> str:
-    """Infers read layout for single- or paired-ended sequencing libraries in
-    FASTQ format.
+    """Infers read orientation for single- or paired-ended sequencing libraries
+    in FASTQ format.
 
     Args:
         file_1: File path to read/first mate library.
