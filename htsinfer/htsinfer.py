@@ -48,6 +48,17 @@ def parse_args(
         )
     )
     parser.add_argument(
+        '-o', '--organism',
+        metavar="STR",
+        type=str,
+        default='hsapiens',
+        help=(
+            "source organism of the sequencing library, either as a short "
+            "name (e.g., 'hsapiens') or taxon identifier (e.g., '9606'); if "
+            "provided, will not not be inferred by the application"
+        )
+    )
+    parser.add_argument(
         '--verbose', "-v",
         action='store_true',
         default=False,
@@ -118,6 +129,7 @@ def main() -> None:
     results['read_layout'] = infer_read_layout.infer(
         file_1=args.file_1,
         file_2=args.file_2,
+        organism=args.organism,
     )
 
     # Log results & end script
