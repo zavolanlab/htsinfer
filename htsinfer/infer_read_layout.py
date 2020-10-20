@@ -12,8 +12,11 @@ def infer(
     FASTQ format.
 
     Args:
-        file_1 (str) : File path to read/first mate library.
-        file_2 (str) : File path to second mate library.
+        file_1: File path to read/first mate library.
+        file_2: File path to second mate library.
+        organism: Source organism of the sequencing library; either a short
+            name (string, e.g., `hsapiens`) or a taxon identifier (integer,
+            e.g., `9606`).
 
     Returns:
         LIBTYPE string according to Salmon documentation, cf.

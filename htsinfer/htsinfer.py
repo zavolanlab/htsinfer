@@ -53,8 +53,9 @@ def parse_args(
         type=str,
         default='hsapiens',
         help=(
-            "source organism of the sequencing library; if provided, will not "
-            "not be inferred by the application"
+            "source organism of the sequencing library, either as a short "
+            "name (e.g., 'hsapiens') or taxon identifier (e.g., '9606'); if "
+            "provided, will not not be inferred by the application"
         )
     )
     parser.add_argument(
