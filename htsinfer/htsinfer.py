@@ -4,10 +4,11 @@
 import argparse
 import logging
 import sys
-from typing import (Optional, Sequence)
+from typing import (Any, Dict, Optional, Sequence)
 
 from htsinfer import (
     infer_single_paired,
+    infer_read_layout,
     __version__,
 )
 
@@ -92,18 +93,34 @@ def main() -> None:
     Args:
         args: Command-line arguments and their values.
     """
+
+    # Parse CLI arguments
     args = parse_args()
+
+    # Set up logging
     setup_logging(
         verbose=args.verbose,
         debug=args.debug,
     )
+
+    # Initialize results container
     LOGGER.info("Started script...")
     LOGGER.debug(f"CLI options: {args}")
-    results = {}
+    results: Dict[str, Any] = {}
+
+    # Infer library type
     results['single_paired'] = infer_single_paired.infer(
         file_1=args.file_1,
         file_2=args.file_2,
     )
+
+    # Infer read layout
+    results['read_layout'] = infer_read_layout.infer(
+        file_1=args.file_1,
+        file_2=args.file_2,
+    )
+
+    # Log results & end script
     LOGGER.info(f"Results: {results}")
     LOGGER.info("Done.")
 
