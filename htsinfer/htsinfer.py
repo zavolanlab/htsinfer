@@ -8,7 +8,7 @@ from typing import (Any, Dict, Optional, Sequence)
 
 from htsinfer import (
     infer_single_paired,
-    infer_read_layout,
+    infer_read_orientation,
     __version__,
 )
 
@@ -125,8 +125,8 @@ def main() -> None:
         file_2=args.file_2,
     )
 
-    # Infer read layout
-    results['read_layout'] = infer_read_layout.infer(
+    # Infer read orientation
+    results['read_orientation'] = infer_read_orientation.infer(
         file_1=args.file_1,
         file_2=args.file_2,
         organism=args.organism,
