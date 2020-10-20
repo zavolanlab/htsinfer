@@ -1,9 +1,12 @@
 """Infer read layout from sample data."""
 
+from typing import Union
+
 
 def infer(
     file_1: str,  # pylint: disable=unused-argument
     file_2: str = None,  # pylint: disable=unused-argument
+    organism: Union[int, str] = "hsapiens",  # pylint: disable=unused-argument
 ) -> str:
     """Infers read layout for single- or paired-ended sequencing libraries in
     FASTQ format.
