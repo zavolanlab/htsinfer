@@ -1,25 +1,31 @@
 import numpy as np
 
-def randomize_nucleotide_sequence(input_sequence: str,
-    number_random_seq: int = 1) -> list:
+def randomize_nucleotide_sequence(input_sequences: list,
+    number_random_seq: int = 1, min_prob: float = 0) -> list:
     """
     Returns randomised sequence adhering to the dinucleotide probabilites.
 
     Args:
-        sequence: input sequence.
-        number_random_seq: Number of randomised sequences returned.
+        input_sequences: List of input sequences as strings.
+        number_random_seq: Number of randomised sequences returned per input
+            sequence.
+        min_prob: Minimal probability of dinucleotide to appear. If set to -1
+            probability of 0 is possible. If set to 0, minimum probability will
+            correspond to one count in all input sequences.
 
     Returns:
         number_random_seq x randomised sequences of equal length to the input
         sequence in a list.
 
     Raises:
-        ValueError: input_string contains characters other than ATGC.
+        ValueError: input_string contains too many characters other than ATGCN.
+        ValueError: Too many N's 
     """
+
     pass
 
 
-def make_markov_matrix(input_sequence: str) -> np.matrix:
+def make_markov_matrix(input_sequence: list) -> np.array:
     """
     Returns markov matrix based on the input sequence,
 
@@ -44,7 +50,6 @@ def make_markov_matrix(input_sequence: str) -> np.matrix:
 
 
 def create_random_sequence(input_seqs: list, markov_matrix: np.array,
-    key: str, ignore_special_char: bool = 1,
     number_random_seq: int = 1) -> list:
     """
     Returns a list with number_random_seq randomised strings for each input 
@@ -61,10 +66,6 @@ def create_random_sequence(input_seqs: list, markov_matrix: np.array,
     Args:
         input_seqs: List of input sequences.
         markov_matrix: Markov matrix of the probabilities of nucleotide pairs.
-        key: Possible nucleotides and key to matrix.
-        ignore_special_char: If it is set to true, in case of a non ATGC
-            character in a input string, the following base will be randomly
-            chosen from ATGC.
         number_random_seq: Number of random sequences return per input sequence.
 
     Returns:
@@ -88,9 +89,20 @@ def create_random_sequence(input_seqs: list, markov_matrix: np.array,
     return(random_list_all)
 
 
-
 """
 Comments:
-* What about non ATGC letters in the input sequence? Should the matrix be 
-dynamically generated, matching other letters in the input sequence?
+* Add some sort control to check, whether the random sequences produce the 
+same markov matrix as the input sequences.
+
+
+Mischa to-do:
+* Make sure that create_random_sequence works.
+* Implement ValueError: Too many N's.
+
+Thomas to-do:
+* Update the markov-generation, make sure it works with the N's and stuff.
+* Implement function to compare the markov matrix of the in and output.
+
+Both:
+* Start with implementing tests.
 """
