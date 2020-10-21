@@ -5,51 +5,54 @@ Created on Wed Oct 14 11:25:08 2020
 @author: Bátora Dániel
 """
 
-
+import pickle as pkl
 import os 
-from Bio import SeqIO
-folder = "C:\github\htsinfer\data"
-os.chdir(folder)
-reads = []
-with open("transcripts.fasta", "rU", encoding = "utf-8") as handle:
-    for record in SeqIO.parse(handle, "fasta"):
-        reads.append(record)
+from Bio import SeqIO, Seq
+from typing import Union
 
 
 
-def get_seq(file, organism):
+def get_seq(filepath:str,organism:Union[str, int],temp_dir:str) -> str:
+    
     """
-    Returns all sequences of an organism into a dict 
-
-    Parameters
-    ----------
-    file : list
-        List of SeqRecord objects, each containing 
-        information about the sequence and the sequence .
-    organism : str, int
-        Organism to get
-
-    Returns
-    -------
-    data : dict
-        All instances of the organism in a dict with key being the organism
-        and the value is a string containing the sequence.
-
+    Selects DNA sequence of the desired organims,
+    outputs it into a FASTA file 
+    
+    Args: 
+        filepath(str): Path to the original FASTA file 
+        organism(Union[str, int]): organism short name(str) or taxon id(int)
+        temp_dir(str): Path to the temporary directory
+        
+    Returns: 
+        output_path(str): Path to the output file saved in the temporary directory
+    
     """
-    assert type(file) == list
-    assert type(organism) == str or type(organism) == int
-    data = {}
-    counter = 0 
-    for record in file:
+    
+    
+    
+    if not os.path.isdir(temp_dir): 
+        os.mkdir(temp_dir)
+    output_path = os.path.join(temp_dir, organism + ".fasta")
+    reads = []
+    with open(filepath,  "r", encoding = "utf-8") as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            reads.append(record)
+    
+    hits = []
+    for record in reads:
         if type(organism) == str: 
             if record.description.split("|")[3] == organism:
-                data.update({organism + "_" + str(counter) : str(record.seq)}) 
-                counter += 1  
+                hits.append(record)
         elif type(organism) == int: 
             if record.description.split("|")[4] == str(organism):
-                data.update({str(organism) + "_" + str(counter) : str(record.seq)}) 
-                counter += 1  
-            
-    return data
+                hits.append(hits)
+    SeqIO.write(hits, output_path, "fasta")
+    
+    return output_path
         
-   
+
+
+hits = get_seq(os.path.join(os.getcwd(), "transcripts.fasta"),  "avaga", "C:/github/htsinfer/data/temp_dir")
+
+
+
