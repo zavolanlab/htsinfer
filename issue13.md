@@ -4,21 +4,10 @@ length that occur in the input sequences. Return the results as a dictionary.
 
 ## Function description:
 
-1) create all possible motifs with lengths in range [a,b], save as list motifs
-idea for code:
-nucleotides = ["A", "T", "G", "C"]
-for i in range(a,b):
-	motifs = itertools.product(nucleotides, repeat=i)
-already add these in a dict with all freq counters = 0
-	
-2) scan all sequences for all motifs and record frequencies
-fastest method might be regex: 
-for motif in motifs:
-    if motif in sequence:
-        dict[motif] += 1
--> see https://stackoverflow.com/questions/4901523/whats-a-faster-operation-re-match-search-or-str-find
-
-3) construct and output dictionary with motif sequences and corresponding frequencies
+1) for every sequence: determine all motifs/k-mers (k in range(a,b))  in the sequences with string slicing, save as list 	
+2) make one big list combining all the smaller lists 
+3) construct an output dictionary with motif sequences (key) and corresponding frequencies (value)
+4) output sorted dictionary
 
 ## Function outline: 
 
