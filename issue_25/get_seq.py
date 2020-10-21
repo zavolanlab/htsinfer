@@ -5,9 +5,8 @@ Created on Wed Oct 14 11:25:08 2020
 @author: Bátora Dániel
 """
 
-import pickle as pkl
 import os 
-from Bio import SeqIO, Seq
+from Bio import SeqIO
 from typing import Union
 
 
@@ -40,18 +39,12 @@ def get_seq(filepath:str,organism:Union[str, int],temp_dir:str) -> str:
     
     hits = []
     for record in reads:
-        if type(organism) == str: 
-            if record.description.split("|")[3] == organism:
+        if (isinstance(organism, str) and record.description.split("|")[3] == organism) or (isinstance(organism, int) and record.description.split("|")[4] == str(organism)):
                 hits.append(record)
-        elif type(organism) == int: 
-            if record.description.split("|")[4] == str(organism):
-                hits.append(hits)
     SeqIO.write(hits, output_path, "fasta")
     
     return output_path
         
-
-
 hits = get_seq(os.path.join(os.getcwd(), "transcripts.fasta"),  "avaga", "C:/github/htsinfer/data/temp_dir")
 
 
