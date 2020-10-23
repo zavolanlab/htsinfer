@@ -1,4 +1,5 @@
 import numpy as np
+from collections import Counter
 
 def randomize_nucleotide_sequence(input_sequences: list,
     number_random_seq: int = 1, min_prob: float = 0) -> list:
@@ -21,8 +22,13 @@ def randomize_nucleotide_sequence(input_sequences: list,
         ValueError: input_string contains too many characters other than ATGCN.
         ValueError: Too many N's 
     """
-
-    pass
+    # Count the occurences of N's
+    for sequence in input_sequences:
+        count = Counter(sequence)
+        if count["N"] >= 0.05 * len(sequence):
+            raise ValueError(
+              "Percentage of N in input sequence is larger or equal to 5."
+        )
 
 
 def make_markov_matrix(input_sequence: list) -> np.array:
@@ -102,10 +108,9 @@ def create_random_sequence(input_seqs: list, markov_matrix: np.array,
 Comments:
 * Add some sort control to check, whether the random sequences produce the 
 same markov matrix as the input sequences.
-
+* Maybe we need to deal with small letters.
 
 Mischa to-do:
-* Make sure that create_random_sequence works.
 * Implement ValueError: Too many N's.
 
 Thomas to-do:
