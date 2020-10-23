@@ -1,14 +1,23 @@
 import time
 
-test_sequences = ["CGTACTTGGTTCGATCAACCAGGCCGTAAAGTACGACGTCATCAAAAACGTTTAAACAAA",
+test_sequences_DNA = ["CGTACTTGGTTCGATCAACCAGGCCGTAAAGTACGACGTCATCAAAAACGTTTAAACAAA",
                   "GCTCAACGTGTTGCTCCTCGACCAGCCAAAGGTTCATTACGGCCAGTTGTTCGTGGTACC",
                   "GCTGCTGGTCTTCATCCAACCTATGCTCGAACCATCGGTATTTCAGTTGATCATCGACGA",
                     "ACACGTCGTTATAACATGAAAGTACGTTCTGGACGCGGTTTTTCTTTGGATGAAATTCGT"]
-#ATTUACGTAACGTGAAAAAGUAACTACGTCGACCTGTCAATGATGCTGATAUAACGAAATTTCAAGCTTTTCAAGCTUAA
+
+test_sequences_RNA = ["CGUACUUGGUUCGAUCAACCAGGCCGUAAAGUACGACGUCAUCAAAAACGUUUAAACAAA",
+                  "GCUCAACGUGUUGCUCCUCGACCAGCCAAAGGUUCAUUACGGCCAGUUGUUCGUGGUACC",
+                  "GCUGCUGGUCUUCAUCCAACCUAUGCUCGAACCAUCGGUAUUUCAGUUGAUCAUCGACGA",
+                    "ACACGUCGUUAUAACAUGAAAGUACGUUCUGGACGCGGUUUUUCUUUGGAUGAAAUUCGU"]
+
+test_sequences_random = ["CGTAXTTGGTTCGATRAACCAGGCCGTAAAGTACGACMTCATCAAAAACGTTNAAACAAA",
+                  "GCTCACCGTGTTGCTCWERCGACCAGCCAAAGGTTCATTACGGCCAGTTGOOCGTGGTACC",
+                  "GCTGCTGGTZTTCATCCAACCTATQCTCGAAXCATCGGTATTTCPGTTGATCATCGYCGA",
+                    "ACACGTCGTTATAACATGAAAGTACGTTCTGGACGCGGTTTTTCUUUGGATGAAATTCGT"]
 
 test_not_list = 'GCTCAACGTGTTGCTCCTCGACCAGCCAAAGGTTCATTACGGCCAGTTGTTCGTGGTACC'
 
-def count_motifs(all_sequences, min_motif_length, max_motif_length, nucleic_acid):
+def count_motifs(input_sequences, min_motif_length, max_motif_length, nucleic_acid):
     """ Function that calculates the occurrence of all possible motifs in one or multiple sequences and
             returns a dictionary with all motifs within the specified length and their occurrence
 
@@ -16,6 +25,7 @@ def count_motifs(all_sequences, min_motif_length, max_motif_length, nucleic_acid
             input_sequences (list): list of sequences
             min_motif_length (int): minimal length of motif
             max_motif_length (int): maximal length of motif
+            #TODO: nucleic_acid
 
         Returns:
             motif frequency (dict) with paired data {"motif_seq": frequency }
@@ -23,13 +33,12 @@ def count_motifs(all_sequences, min_motif_length, max_motif_length, nucleic_acid
         Raises:
             TypeError: input_sequences is not a list
         """
-    if not isinstance(all_sequences, list):
-        print ('yay')
+    if not isinstance(input_sequences, list):
         raise TypeError('input_sequences is not a list')
 
     motif_freq = {}
-    for i in range(0, len(all_sequences)):
-        seq = all_sequences[i]
+    for i in range(0, len(input_sequences)):
+        seq = input_sequences[i]
         user_choice = 0
         print (seq)
         if nucleic_acid.lower() == 'dna':
@@ -57,11 +66,9 @@ def count_motifs(all_sequences, min_motif_length, max_motif_length, nucleic_acid
                         motif_freq[motif] += 1
                     else:
                         motif_freq[motif] = 1
-                else:
+                else: #user_choice == 1
                     print('not valid: ', motif)
-                    # print (seq[i + motif_length])
             motifs_per_seq += lst  # add all kmers of length k to big list
-    #return motif_freq    #motif_freq = count_motifs(motifs_total)  # create dictionary
 
     sorted_dict = dict(
         sorted(motif_freq.items(), key=lambda item: item[1], reverse=True))  # sorted dict in descending order
@@ -72,6 +79,6 @@ def count_motifs(all_sequences, min_motif_length, max_motif_length, nucleic_acid
 if __name__ == "__main__":
     tic = time.perf_counter()
     #for i in range(0,100):
-    count_motifs(all_sequences=test_sequences, min_motif_length=4, max_motif_length=5, nucleic_acid='dna')
+    count_motifs(input_sequences=test_sequences_DNA, min_motif_length=4, max_motif_length=5, nucleic_acid='dna')
     toc = time.perf_counter()
     print(f"Time to perform motif search: {toc - tic:0.4f} seconds")
