@@ -73,20 +73,29 @@ def create_random_sequence(input_seqs: list, markov_matrix: np.array,
         one input string. The length of each list corresponds to
         number_random_seq.
     """
-
+    # Key to read the markov matrix and chose random nucleotides
+    key = ("A", "T", "G", "C")
     random_list_all = []
 
+    # Iterate through all input_seqs
     for input_string in input_seqs:
         random_list = []
+
+        # For each input_seq create number_random_seq random sequences
         for _ in range(number_random_seq):
-            random_string = np.random.choice(key)
+            random_string = np.random.choice(key) #first char is random from key
             for i in range(len(input_string)-1):
+                # Add the remaining letter based on the markov matrix.
+                # key is used as pool of possible choices and to find the 
+                # row of the matrix corresponding to the correct base.
                 random_string += np.random.choice(a = key, 
                     p = markov_matrix[key.index(random_string[i])])
             random_list.append(random_string)
-        random_list_all.append(random_string)
+        random_list_all.append(random_list)
     
     return(random_list_all)
+
+
 
 
 """
