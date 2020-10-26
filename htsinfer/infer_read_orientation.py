@@ -1,24 +1,27 @@
-"""Infer read orientation from sample data.""" def infer(iputDir):
+"""Infer read orientation from sample data."""
+
+
+def infer(iputDir):
     """Main function coordinating the execution of all other functions.
     Should be imported/called from main app and return results to it.
     """
-    # implement me
     
-    #create .tmp
-    mkTmpDir(inputDir)
+    #create .tmp directory in "inputDir" and retuns .tmp path
+    tmpDir = mkTmpDir(inputDir)
     
-    #Do something then change directory back to previous directory to allow .tmp to 
-    #be deleted
+    #Call functions of issues #25, 26, 27 and 34
     
-    os.chdir(inputDir)
-    print("Changed working directory to %s " % tmpPath)
     
     # delete .tmp
-    rmTmpDir()
+    rmTmpDir(tmpDir)
     
     
 def mkTmpDir(inputDir):
+    """Function to create a temporary directory for the storage of 
+    temporary data."""
+  
   import os
+
   # define the name of the directory to be created
   tmpPath = inputDir + "/.tmp"
   
@@ -29,16 +32,17 @@ def mkTmpDir(inputDir):
   else:
       print ("Successfully created the directory %s " % tmpPath)
   
-  os.chdir()
-  print("Changed working directory to %s " % tmpPath)
+  return (tmpPath)
+      
       
 def rmTmpDir(tmpPath):
-  import os
+    """Function to remove the temporary directory."""
   
+  import os
   #remove temporary directory
   try:
-    os.rmdir(tmpPath) 
-except OSError:
+    os.rmdir(tmpPath)
+  except OSError:
     print ("Deletion of the directory %s failed" % tmpPath)
   else:
     print ("Successfully deleted the directory %s" % tmpPath)
