@@ -1,7 +1,7 @@
 """Infer read orientation from sample data."""
 
 
-def infer(iputDir):
+def infer(inputDir):
     """Main function coordinating the execution of all other functions.
     Should be imported/called from main app and return results to it.
     """
@@ -20,29 +20,29 @@ def mkTmpDir(inputDir):
     """Function to create a temporary directory for the storage of 
     temporary data."""
   
-  import os
+    import os
 
-  # define the name of the directory to be created
-  tmpPath = inputDir + "/.tmp"
+    # define the name of the directory to be created
+    tmpPath = inputDir + "/.tmp"
   
-  try:
-      os.mkdir(tmpPath)
-  except OSError:
+    try:
+        os.mkdir(tmpPath)
+    except OSError:
       print ("Creation of the directory %s failed" % tmpPath)
-  else:
+    else:
       print ("Successfully created the directory %s " % tmpPath)
   
-  return (tmpPath)
+    return (tmpPath)
       
       
 def rmTmpDir(tmpPath):
     """Function to remove the temporary directory."""
   
-  import os
-  #remove temporary directory
-  try:
-    os.rmdir(tmpPath)
-  except OSError:
-    print ("Deletion of the directory %s failed" % tmpPath)
-  else:
-    print ("Successfully deleted the directory %s" % tmpPath)
+    import os
+    #remove temporary directory
+    try:
+        os.rmdir(tmpPath)
+    except OSError:
+        print ("Deletion of the directory %s failed" % tmpPath)
+    else:
+        print ("Successfully deleted the directory %s" % tmpPath)
