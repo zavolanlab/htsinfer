@@ -1,6 +1,8 @@
-def count_motifs(input_sequences, min_motif_length, max_motif_length, nucleic_acid):
-    """ Function that calculates the occurrence of all possible motifs in one or multiple sequences and
-            returns a dictionary with all motifs within the specified length and their occurrence
+def count_motifs(input_sequences, min_motif_length,
+                 max_motif_length, nucleic_acid):
+    """ Function that calculates the occurrence of all possible motifs
+    in one or multiple sequences and returns a dictionary
+    with all motifs within the specified length and their occurrence.
 
         Args:
             input_sequences (list): list of sequences
@@ -47,16 +49,20 @@ def count_motifs(input_sequences, min_motif_length, max_motif_length, nucleic_ac
         if nucleic_acid.lower() == 'rna':
             valid_bases = dict.fromkeys('ACUG')
 
-        # check if all characters in current sequence are valid. if not, ask user what to do with invalid characters
+        # check if all characters in current sequence are valid.
+        # if not, ask user what to do with invalid characters
         if not all(base in valid_bases for base in seq):
             print('sequence', sequence_no+1,  'contains unknown characters')
             print('you have the following choices:')
-            print('(1) ignore the non-nucleotide-characters and exclude them from the motifs')
+            print('(1) ignore the non-nucleotide-characters'
+                  'and exclude them from the motifs')
             print('(2) include the non-nucleotide characters')
             print('(3) ignore the sequence with the non-nucleotide characters')
-            user_choice = input('please specify how you want to proceed using the numbers above: ')
+            user_choice = input('please specify how you want'
+                                'to proceed using the numbers above: ')
 
-        # user choice 3 skips this sequence and continues with the next sequence
+        # user choice 3 skips this sequence
+        # and continues with the next sequence
         if user_choice == '3':
             print('sequence', sequence_no+1, 'ignored')
             continue
@@ -74,5 +80,5 @@ def count_motifs(input_sequences, min_motif_length, max_motif_length, nucleic_ac
                     print('motif not valid: ', motif)
 
     sorted_dict = dict(
-        sorted(motif_freq.items(), key=lambda item: item[1], reverse=True))  # sorted dict in descending order
+        sorted(motif_freq.items(), key=lambda item: item[1], reverse=True))
     return sorted_dict
