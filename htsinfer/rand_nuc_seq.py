@@ -28,18 +28,22 @@ def randomize_nucleotide_sequence(input_sequences: list,
         count = Counter(sequence)
         if count["N"] >= 0.05 * len(sequence):
             raise ValueError(
-f"Percentage of N in input sequence  {input_sequences.index(sequence)} is "
-f"over the limit of 5 percent. Sequence: \n"
-f"{sequence}"
+                f"Percentage of N in input sequence  {input_sequences.index(sequence)} is "
+                f"over the limit of 5 percent. Sequence: \n"
+                f"{sequence}"
         )
 
         # Check if there are chars other than "ATGCN"
         for char in sequence:
             if char not in "ATGCN":
+                correct = 'correct'
+                s6 = "^"
+                s = 7
                 raise ValueError(f"Input sequence "
                 f"{input_sequences.index(sequence)} contains characters other "
                 "than 'ATGCN'. Sequence: \n"
-                f"{sequence}"
+                f"{sequence} \n"
+                f'{s6:>{s}}'
             )
 
 def print_many_spaces():
