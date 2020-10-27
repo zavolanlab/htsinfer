@@ -34,7 +34,7 @@ f"{sequence}"
         )
 
         # Check if there are chars other than "ATGCN"
-        for i,char in enumerate(sequence):
+        for char in sequence:
             if char not in "ATGCN":
                 raise ValueError(f"Input sequence "
                 f"{input_sequences.index(sequence)} contains characters other "
