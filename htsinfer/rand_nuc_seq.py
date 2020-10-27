@@ -20,15 +20,30 @@ def randomize_nucleotide_sequence(input_sequences: list,
 
     Raises:
         ValueError: input_string contains too many characters other than ATGCN.
-        ValueError: Too many N's 
+        ValueError: The percentage of N's one of the input sequences is too high
     """
-    # Count the occurences of N's
+    
     for sequence in input_sequences:
+        # Count the occurences of N's
         count = Counter(sequence)
         if count["N"] >= 0.05 * len(sequence):
             raise ValueError(
-              "Percentage of N in input sequence is larger or equal to 5."
+f"Percentage of N in input sequence  {input_sequences.index(sequence)} is "
+f"over the limit of 5 percent. Sequence: \n"
+f"{sequence}"
         )
+
+        # Check if there are chars other than "ATGCN"
+        for i,char in enumerate(sequence):
+            if char not in "ATGCN":
+                raise ValueError(f"Input sequence "
+                f"{input_sequences.index(sequence)} contains characters other "
+                "than 'ATGCN'. Sequence: \n"
+                f"{sequence}"
+            )
+
+def print_many_spaces():
+    return("Hello")
 
 
 def make_markov_matrix(input_sequence: list) -> np.array:
