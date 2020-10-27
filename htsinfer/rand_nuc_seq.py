@@ -34,16 +34,15 @@ def randomize_nucleotide_sequence(input_sequences: list,
         )
 
         # Check if there are chars other than "ATGCN"
-        for char in sequence:
+        for i,char in enumerate(sequence):
             if char not in "ATGCN":
                 correct = 'correct'
-                s6 = "^"
-                s = 7
                 raise ValueError(f"Input sequence "
                 f"{input_sequences.index(sequence)} contains characters other "
-                "than 'ATGCN'. Sequence: \n"
+                f"than 'ATGCN'.\n"
+                f"First occurance:\n"
                 f"{sequence} \n"
-                f'{s6:>{s}}'
+                f'{"^":>{i+1}}'
             )
 
 def print_many_spaces():
