@@ -1,14 +1,14 @@
 from timeit import timeit
 
-foreground = {"TGATTC": 5, "TAAACC": 3, "AAGTTACCT": 1 "AAGCCTT": 1, "AGTTCTA": 0, "TTTCCCG": 5}
-background = {"TGATTC": 3, "TAAACC": 5, "AAGCCTT": 0, "AGTTCTA": 1, "TTTCCCG": 5}
+foregroundDict = {"TGATTC": 5, "TAAACC": 3, "AAGTTACCT": 1, "AAGCCTT": 1, "AGTTCTA": 0, "TTTCCCG": 5}
+backgroundDict = {"TGATTC": 3, "TAAACC": 5, "AAGCCTT": 0, "AGTTCTA": 1, "TTTCCCG": 5}
 
-def motif_enrich(foreground_dic, background_dic):
+def motif_enrich(foreground, background):
 	"""Calculates motif enrichment in two given dictionaries.
 
     Args:
-        foreqorund_dic (dictionary) : .
-        background_dic (dictionary) : .
+        foreground (dictionary) : .
+        background (dictionary) : .
         
 
     Returns:
@@ -18,56 +18,39 @@ def motif_enrich(foreground_dic, background_dic):
     Examples:
         
     """
-    
-    newDictForeground = dict()
-    newDictEnrichForeground = dict()
-    newDictBackground = dict()
-    newDictEnrichBackground = dict()
-    
-    keysF = list(foregroundDic.keys()) #list containing all motifs
-    keysB = list(backgroundDic.keys())
-    lengthKeysF = [len(i) for i in foregroundDic.keys]  #list containing lengths of all motifs
-    lengthKeysB = [len(i) for i in foregroundDic.keys]
+	newDictForeground = dict()
+	newDictEnrichForeground = dict()
+	newDictBackground = dict()
+	newDictEnrichBackground = dict()
+
+    keysF = list(foreground.keys) #list containing all motifs
+    keysB = list(background.keys())
+    lengthKeysF = [len(i) for i in foreground.keys]  #list containing lengths of all motifs
+    lengthKeysB = [len(i) for i in foreground.keys]
 
     
     #foreground dictionary
     for i in keysF: 
 
     	if len(i) in lengthKeysF: 
-	    	newDict[len(i)] += foregroundDic[i]
+	    	newDict[len(i)] += foreground[i]
 	    	#newDict[i] += foregroundDic[i] #creates dict with sum of counts for each motif with same lengt
 	    else: 
-	    	newDict[len(i)] = foregroundDic[i]
+	    	newDict[len(i)] = foreground[i]
 	    	#newDict[i] = foregroundDic[i]  #adds motif-lengths that are not yet there
 
 	for i in newDict.values(): #calculates and adds enrichment score to newDict
 
-		enrichScore = sqrt((len(foregroundDic) - i) / lengthF) 
+		enrichScore = sqrt((len(foreground) - i) / lengthF)
 		newDict[i] = enrichScore[i]
 
-	for i in foregroundDic: 
+	for i in foreground:
 
 		newDictEnrichForeground[i] = newDictForeground[len(i)].values()
 
 
 	#background dictionary 
-	for i in keysB: 
 
-    	if len(i) in lengthKeysB: 
-	    	newDictBackground[len(i)] += backgroundDic[i]
-	    	#newDictBackground[i] += backgroundDic[i] #creates dict with sum of counts for each motif with same lengt
-	    else: 
-	    	newDict[len(i)] = backgroundDic[i]
-	    	#newDictBackground[i] = backgroundDic[i]  #adds motif-lengths that are not yet there
-
-	for i in newDict.values(): #calculates and adds enrichment score to newDict
-
-		enrichScore = sqrt((len(backgroundDic) - i) / lengthF) 
-		newDict[i] = enrichScore[i]
-
-	for i in backgroundDic: 
-
-		newDictEnrichBackground[i] = newDictBackground[len(i)].values() 
 
 	#Calculating p-values 
 
@@ -90,7 +73,7 @@ def motif_enrich(foreground_dic, background_dic):
 
 	     
 
-motif_enrich(foreground, background)
+motif_enrich(foregroundDict, backgroundDict)
 
 print("hello world")
 
