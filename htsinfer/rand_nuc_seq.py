@@ -222,7 +222,7 @@ def create_random_sequence(input_seqs: list, markov_matrix: np.array,
                 # Add the remaining letter based on the markov matrix.
                 # key is used as pool of possible choices and to find the 
                 # row of the matrix corresponding to the correct base.
-                random_string += np.random.choice(a = key, 
+                random_string += np.random.choice(a = key,
                     p = markov_matrix[key.index(random_string[i])])
             random_list.append(random_string)
         random_list_all.append(random_list)
