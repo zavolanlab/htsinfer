@@ -45,9 +45,6 @@ def randomize_nucleotide_sequence(input_sequences: list,
                 f'{"^":>{i+1}}'
             )
 
-def print_many_spaces():
-    return("Hello")
-
 
 def make_markov_matrix(input_sequence: list) -> np.array:
     """
