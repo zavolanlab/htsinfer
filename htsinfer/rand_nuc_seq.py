@@ -1,6 +1,7 @@
 import numpy as np
 from collections import Counter
 
+
 def randomize_nucleotide_sequence(input_sequences: list,
     number_random_seq: int = 1, min_prob: float = 0) -> list:
     """
@@ -36,7 +37,6 @@ def randomize_nucleotide_sequence(input_sequences: list,
         # Check if there are chars other than "ATGCN"
         for i,char in enumerate(sequence):
             if char not in "ATGCN":
-                correct = 'correct'
                 raise ValueError(f"Input sequence "
                 f"{input_sequences.index(sequence)} contains characters other "
                 f"than 'ATGCN'.\n"
@@ -45,8 +45,22 @@ def randomize_nucleotide_sequence(input_sequences: list,
                 f'{"^":>{i+1}}'
             )
 
+    markov_matrix = make_markov_matrix("".join(input_sequences))
 
-def make_markov_matrix(input_sequence: list) -> np.array:
+    random_sequences = create_random_sequence(input_seqs = input_sequences,
+        markov_matrix = markov_matrix, number_random_seq=number_random_seq)
+
+    # Combine random sequences into one string.
+    """
+    random_seq_combined = []
+    for random_list in random_sequences:
+        random_seq_combined.append("".join(random_list))
+    random_seq_strings = "".join(random_seq_combined)
+    """
+    return(random_sequences)
+
+
+def make_markov_matrix(seq: str):
     """
     Returns markov matrix based on the input sequence,
 
@@ -67,7 +81,106 @@ def make_markov_matrix(input_sequence: list) -> np.array:
     Raises:
         ValueError: input_string contains characters other than ATGC.
     """
-    pass
+    nucl = ["A","C","G","T"]
+
+    # Possible nucleotide pairs
+    comb =  [["AA","AC","AG","AT"],
+            ["CA","CC","CG","CT"],
+            ["GA","GC","GG","GT"],
+            ["TA","TC","TG","TT"]]
+    result = np.zeros((4,4))
+    
+    #count occurence of nucleotide pairs:
+    for i in range(len(nucl)): #i represents the row 
+        for j in range(len(nucl)): #j represents the column
+            a = CountOccurrences(seq, comb[i][j])
+            result[i,j] = a
+
+            a = 0
+            
+    #convert occurence to probabilities
+    for i in range(len(nucl)): #i represents the row 
+        tot = np.sum(result[i])
+        for j in range(len(nucl)): #j represents the column
+            prob = result[i,j]/tot
+            result[i,j] = prob
+            
+    #check if probabilities are correct
+    tot = 0
+    for i in range(len(nucl)): #i represents the row 
+        tot = tot + np.sum(result[i])
+        if tot == i+1:
+            d = 0
+        else: 
+            result = f'Imhonogenous probability distribution for the {nucl[i]} nucleotides'
+            break
+
+    return result
+
+def CountOccurrences(string, substring): 
+  
+    # Initialize count and start to 0 
+    count = 0
+    start = 0
+  
+    # Search through the string till 
+    # we reach the end of it 
+    while start < len(string): 
+  
+        # Check if a substring is present from 
+        # 'start' position till the end 
+        pos = string.find(substring, start) 
+  
+        if pos != -1: 
+            # If a substring is present, move 'start' to 
+            # the next position from start of the substring 
+            start = pos + 1
+  
+            # Increment the count 
+            count += 1
+        else: 
+            # If no further substring is present 
+            break
+    # return the value of count 
+    return count 
+
+def Markov_check (Generated_array, Seq_array, treshold):
+    #Input: arrays with nucleotide frequences in a 4x4 array
+    #Output: String giving the nucleotide pairs with a frequency deviation higher than the specified treshold
+    #Array shape
+    comb =  [["AA","AC","AG","AT"],
+            ["CA","CC","CG","CT"],
+            ["GA","GC","GG","GT"],
+            ["TA","TC","TG","TT"]]
+    #Used nucleotides
+    nucl = ["A","C","G","T"]
+    #Output error list
+    Errorlist = []
+    #Error treshold
+    treshold = treshold
+    treshold_per = round((treshold - 1) * 100,1)
+
+    #Division of original markov array (seq array) used to generate the sequence (generated array) to calculate freq difference
+    Dev_array = np.divide(Generated_array, Seq_array)
+    
+    #checking for more than 5% variation in dinucleotide occurences
+    for i in range(len(nucl)): #i represents the row 
+        for j in range(len(nucl)): #j represents the column
+            if Dev_array[i][j] >= treshold-1:
+                Errorlist.append(comb[i][j])
+            else:
+                d = 0
+    
+    if not Errorlist :
+        Markov_check = f'There is not more than a {treshold_per}% deviation in the frequences of the computed nucleotide string with comparison to the original dataset'
+    else:
+        Markov_check = f'There is more than a {treshold_per}% deviation in the frequences of the following nucleotides: {Errorlist}'
+        
+    
+    return Markov_check
+            
+    
+
 
 
 def create_random_sequence(input_seqs: list, markov_matrix: np.array,
