@@ -1,6 +1,7 @@
 """Unit tests for infer_single_paired.py"""
 
 from htsinfer.infer_count_motifs import count_motifs
+from unittest import mock
 import pytest
 
 test_sequences_DNA = [

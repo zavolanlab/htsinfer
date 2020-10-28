@@ -1,5 +1,5 @@
-def count_motifs(input_sequences, min_motif_length,
-                 max_motif_length, nucleic_acid):
+def count_motifs(input_sequences:list, min_motif_length:int,
+                 max_motif_length:int, nucleic_acid:str):
     """ Function that calculates the occurrence of all possible motifs
     in one or multiple sequences and returns a dictionary
     with all motifs within the specified length and their occurrence.
@@ -39,6 +39,7 @@ def count_motifs(input_sequences, min_motif_length,
         raise ValueError('max_motif_length is longer than the shortest list')
 
     motif_freq = {}
+
     for sequence_no in range(0, len(input_sequences)):
         seq = input_sequences[sequence_no]
         user_choice = 0
