@@ -1,8 +1,14 @@
-def count_motifs(input_sequences:list, min_motif_length:int,
-                 max_motif_length:int, nucleic_acid:str):
-    """ Function that calculates the occurrence of all possible motifs
-    in one or multiple sequences and returns a dictionary
-    with all motifs within the specified length and their occurrence.
+"""Infer motif frequency from sample data."""
+
+
+from typing import Dict
+
+
+def count_motifs(input_sequences: list, min_motif_length: int,
+                 max_motif_length: int, nucleic_acid: str) -> dict:
+    """Function that calculates the occurrence of all motifs in one or
+    multiple sequences and returns a dictionary with all motifs within
+    the specified length and their occurrence.
 
         Args:
             input_sequences (list): list of sequences
@@ -11,14 +17,14 @@ def count_motifs(input_sequences:list, min_motif_length:int,
             nucleic_acid (string): type of nucleic acid (dna, rna)
 
         Returns:
-            motif frequency (dict) with paired data {"motif_seq": frequency }
+            sorted_dict (dict): paired motif frequency {motif: frequency }
 
         Raises:
             TypeError: input_sequences is not a list
             TypeError: min_motif_length or max_motif_length is not an integer
             ValueError: nucleic_acid is not in specified range
             ValueError: max_motif_length is longer than the shortest list
-        """
+    """
 
     if not isinstance(input_sequences, list):
         raise TypeError('input_sequences is not a list of sequences!')
@@ -38,11 +44,11 @@ def count_motifs(input_sequences:list, min_motif_length:int,
     if max_motif_length > len(min(input_sequences)):
         raise ValueError('max_motif_length is longer than the shortest list')
 
-    motif_freq = {}
+    motif_freq: Dict[str, int] = {}  # Create empty dictionary (str -> int)
 
     for sequence_no in range(0, len(input_sequences)):
         seq = input_sequences[sequence_no]
-        user_choice = 0
+        user_choice = "0"
 
         # determine valid characters depending on input sequences
         if nucleic_acid.lower() == 'dna':
@@ -53,7 +59,7 @@ def count_motifs(input_sequences:list, min_motif_length:int,
         # check if all characters in current sequence are valid.
         # if not, ask user what to do with invalid characters
         if not all(base in valid_bases for base in seq):
-            print('sequence', sequence_no+1,  'contains unknown characters')
+            print('sequence', sequence_no+1, 'contains unknown characters')
             print('you have the following choices:')
             print('(1) ignore the non-nucleotide-characters'
                   'and exclude them from the motifs')
