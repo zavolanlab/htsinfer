@@ -9,7 +9,7 @@ HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 ## Usage
 
 ```sh
-htsinfer [-h] -f1 FILE [-f2 FILE] [-n INT] [--verbose] [--debug] [--version]
+htsinfer [-h] -f1 FILE [-f2 FILE] [-n INT] [-o STR] [--verbose] [--debug] [--version]
 ```
 
 ## Parameters
