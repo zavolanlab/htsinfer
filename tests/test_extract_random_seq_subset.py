@@ -1,6 +1,6 @@
 """Unit tests for extract_random_seq_subset.py"""
 
-import os
+import os, stat
 import filecmp
 import shutil
 from htsinfer.extract_random_seq_subset import extract
