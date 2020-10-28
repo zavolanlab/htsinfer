@@ -1,6 +1,7 @@
 """Unit tests for extract_random_seq_subset.py"""
 
-import os, stat
+import os
+import stat
 import filecmp
 import shutil
 from htsinfer.extract_random_seq_subset import extract
@@ -36,7 +37,9 @@ class TestExtract:
         file1 = os.path.join(path, "SRR11971558_1.fastq.gz")
         outfile1 = os.path.join(outpath, "no_seq.fastq")
         os.chmod(outfile1, stat.S_IREAD)
-        assert extract([file1], [outfile1]) == "file_error"
+        outcome = extract([file1], [outfile1])
+        os.remove(outfile1)
+        assert outcome == "file_error"
 
     def test_mismatched_in_out_file(self):
         """Test mismatched number of  in/output files"""
