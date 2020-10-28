@@ -61,6 +61,13 @@ class TestExtract:
         outfile1 = os.path.join(outpath, "no_seq.fastq")
         assert extract([file1], [outfile1]) == "no_input_sequences"
 
+    def test_empty_file(self):
+        """Test empty file"""
+        file1 = os.path.join(path, "empty.fastq")
+        outfile1 = os.path.join(outpath, "empty.fastq")
+        outcome = extract([file1], [outfile1])
+        assert outcome == "no_input_sequences"
+
     def test_file_not_found(self):
         """Test file not found"""
         file1 = os.path.join(path, "missing.fastq")
