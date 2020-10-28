@@ -36,6 +36,8 @@ class TestExtract:
         """Test unwritable output file"""
         file1 = os.path.join(path, "SRR11971558_1.fastq.gz")
         outfile1 = os.path.join(outpath, "no_seq.fastq")
+        with open(outfile1, 'w') as fp:
+            fp.write("")
         os.chmod(outfile1, stat.S_IREAD)
         outcome = extract([file1], [outfile1])
         os.remove(outfile1)
@@ -66,7 +68,6 @@ class TestExtract:
         file1 = os.path.join(path, "empty.fastq")
         outfile1 = os.path.join(outpath, "empty.fastq")
         outcome = extract([file1], [outfile1])
-        os.remove(outfile1)
         assert outcome == "no_input_sequences"
 
     def test_file_not_found(self):
