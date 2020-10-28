@@ -140,15 +140,10 @@ def process_fastq_file(
     LOGGER.debug("Opening file...")
 
     # open input file
-    try:
-        if infile.endswith(".gz"):
-            fin = gzip.open(infile, 'rt')
-        else:
-            fin = open(infile, 'rt')
-    except OSError:
-        LOGGER.debug(
-            f"Invalid input file '{infile}'. Error: Could not open file")
-        return Outcomes.file_error.value
+    if infile.endswith(".gz"):
+        fin = gzip.open(infile, 'rt')
+    else:
+        fin = open(infile, 'rt')
 
     # open output file
     try:
