@@ -33,7 +33,7 @@ class TestExtract:
         assert extract([file1], []) == "no_output_provided"
 
     def test_output_file_error(self):
-        """Test no output file provided"""
+        """Test unwritable output file"""
         file1 = os.path.join(path, "SRR11971558_1.fastq.gz")
         outfile1 = os.path.join(outpath, "no_seq.fastq")
         os.chmod(outfile1, stat.S_IREAD)
