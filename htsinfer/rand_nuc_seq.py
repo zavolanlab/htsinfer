@@ -45,7 +45,12 @@ def randomize_nucleotide_sequence(input_sequences: list,
                 f'{"^":>{i+1}}'
             )
 
-    markov_matrix = make_markov_matrix("".join(input_sequences))
+    markov_matrix = np.array([
+        [0.25,0.25,0.25,0.25],
+        [0.25,0.25,0.25,0.25],
+        [0.25,0.25,0.25,0.25],
+        [0.25,0.25,0.25,0.25]
+    ])
 
     random_sequences = create_random_sequence(input_seqs = input_sequences,
         markov_matrix = markov_matrix, number_random_seq=number_random_seq)
