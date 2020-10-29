@@ -46,27 +46,26 @@ def randomize_nucleotide_sequence(input_sequences: list,
                 f'{"^":>{i+1}}'
             )
 
-    markov_matrix = np.array([
-        [0.25,0.25,0.25,0.25],
-        [0.25,0.25,0.25,0.25],
-        [0.25,0.25,0.25,0.25],
-        [0.25,0.25,0.25,0.25]
-    ])
+        # Combine random sequences into one string.
+    """
+    for random_list in input_sequences:
+        random_seq_combined.append("".join(random_list))
+    random_seq_strings = "".join(random_seq_combined)
+    """
+
+    markov_matrix = make_markov_matrix("".join(input_sequences))
+
+    print(markov_matrix)
 
     random_sequences = create_random_sequence(input_seqs = input_sequences,
         markov_matrix = markov_matrix, number_random_seq=number_random_seq)
 
-    # Combine random sequences into one string.
-    """
-    random_seq_combined = []
-    for random_list in random_sequences:
-        random_seq_combined.append("".join(random_list))
-    random_seq_strings = "".join(random_seq_combined)
-    """
+
+
     return(random_sequences)
 
 
-def jake_markov_matrix(seq: str):
+def make_markov_matrix(seq: str):
     """
     Returns markov matrix based on the input sequence,
 

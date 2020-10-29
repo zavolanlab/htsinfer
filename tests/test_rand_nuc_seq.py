@@ -21,7 +21,7 @@ class TestRandNuqSeq:
 
     def test_output_list_length(self):
         """Checks if the returned list has the excpected length"""
-        test_input = ["ATGT", "ATGT", "A"]
+        test_input = ["ATGT", "ATCGT", "A"]
         test_output = randomize_nucleotide_sequence(test_input, number_random_seq=10)
         combined = []
         for seqs in test_output:
