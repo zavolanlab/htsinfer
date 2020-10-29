@@ -53,9 +53,9 @@ def randomize_nucleotide_sequence(input_sequences: list,
     random_seq_strings = "".join(random_seq_combined)
     """
 
-    markov_matrix = make_markov_matrix("".join(input_sequences))
+    markov_matrix = make_markov_matrix(input_sequences)
 
-    print(markov_matrix)
+ 
 
     random_sequences = create_random_sequence(input_seqs = input_sequences,
         markov_matrix = markov_matrix, number_random_seq=number_random_seq)
@@ -65,7 +65,7 @@ def randomize_nucleotide_sequence(input_sequences: list,
     return(random_sequences)
 
 
-def make_markov_matrix(seq: str):
+def make_markov_matrix(sequences: list):
     """
     Returns markov matrix based on the input sequence,
 
@@ -96,13 +96,13 @@ def make_markov_matrix(seq: str):
     result = np.zeros((4,4))
     
     #count occurence of nucleotide pairs:
-    for i in range(len(nucl)): #i represents the row 
-        for j in range(len(nucl)): #j represents the column
-            a = CountOccurrences(seq, comb[i][j])
-            result[i,j] = a
+    for seq in sequences:
+        for i in range(len(nucl)): #i represents the row 
+            for j in range(len(nucl)): #j represents the column
+                a = CountOccurrences(seq, comb[i][j])
+                result[i,j] += a
+                a = 0
 
-            a = 0
-            
     #convert occurence to probabilities
     for i in range(len(nucl)): #i represents the row 
         tot = np.sum(result[i])
