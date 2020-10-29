@@ -23,4 +23,7 @@ class TestRandNuqSeq:
         """Checks if the returned list has the excpected length"""
         test_input = ["ATGT", "ATGT", "A"]
         test_output = randomize_nucleotide_sequence(test_input, number_random_seq=10)
-        assert 30 == len(test_output)
+        combined = []
+        for seqs in test_output:
+            combined.extend(seqs)
+        assert 30 == len(combined)
