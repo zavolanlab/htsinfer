@@ -1,5 +1,6 @@
-import numpy as np
 from collections import Counter
+
+import numpy as np
 
 
 def randomize_nucleotide_sequence(input_sequences: list,
@@ -65,7 +66,7 @@ def randomize_nucleotide_sequence(input_sequences: list,
     return(random_sequences)
 
 
-def make_markov_matrix(seq: str):
+def jake_markov_matrix(seq: str):
     """
     Returns markov matrix based on the input sequence,
 
@@ -109,7 +110,7 @@ def make_markov_matrix(seq: str):
         for j in range(len(nucl)): #j represents the column
             prob = result[i,j]/tot
             result[i,j] = prob
-            
+    """ 
     #check if probabilities are correct
     tot = 0
     for i in range(len(nucl)): #i represents the row 
@@ -119,7 +120,7 @@ def make_markov_matrix(seq: str):
         else: 
             result = f'Imhonogenous probability distribution for the {nucl[i]} nucleotides'
             break
-
+    """
     return result
 
 def CountOccurrences(string, substring): 
