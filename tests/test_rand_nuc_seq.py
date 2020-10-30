@@ -1,6 +1,7 @@
 """Test for rand_nuc_seq.py"""
 
 import pytest
+import numpy as np
 from htsinfer.rand_nuc_seq import randomize_nucleotide_sequence, make_markov_matrix
 
 
@@ -28,10 +29,12 @@ class TestRandNuqSeq:
             combined.extend(seqs)
         assert 30 == len(combined)
 
-'''
     def test_markov_matrix_probabilities(self):
         """Checks if the markov matrix probabilities are correct"""
         test_input = ["AT","TT","GT","CT"]
         markov_matrix = make_markov_matrix(test_input)
-
-'''
+        test_matrix = np.array([[0,0,0,1],
+                                [0,0,0,1],
+                                [0,0,0,1],
+                                [0,0,0,1]])
+        assert (markov_matrix == test_matrix).all()
