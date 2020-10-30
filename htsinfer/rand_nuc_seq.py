@@ -25,7 +25,18 @@ def randomize_nucleotide_sequence(input_sequences: list,
         ValueError: The percentage of N's one of the input sequences is too high
     """
     
-    for sequence in input_sequences:
+    # Error if input sequences list is empty
+    if len(input_sequences) == 0:
+        raise ValueError("List of input sequences is empty")
+
+    for i, sequence in enumerate(input_sequences):
+        if not isinstance(sequence, str):
+            raise ValueError(f"Sequence {i} is not a string")
+        # Error if empty sequence is entered
+        if len(sequence) == 0:
+            raise ValueError(
+                f"Sequence {i} is empty"
+            )
         # Count the occurences of N's
         count = Counter(sequence)
         if count["N"] >= 0.05 * len(sequence):
@@ -46,21 +57,10 @@ def randomize_nucleotide_sequence(input_sequences: list,
                 f'{"^":>{i+1}}'
             )
 
-        # Combine random sequences into one string.
-    """
-    for random_list in input_sequences:
-        random_seq_combined.append("".join(random_list))
-    random_seq_strings = "".join(random_seq_combined)
-    """
-
     markov_matrix = make_markov_matrix(input_sequences)
-
- 
 
     random_sequences = create_random_sequence(input_seqs = input_sequences,
         markov_matrix = markov_matrix, number_random_seq=number_random_seq)
-
-
 
     return(random_sequences)
 
