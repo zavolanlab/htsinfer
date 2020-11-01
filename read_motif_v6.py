@@ -4,9 +4,10 @@ Created on Mon Nov  2 01:28:58 2020
 
 @author: YB Moon (ymoon06)
 """
-
 """ assume motif < read """
 """ use_N is for further implement as a parameter """
+
+
 def find_overlaps(motif, read, min_overlap, use_n=False):
     """check the type of arguments """
     if not isinstance(motif, str) or\
@@ -29,9 +30,7 @@ def find_overlaps(motif, read, min_overlap, use_n=False):
         """ should satistfy certain threshold """
         """ As in motif[len(motif)-ov:], you dont need to specify the end"""
         """ python understands this is until end """
-        partial_overlaps_start = [(0, ov / len(motif))
-                for ov in range(min_overlap, len(motif))
-                    if read[0:ov] == motif[len(motif)-ov:]]
+        partial_overlaps_start = [(0, ov / len(motif)) for ov in range(min_overlap, len(motif)) if read[0:ov] == motif[len(motif)-ov:]]
     """ compute matches(overlaps) of the motif inside the read (2nd case) """
     """ you compare the full motif length """
     full_overlaps = []
