@@ -20,11 +20,6 @@ class TestRandNuqSeq:
         with pytest.raises(ValueError):
             randomize_nucleotide_sequence(test_input)
 
-    def test_not_string_input(self):
-        test_input = [8,False,7.9]
-        with pytest.raises(ValueError):
-            randomize_nucleotide_sequence(test_input)
-
     def test_output_list_length(self):
         """Checks if the returned list has the excpected length"""
         test_input = ["ATGT", "ATCGT", "A"]
