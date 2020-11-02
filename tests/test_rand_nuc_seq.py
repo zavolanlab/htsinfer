@@ -38,3 +38,4 @@ class TestRandNuqSeq:
                                 [0, 0, 0, 1],
                                 [0, 0, 0, 1]])
         assert (markov_matrix == test_matrix).all()
+
