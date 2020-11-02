@@ -5,25 +5,29 @@ from typing import Dict
 
 
 def count_motifs(input_sequences: list, min_motif_length: int,
-                 max_motif_length: int, nucleic_acid: str) -> dict:
-    """Function that calculates the occurrence of all motifs in one or
-    multiple sequences and returns a dictionary with all motifs within
-    the specified length and their occurrence.
+                 max_motif_length: int, nucleic_acid: str) -> Dict:
+    """Count frequency of motifs in one or more nucleotide sequences
 
         Args:
-            input_sequences (list): list of sequences
-            min_motif_length (int): minimal length of motif
-            max_motif_length (int): maximal length of motif
-            nucleic_acid (string): type of nucleic acid (dna, rna)
+            input_sequences: list of sequences
+            min_motif_length: minimal length of motif
+            max_motif_length: maximal length of motif
+            nucleic_acid: type of nucleic acid ('dna', 'rna')
 
         Returns:
-            sorted_dict (dict): paired motif frequency {motif: frequency }
+            sorted_dict: paired motif frequency {motif: frequency}
 
         Raises:
-            TypeError: input_sequences is not a list
-            TypeError: min_motif_length or max_motif_length is not an integer
-            ValueError: nucleic_acid is not in specified range
-            ValueError: max_motif_length is longer than the shortest list
+            TypeError: `input_sequences` is not a list
+            TypeError: `min_motif_length` is not an integer
+            TypeError: `max_motif_length` is not an integer
+            ValueError: `nucleic_acid` is not in specified range
+            ValueError: `min_motif_length` is not a positive integer
+            ValueError: `max_motif_length` is not a positive integer
+            ValueError: `max_motif_length` is longer than the shortest list
+            ValueError: `min_motif_length` is longer than the shortest list
+            ValueError: `min_motif_length` is longer than `max_motif_length`
+
     """
 
     if not isinstance(input_sequences, list):
@@ -38,11 +42,23 @@ def count_motifs(input_sequences: list, min_motif_length: int,
     if not isinstance(max_motif_length, int):
         raise TypeError('max_motif_length is not an integer!')
 
-    if nucleic_acid.lower() not in ['rna', 'dna']:
-        raise ValueError('nucleic_acid is not in specified range (dna/rna)!')
+    if min_motif_length <= 0:
+        raise ValueError('min_motif_length is not a positive integer!')
+
+    if max_motif_length <= 0:
+        raise ValueError('max_motif_length is not a positive integer!')
+
+    if min_motif_length > max_motif_length:
+        raise ValueError('min_motif_length is longer than max_motif_length!')
 
     if max_motif_length > len(min(input_sequences)):
-        raise ValueError('max_motif_length is longer than the shortest list')
+        raise ValueError('max_motif_length is longer than shortest sequence!')
+
+    if min_motif_length > len(min(input_sequences)):
+        raise ValueError('min_motif_length is longer than shortest sequence!')
+
+    if nucleic_acid.lower() not in ['rna', 'dna']:
+        raise ValueError('nucleic_acid is not in specified range (dna/rna)!')
 
     motif_freq: Dict[str, int] = {}  # Create empty dictionary (str -> int)
 
@@ -86,6 +102,4 @@ def count_motifs(input_sequences: list, min_motif_length: int,
                 else:
                     print('motif not valid: ', motif)
 
-    sorted_dict = dict(
-        sorted(motif_freq.items(), key=lambda item: item[1], reverse=True))
-    return sorted_dict
+    return motif_freq
