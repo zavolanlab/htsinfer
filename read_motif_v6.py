@@ -4,42 +4,62 @@ Created on Mon Nov  2 01:28:58 2020
 
 @author: YB Moon (ymoon06)
 """
-""" assume motif < read """
-""" use_N is for further implement as a parameter """
+"""
+input:
+    motif = motif sequence. must be string and big character
+    read= = read sequence. must be string and big character
+    assume motif < read
+    min_overlap = min threshold for match
+    full_contain= boolean parameter. If True, only report matches that are
+                  fully contained in the read
+"""
+"""
+output:
+    returns a list of tuple(a,b) where:
+    a is overlap start position of read
+    b is fraction of motif that overlaps
+"""
 
 
-def find_overlaps(motif, read, min_overlap, use_n=False):
+def find_overlaps(motif, read, min_overlap, full_contain=False):
     """check the type of arguments """
-    if not isinstance(motif, str) or\
-        not isinstance(read, str) or\
-        not isinstance(min_overlap, int) or\
-            not isinstance(use_n, bool):
-        raise TypeError('pass the right argument')
-    """ passing min_overlap <1 does not make sense """
-    if len(motif) == 0 or min_overlap < 1:
-        raise ValueError('pass the right value')
-
-    """compute partial overlaps of the motif"""
-    """at the start of the read (1st case) """
-    """ list comprehension is faster. parallelizing is allowed """
+    if not isinstance(motif, str):
+        raise TypeError('Incorrect argument type: motif')
+    if not isinstance(read, str):
+        raise TypeError('Incorrect argument type: read')
+    if not isinstance(min_overlap, int):
+        raise TypeError('Incorrect argument type: min_overlap')
+    if not isinstance(full_contain, bool):
+        raise TypeError('Incorrect argument type: full_contain')
+    """check value of arguments"""
+    if len(motif) == 0:
+        raise ValueError('length of motif must be bigger than 0')
+    if len(read) == 0:
+        raise ValueError('length of read must be bigger than 0')
+    if min_overlap < 1:
+        raise ValueError('min_overlap must be longer than 1')
+    if len(read) < len(motif):
+        raise ValueError('read should be >= than motif')
+    if not motif.isupper():
+        raise ValueError('motif should be all big characters')
+    if not read.isupper():
+        raise ValueError('read should be all big characters')
+    """compute partial overlaps of the motif at the start of the read"""
+    """1st case"""
     partial_overlaps_start = []
     if len(read) >= min_overlap:
-        """ doesnt make sense to do len(motif)+1"""
-        """because then it would be the 2nd case """
-        """ you start from min_overlap because overlap"""
-        """ should satistfy certain threshold """
-        """ As in motif[len(motif)-ov:], you dont need to specify the end"""
-        """ python understands this is until end """
+        """iterate from min_overlap to make it faster"""
         partial_overlaps_start = [(0, ov / len(motif))
                                   for ov in range(min_overlap, len(motif))
                                   if read[0:ov] == motif[len(motif)-ov:]]
-    """ compute matches(overlaps) of the motif inside the read (2nd case) """
-    """ you compare the full motif length """
+    """compute matches of the motif inside the read"""
+    """2nd case"""
+    """you compare the full motif length here"""
     full_overlaps = []
-    if len(read) >= len(motif):
-        full_overlaps = [(i, 1) for i in range(0, len(read) - len(motif)+1)
-                         if read[i:i+len(motif)] == motif]
-    """ compute partial overlaps of the motif at the end of the read """
+    full_overlaps = [(i, 1) for i in range(0, len(read) - len(motif)+1)
+                     if read[i:i+len(motif)] == motif]
+    """compute partial overlaps of the motif at the end of the read """
+    """3rd case"""
     partial_overlaps_end = []
     if len(read) >= min_overlap:
         partial_overlaps_end = [(len(read)-ov, ov / len(motif))
@@ -47,4 +67,7 @@ def find_overlaps(motif, read, min_overlap, use_n=False):
                                 if read[len(read)-ov:] == motif[0:ov]]
     """ print('success') """
     """ return the list of overlaps """
-    return partial_overlaps_start + full_overlaps + partial_overlaps_end
+    if full_contain:
+        return full_overlaps
+    else:
+        return partial_overlaps_start + full_overlaps + partial_overlaps_end
