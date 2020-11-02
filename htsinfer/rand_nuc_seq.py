@@ -105,6 +105,7 @@ def make_markov_matrix(sequences: list):
             ["GA","GC","GG","GT"],
             ["TA","TC","TG","TT"]]
     result = np.zeros((4,4))
+    basefrequency = 0.01 #base frequency of nucleotide pairs if the probability is zero
     
     #count occurence of nucleotide pairs:
     for seq in sequences:
@@ -118,8 +119,14 @@ def make_markov_matrix(sequences: list):
     for i in range(len(nucl)): #i represents the row 
         tot = np.sum(result[i])
         for j in range(len(nucl)): #j represents the column
-            prob = result[i,j]/tot
-            result[i,j] = prob
+            if result[i,j] == 0:
+                result[i,j] = basefrequency
+            else:
+                prob = result[i,j]/tot
+                result[i,j] = prob
+
+    #Taking care of nucleotide results if they did not occur: replace NaN with base occurence frequency
+    result[np.isnan(result)] = basefrequency
     """ 
     #check if probabilities are correct
     tot = 0
