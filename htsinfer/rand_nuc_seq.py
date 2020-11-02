@@ -255,12 +255,10 @@ same markov matrix as the input sequences.
 * Maybe we need to deal with small letters.
 
 Mischa to-do:
-* Implement ValueError: Too many N's.
 
 Thomas to-do:
 * Update the markov-generation, make sure it works with the N's and stuff.
 * Implement function to compare the markov matrix of the in and output.
 
 Both:
-* Start with implementing tests.
 """
