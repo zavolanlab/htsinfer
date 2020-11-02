@@ -2,7 +2,6 @@ from collections import Counter
 
 import numpy as np
 
-
 def randomize_nucleotide_sequence(input_sequences: list,
     number_random_seq: int = 1, min_prob: float = 0) -> list:
     """
