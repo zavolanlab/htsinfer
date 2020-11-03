@@ -1,26 +1,42 @@
 """Infer read orientation from sample data."""
+import os, typing
 
-from typing import Union
+from Bio import SeqIO
 
 
-def infer(
-    file_1: str,  # pylint: disable=unused-argument
-    file_2: str = None,  # pylint: disable=unused-argument
-    organism: Union[int, str] = "hsapiens",  # pylint: disable=unused-argument
-) -> str:
-    """Infers read orientation for single- or paired-ended sequencing libraries
-    in FASTQ format.
+def infer():
+    """Main function coordinating the execution of all other functions.
+    Should be imported/called from main app and return results to it.
+    """
+    # implement me
+    output_path = get_seq(filepath = filepath, organism = organism, temp_dir = temp_dir)
+
+
+def get_transcripts(filepath: str, organism: typing.Union[str, int], temp_dir: str) -> str:
+    """
+    Selects transcript sequences of the desired organims,
+    Example FASTA header: rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029
+    organism short name: apisum, taxon id: 7029
+    outputs it into a FASTA file
 
     Args:
-        file_1: File path to read/first mate library.
-        file_2: File path to second mate library.
-        organism: Source organism of the sequencing library; either a short
-            name (string, e.g., `hsapiens`) or a taxon identifier (integer,
-            e.g., `9606`).
+        filepath(str): Path to the original FASTA file
+        organism(Union[str, int]): organism short name(str, column 4 of FASTA header) or taxon id(int, column 5 of FASTA header)
+        temp_dir(str): Path to the temporary directory
+
+    Raises:
+        OSError: if temp_dir does not exist
 
     Returns:
-        LIBTYPE string according to Salmon documentation, cf.
-        https://salmon.readthedocs.io/en/latest/library_type.html
+        output_path(str): Path to the output file saved in the temporary directory
+
     """
-    # implement logic
-    return "U"
+    output_path = os.path.join(temp_dir, organism + ".fasta")
+    hits = []
+    with open(filepath, "r", encoding="utf-8") as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            if (isinstance(organism, str) and record.description.split("|")[3] == organism) or (
+                    isinstance(organism, int) and record.description.split("|")[4] == str(organism)):
+                hits.append(record)
+    SeqIO.write(hits, output_path, "fasta")
+    return output_path
