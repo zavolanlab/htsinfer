@@ -10,8 +10,8 @@ LOGGER = logging.getLogger(__name__)
 
 def infer():
     
-    """Creates a temporary directory (tmp_dir) in the input 
-    directory (input_dir). Returns the path of tmp_dir.
+    """Creates a temporary directory (tmp_dir) in the working 
+    directory then returns the path of tmp_dir.
     tmp_dir is used for the storage of temporary data 
     created when performing the main function. 
     After completion of main function, tmp_dir is deleted.
