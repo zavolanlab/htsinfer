@@ -24,24 +24,24 @@ def randomize_nucleotide_sequence(input_sequences: list,
         ValueError: The percentage of N's one of the input sequences is too high
     """
     
-    # Error if any of the input is not a char
-    if not all(isinstance(n, str) for n in input_sequences):
-        raise ValueError(
-            "Not all input sequences are of type 'str'"
-        )
-
-    # Convert input strings to upper case
-    input_seqs_upper = []
-    for seq in input_sequences:
-        input_seqs_upper.append(seq.upper())
-    input_sequences = input_seqs_upper
-
 
     # Error if input sequences list is empty
     if len(input_sequences) == 0:
         raise ValueError("List of input sequences is empty")
-    
+
+    input_seqs_upper = [] 
     for i, sequence in enumerate(input_sequences):
+        # Error if any of the input is not a str
+        if not isinstance(sequence, str):
+            raise ValueError(
+                f"Input sequence {i} is not of type 'str'\n"
+                f"{sequence}"
+            )
+        
+        # Convert input strings to upper case
+        sequence = sequence.upper()
+        input_seqs_upper.append(sequence)
+
         # Error if empty sequence is entered
         if len(sequence) == 0:
             raise ValueError(
@@ -66,6 +66,8 @@ def randomize_nucleotide_sequence(input_sequences: list,
                 f"{sequence} \n"
                 f'{"^":>{i+1}}'
             )
+    
+    input_sequences = input_seqs_upper
 
     markov_matrix = make_markov_matrix(input_sequences)
 
