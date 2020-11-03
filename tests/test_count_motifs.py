@@ -1,7 +1,6 @@
 """Unit tests for infer_single_paired.py"""
 
 from htsinfer.infer_count_motifs import count_motifs
-from unittest import mock
 import pytest
 
 test_sequences_DNA = [
@@ -54,33 +53,33 @@ class TestInfer:
             nucleic_acid='rna')
         assert bool(motifs_dict) is True
 
-    def test_invalid_sequence(self):
-        """Test invalid sequences"""
-        with mock.patch('builtins.input', return_value="1"):
-            motifs_dict = count_motifs(
+    def test_invalid_sequence_include(self):
+        """Test invalid sequences and include invalids"""
+        motifs_dict = count_motifs(
                 test_sequences_invalid, min_motif_length=3, max_motif_length=6,
-                nucleic_acid='dna')
-            assert bool(motifs_dict) is True
+                nucleic_acid='dna', non_nucleotide_characters='include')
+        assert bool(motifs_dict) is True
 
-        with mock.patch('builtins.input', return_value="2"):
-            motifs_dict = count_motifs(
+    def test_invalid_sequence_ignore_char(self):
+        """Test invalid sequences and ignore invalid chars"""
+        motifs_dict = count_motifs(
                 test_sequences_invalid, min_motif_length=3, max_motif_length=6,
-                nucleic_acid='dna')
-            assert bool(motifs_dict) is True
+                nucleic_acid='dna', non_nucleotide_characters='ignore_chars')
+        assert bool(motifs_dict) is True
 
-        with mock.patch('builtins.input', return_value="3"):
-            motifs_dict = count_motifs(
+    def test_invalid_sequence_ignore_seq(self):
+        """Test invalid sequences and ignore invalid seqs"""
+        motifs_dict = count_motifs(
                 test_sequences_invalid, min_motif_length=3, max_motif_length=6,
-                nucleic_acid='dna')
-            assert bool(motifs_dict) is False
+                nucleic_acid='dna', non_nucleotide_characters='ignore_seqs')
+        assert bool(motifs_dict) is False
 
     def test_partial_invalid_sequence(self):
         """Test sequence where only one is wrong and will be skipped"""
-        with mock.patch('builtins.input', return_value="3"):
-            motifs_dict = count_motifs(
-                test_sequences_one_wrong, min_motif_length=3,
-                max_motif_length=6, nucleic_acid='dna')
-            assert bool(motifs_dict) is True
+        motifs_dict = count_motifs(
+            test_sequences_one_wrong, min_motif_length=3, max_motif_length=6,
+            nucleic_acid='dna', non_nucleotide_characters='ignore_seqs')
+        assert bool(motifs_dict) is True
 
     def test_not_list(self):
         """Test sequence that is not a list"""
