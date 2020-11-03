@@ -1,79 +1,99 @@
+"""Calculate motif enrichment from sample data."""
+
 from timeit import timeit
+import scipy
+from scipy.stats.distributions import binom
+import sys
 
-foregroundDict = {"TGATTC": 5, "TAAACC": 3, "AAGTTACCT": 1, "AAGCCTT": 1, "AGTTCTA": 0, "TTTCCCG": 5}
-backgroundDict = {"TGATTC": 3, "TAAACC": 5, "AAGCCTT": 0, "AGTTCTA": 1, "TTTCCCG": 5}
 
-def motif_enrich(foreground, background):
-	"""Calculates motif enrichment in two given dictionaries.
+foreground = {"TGATTC": 5, "TAAACC": 3, "AAGTTACCT": 1, "AAGCCTT": 1, "AGTTCTA": 0, "TTTCCCG": 5}
+background = {"TGATTC": 3, "TAAACC": 5, "AAGCCTTAT": 0, "AGTTCTA": 1, "TTTCCCG": 5, "TTGGAA": 7}
+
+
+def motifEnrichment(
+    foreground, 
+    background
+): 
+    """Calculates enrichment and p-values of motifs with similar lengths.
 
     Args:
-        foreground (dictionary) : .
-        background (dictionary) : .
-        
+        foreground: dictionary of motifs with counts
+        background: dictionary of motifs with counts
 
     Returns:
-        Dictionary including the motifs of the foreground dictionary and the enrichment 
-        and p-value for each motif.
+        Dictionary including motifs, sum of counts of motifs with 
+        similar lenght, enrichment score and p-value
 
-    Examples:
-        
-    """
-	newDictForeground = dict()
-	newDictEnrichForeground = dict()
-	newDictBackground = dict()
-	newDictEnrichBackground = dict()
-
-    keysF = list(foreground.keys) #list containing all motifs
-    keysB = list(background.keys())
-    lengthKeysF = [len(i) for i in foreground.keys]  #list containing lengths of all motifs
-    lengthKeysB = [len(i) for i in foreground.keys]
-
+    Raises:
+        .
+    """ 
+   
+     # Foreground dictionary
+    newDictForeground = dict()
+    newDictForegroundProb = dict()
+    newDictFinalF = dict()
+    keyListF = list(foreground.keys())
+    lengthListF = list()
     
-    #foreground dictionary
-    for i in keysF: 
+    # Background dictionary
+    newDictBackground = dict()
+    newDictBackgroundProb = dict()
+    newDictFinalB= dict()
+    keyListB = list(background.keys())
+    lengthListB = list()
+    
+    # Foreground dictionary
+    # Calulates sum of motifs of same length
+    for i in keyListF: 
+        
+        if len(i) in lengthListF:
+            newDictForeground[len(i)] += 1      
+        else: 
+            newDictForeground[len(i)] = 1
+            lengthListF.append(len(i))
+            
+    # Calculates probability of occurrence of motifs
+    for i in newDictForeground:
+        
+        probOfOccurrenceF = newDictForeground[i] / len(foreground)
+        newDictForegroundProb[i] = probOfOccurrenceF
+      
+    # Background dictionary
+    # Calulates sum of motifs of same length
+    for i in keyListB: 
+        
+        if len(i) in lengthListB:
+            newDictBackground[len(i)] += 1      
+        else: 
+            newDictBackground[len(i)] = 1
+            lengthListB.append(len(i))
+            
+    # Calculates probability of occurrence of motifs
+    for i in newDictBackground:
+        
+        probOfOccurrenceF = newDictBackground[i] / len(background)
+        newDictBackgroundProb[i] = probOfOccurrenceF
+    
+        
+    # Calculates enrichment 
+    enrichmentDict = dict()
+    
+    for i in newDictForegroundProb:
 
-    	if len(i) in lengthKeysF: 
-	    	newDict[len(i)] += foreground[i]
-	    	#newDict[i] += foregroundDic[i] #creates dict with sum of counts for each motif with same lengt
-	    else: 
-	    	newDict[len(i)] = foreground[i]
-	    	#newDict[i] = foregroundDic[i]  #adds motif-lengths that are not yet there
+        enrichmentDict[i] = newDictForegroundProb[i] / newDictBackgroundProb[i]
+    
+    # Adds enrichment values
+        
+    for i in foreground: 
 
-	for i in newDict.values(): #calculates and adds enrichment score to newDict
+        newDictFinalF[i] = enrichmentDict[len(i)]
+    
+    for i in background: 
 
-		enrichScore = sqrt((len(foreground) - i) / lengthF)
-		newDict[i] = enrichScore[i]
+        newDictFinalB[i] = enrichmentDict[len(i)]
+        
+    print(newDictFinalF)
+    print(newDictFinalB)
 
-	for i in foreground:
-
-		newDictEnrichForeground[i] = newDictForeground[len(i)].values()
-
-
-	#background dictionary 
-
-
-	#Calculating p-values 
-
-	for i in foregroundDic: 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	     
-
-motif_enrich(foregroundDict, backgroundDict)
-
-print("hello world")
+motifEnrichment(foreground, background)
 
