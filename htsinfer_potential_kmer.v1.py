@@ -21,11 +21,9 @@ def kmer_similarity(kmer_input: list, kmer_size: int >= 5 or <= 20) -> Dict:
             
         Raises:
             TypeError:  'input_kmers' is not a list
-            TypeError:  'kmer_base' is not a string
-            ValueError: 'kmer_base' is invalid (only A,C,T,G)
-            ValueError: 'max_position_dependent_frequency' is invalid
-    
-    
+            TypeError:  'kmer_size' is not a integer
+            ValueError: 'kmer_size' value is invalid
+   
     """
 
     # validate numerical input parameters
