@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 21 02:38:35 2020
+@author: Ji Hoon Han
+"""
+
 """Infer potential barcode k-mers"""
 
 import pandas as pd
