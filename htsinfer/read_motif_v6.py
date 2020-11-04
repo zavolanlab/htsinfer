@@ -29,7 +29,7 @@ def find_overlaps(motif, read, min_overlap, full_contain=False):
     if not isinstance(full_contain, bool):
         raise TypeError('Incorrect argument type: full_contain')
     # check value of arguments
-    if len(motif) == 0 or len(read)==0:
+    if len(motif) == 0 or len(read) == 0:
         raise ValueError('length of motif or read must be bigger than 0')
     if min_overlap < 1:
         raise ValueError('min_overlap must be longer than 1')
