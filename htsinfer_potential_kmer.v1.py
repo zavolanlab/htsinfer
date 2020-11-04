@@ -1,4 +1,4 @@
-"""Infer potential barcode k-mers from sample data"""
+"""Infer potential barcode k-mers"""
 
 import pandas as pd
 from enum import Enum
