@@ -15,7 +15,7 @@ from typing import List, Dict
 class Outcomes(Enum):
     invalid_number_requested = "invalid_number_requested"
 
-def kmer_similarity(kmer_input: list, kmer_size: int >= 5 or <= 20) -> Dict:
+def kmer_group(kmer_input: list, kmer_size: int >= 5 or <= 20) -> Dict:
     
     """Function that returns set of kmers
     
