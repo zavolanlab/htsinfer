@@ -9,7 +9,7 @@ foreground = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA":
 background = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1, "AGUUCUA": 1, "UUUCCCG": 5, "UUGGAA": 7}
 
 
-def motifEnrichment(
+def motif_enrichment(
     foreground,
     background
 ): 
@@ -36,75 +36,75 @@ def motifEnrichment(
             'TTTCCCG': [1.6041666666666667, 0.01646090534979423]}
     """ 
    
-     # Foreground dictionary
-    newDictForeground = dict()
-    newDictForegroundProb = dict()
-    newDictForegroundFinal = dict()
-    newDictForegroundBinom = dict()
-    keyListF = list(foreground.keys())
-    lengthListF = list()
+    # Foreground dictionary
+    new_dict_foreground = dict()
+    new_dict_foreground_prob = dict()
+    new_dict_foreground_final = dict()
+    new_dict_foreground_binom = dict()
+    key_list_f = list(foreground.keys())
+    length_list_f = list()
     
     # Background dictionary
-    newDictBackground = dict()
-    newDictBackgroundProb = dict()
-    keyListB = list(background.keys())
-    lengthListB = list()
+    new_dict_background = dict()
+    new_dict_background_prob = dict()
+    key_list_b = list(background.keys())
+    length_list_b = list()
     
     # Foreground dictionary
     # Calulates sum of motifs of same length
-    for i in keyListF: 
+    for i in key_list_f: 
         
-        if len(i) in lengthListF:
-            newDictForeground[len(i)] += foreground[i]     
+        if len(i) in length_list_f:
+            new_dict_foreground[len(i)] += foreground[i]     
         else: 
-            newDictForeground[len(i)] = foreground[i]
-            lengthListF.append(len(i))
+            new_dict_foreground[len(i)] = foreground[i]
+            length_list_f.append(len(i))
             
     # Calculates probability of occurrence of motifs
-    for i in newDictForeground:
+    for i in new_dict_foreground:
         
-        probOfOccurrenceF = newDictForeground[i] / sum(foreground.values())
-        newDictForegroundProb[i] = probOfOccurrenceF
+        prob_of_occurrence_f = new_dict_foreground[i] / sum(foreground.values())
+        new_dict_foreground_prob[i] = prob_of_occurrence_f
     
     # Background dictionary
     # Calulates sum of motifs of same length
-    for i in keyListB: 
+    for i in key_list_b: 
         
-        if len(i) in lengthListB:
-            newDictBackground[len(i)] += background[i]     
+        if len(i) in length_list_b:
+            new_dict_background[len(i)] += background[i]     
         else: 
-            newDictBackground[len(i)] = background[i]
-            lengthListB.append(len(i))
+            new_dict_background[len(i)] = background[i]
+            length_list_b.append(len(i))
     
     # Calculates probability of occurrence of motifs
-    for i in newDictBackground:
+    for i in new_dict_background:
         
-        probOfOccurrenceF = newDictBackground[i] / sum(background.values())
-        newDictBackgroundProb[i] = probOfOccurrenceF    
+        prob_of_occurrence_f = new_dict_background[i] / sum(background.values())
+        new_dict_background_prob[i] = prob_of_occurrence_f    
     
     # Main
     # Calculates enrichment 
-    enrichmentDict = dict()
+    enrichment_dict = dict()
     
-    for i in newDictForegroundProb:
+    for i in new_dict_foreground_prob:
 
-        enrichmentDict[i] = newDictForegroundProb[i] / newDictBackgroundProb[i]    
+        enrichment_dict[i] = new_dict_foreground_prob[i] / new_dict_background_prob[i]    
     
     # Calculate p-value for foreground motifs    
     n = len(foreground)
-    p = np.average(list(newDictBackgroundProb.values()))
+    p = np.average(list(new_dict_background_prob.values()))
         
     for i in foreground:
         
         r = foreground[i]
-        newDictForegroundBinom[i] = binom.pmf(r, n, p)
+        new_dict_foreground_binom[i] = binom.pmf(r, n, p)
        
     # Create dictionary containing enrichment and p-values 
     for i in foreground: 
 
-        newDictForegroundFinal[i] = [enrichmentDict[len(i)], newDictForegroundBinom[i]]
+        new_dict_foreground_final[i] = [enrichment_dict[len(i)], new_dict_foreground_binom[i]]
     
-    return(newDictForegroundFinal)
+    return(new_dict_foreground_final)
 
 
 motifEnrichment(foreground, background)
