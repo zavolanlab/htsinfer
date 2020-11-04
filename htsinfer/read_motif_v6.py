@@ -29,18 +29,14 @@ def find_overlaps(motif, read, min_overlap, full_contain=False):
     if not isinstance(full_contain, bool):
         raise TypeError('Incorrect argument type: full_contain')
     # check value of arguments
-    if len(motif) == 0:
-        raise ValueError('length of motif must be bigger than 0')
-    if len(read) == 0:
-        raise ValueError('length of read must be bigger than 0')
+    if len(motif) == 0 or len(read)==0:
+        raise ValueError('length of motif or read must be bigger than 0')
     if min_overlap < 1:
         raise ValueError('min_overlap must be longer than 1')
     if len(read) < len(motif):
         raise ValueError('read should be >= than motif')
-    if not motif.isupper():
-        raise ValueError('motif should be all big characters')
-    if not read.isupper():
-        raise ValueError('read should be all big characters')
+    if not motif.isupper() or not read.isupper():
+        raise ValueError('motif or read should be all big characters')
     # compute partial overlaps of the motif at the start of the read
     # 1st case
     partial_overlaps_start = []
@@ -66,5 +62,4 @@ def find_overlaps(motif, read, min_overlap, full_contain=False):
     # return the list of overlaps
     if full_contain:
         return full_overlaps
-    else:
-        return partial_overlaps_start + full_overlaps + partial_overlaps_end
+    return partial_overlaps_start + full_overlaps + partial_overlaps_end
