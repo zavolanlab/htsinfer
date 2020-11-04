@@ -107,4 +107,4 @@ def motif_enrichment(
     return(new_dict_foreground_final)
 
 
-motifEnrichment(foreground, background)
+motif_enrichment(foreground, background)
