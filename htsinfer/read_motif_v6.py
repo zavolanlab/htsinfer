@@ -62,5 +62,4 @@ def find_overlaps(motif, read, min_overlap, full_contain=False):
     # return the list of overlaps
     if full_contain:
         return full_overlaps
-    else:
-        return partial_overlaps_start + full_overlaps + partial_overlaps_end
+    return partial_overlaps_start + full_overlaps + partial_overlaps_end
