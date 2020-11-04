@@ -18,7 +18,7 @@ def count_motifs(input_sequences: list, min_motif_length: int,
                 ('ignore_chars', 'ignore_seqs', 'include')
 
         Returns:
-            sorted_dict: paired motif frequency {motif: frequency}
+            motif_freq: paired motif frequency {motif: frequency}
 
         Raises:
             TypeError: `input_sequences` is not a list
