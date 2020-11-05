@@ -1,7 +1,7 @@
 """Unit tests for motif_enrichment.py"""
 
 import pytest
-from htsinfer import motif_enrichment
+from htsinfer.motif_enrichment import motif_enrichment
 
 FOREGROUND_DICT = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA": 1,
                    "UUUCCCG": 5}
@@ -17,7 +17,7 @@ FINAL_DICT = {"TGATTC": [0.7333333333333334, 0.01646090534979423],
               "TTTCCCG": [1.6041666666666667, 0.01646090534979423]}
 
 
-class TestMotifEnrichment:
+class Test_motif_enrichment:
     """Tests for 'motif_enrichment' function."""
 
     def test_no_dictionaries(self):
