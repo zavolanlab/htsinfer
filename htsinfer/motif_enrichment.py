@@ -3,14 +3,13 @@
 import numpy as np
 from scipy.stats.distributions import binom
 
-
 FOREGROUND_DICT = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1,
                    "AAGCCUU": 1, "AGUUCUA": 1, "UUUCCCG": 5}
 BACKGROUND_DICT = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1,
                    "AGUUCUA": 1, "UUUCCCG": 5, "UUGGAA": 7}
 
-def motif_enrichment(foreground, background):
 
+def motif_enrichment(foreground, background):
     """Calculates enrichment and p-values of motifs with similar lengths.
 
     Args:
@@ -57,7 +56,6 @@ def motif_enrichment(foreground, background):
 
     # Calculates probability of occurrence of motifs
     for i in new_dict_foreground:
-
         prob_of_occurrence_f = new_dict_foreground[i] / sum(foreground.values())
         new_dict_foreground_prob[i] = prob_of_occurrence_f
 
@@ -73,7 +71,6 @@ def motif_enrichment(foreground, background):
 
     # Calculates probability of occurrence of motifs
     for i in new_dict_background:
-
         prob_of_occurrence_f = new_dict_background[i] / sum(background.values())
         new_dict_background_prob[i] = prob_of_occurrence_f
 
@@ -82,7 +79,6 @@ def motif_enrichment(foreground, background):
     enrichment_dict = dict()
 
     for i in new_dict_foreground_prob:
-
         enrichment_dict[i] = new_dict_foreground_prob[i] / new_dict_background_prob[i]
 
     # Calculate p-value for foreground motifs
@@ -91,10 +87,9 @@ def motif_enrichment(foreground, background):
     p_binom = np.average(list(new_dict_background_prob.values()))
 
     for i in foreground:
-
         r_binom = foreground[i]
         new_dict_foreground_final[i] = [enrichment_dict[len(i)],
-                                        (1-binom.cdf(r_binom, n_binom, p_binom))]
+                                        (1 - binom.cdf(r_binom, n_binom, p_binom))]
 
     return new_dict_foreground_final
 
