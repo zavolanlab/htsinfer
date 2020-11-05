@@ -1,7 +1,5 @@
 import pytest
-
-# Test parameters
-from htsinfer.htsinfer import motif_enrichment
+from htsinfer import motif_enrichment
 
 foreground = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA": 1, "UUUCCCG": 5}
 background = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1, "AGUUCUA": 1, "UUUCCCG": 5, "UUGGAA": 7}
