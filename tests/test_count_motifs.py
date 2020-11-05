@@ -97,7 +97,40 @@ class TestInfer:
 
     def test_empty_string(self):
         """Test sequence that is an empty string"""
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError):
             assert count_motifs(
                 test_empty_list, min_motif_length=3, max_motif_length=9,
                 nucleic_acid='rna')
+
+    def test_negative_motif_length(self):
+        """Test sequence with negative motif length"""
+        with pytest.raises(ValueError):
+            assert count_motifs(
+                test_sequences_DNA, min_motif_length=-3, max_motif_length=9,
+                nucleic_acid='dna')
+
+        with pytest.raises(ValueError):
+            assert count_motifs(
+                test_sequences_DNA, min_motif_length=3, max_motif_length=-9,
+                nucleic_acid='dna')
+
+    def test_motif_length(self):
+        """Test for min motif length > max motif length"""
+        with pytest.raises(ValueError):
+            assert count_motifs(
+                test_sequences_DNA, min_motif_length=5, max_motif_length=2,
+                nucleic_acid='dna')
+
+    def test_min_motif_longer_seq(self):
+        """Test for min motif length is longer than shortest sequence"""
+        with pytest.raises(ValueError):
+            assert count_motifs(
+                test_sequences_DNA, min_motif_length=66, max_motif_length=70,
+                nucleic_acid='dna')
+
+    def test_incorrect_nucleic_acid(self):
+        """Test if nucleic_acid is specified incorrectly"""
+        with pytest.raises(ValueError):
+            assert count_motifs(
+                test_sequences_DNA, min_motif_length=3, max_motif_length=7,
+                nucleic_acid='test')
