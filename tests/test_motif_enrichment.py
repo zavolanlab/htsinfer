@@ -1,7 +1,7 @@
 """Unit tests for motif_enrichment.py"""
 
 import pytest
-from htsinfer.htsinfer import motif_enrichment
+from htsinfer import motif_enrichment
 
 FOREGROUND_DICT = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA": 1,
                    "UUUCCCG": 5}
