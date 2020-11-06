@@ -1,15 +1,16 @@
 """Unit tests for motif_enrichment.py"""
 
 import pytest
+from typing import Dict
 from htsinfer.motif_enrichment import motif_enrichment
 
-FOREGROUND_DICT = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA": 1,
+FOREGROUND_DICT: Dict = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA": 1,
                    "UUUCCCG": 5}
-BACKGROUND_DICT = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1, "AGUUCUA": 1, "UUUCCCG": 5,
+BACKGROUND_DICT: Dict = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1, "AGUUCUA": 1, "UUUCCCG": 5,
                    "UUGGAA": 7}
-FOREGROUND_STR = {"UGAUUC": "test", "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA": 1,
+FOREGROUND_STR: Dict = {"UGAUUC": "test", "UAAACC": 3, "AAGUUACCU": 1, "AAGCCUU": 1, "AGUUCUA": 1,
                   "UUUCCCG": 5}
-FINAL_DICT = {'UGAUUC': [0.7333333333333334, 0.00137174211248281],
+FINAL_DICT: Dict = {'UGAUUC': [0.7333333333333334, 0.00137174211248281],
               'UAAACC': [0.7333333333333334, 0.10013717421124824],
               'AAGUUACCU': [1.375, 0.6488340192043895],
               'AAGCCUU': [1.6041666666666667, 0.6488340192043895],

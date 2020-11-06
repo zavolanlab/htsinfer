@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy.stats.distributions import binom
-from typing import Dict
+from typing import (Dict, List)
 
 FOREGROUND_DICT = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1,
                    "AAGCCUU": 1, "AGUUCUA": 1, "UUUCCCG": 5}
@@ -12,7 +12,7 @@ BACKGROUND_DICT = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1,
 
 def motif_enrichment(
     foreground: Dict[str, int],
-    background: Dict[str, int]) -> None: 
+    background: Dict[str, int]) -> Dict: 
     """Calculates enrichment and p-values of motifs with similar lengths.
 
     Args:
@@ -37,15 +37,15 @@ def motif_enrichment(
             'TTTCCCG': [1.6041666666666667, 0.01646090534979423]}
     """
     # Foreground dictionary
-    new_dict_foreground = dict()
-    new_dict_foreground_prob = dict()
-    new_dict_foreground_final = dict()
-    length_list_f = list()
+    new_dict_foreground: Dict = dict()
+    new_dict_foreground_prob: Dict = dict()
+    new_dict_foreground_final: Dict = dict()
+    length_list_f: List = list()
 
     # Background dictionary
-    new_dict_background = dict()
-    new_dict_background_prob = dict()
-    length_list_b = list()
+    new_dict_background: Dict = dict()
+    new_dict_background_prob: Dict = dict()
+    length_list_b: List = list()
 
     # Foreground dictionary
     # Calulates sum of motifs of same length
@@ -79,15 +79,15 @@ def motif_enrichment(
 
     # Main
     # Calculates enrichment
-    enrichment_dict = dict()
+    enrichment_dict: Dict = dict()
 
     for i in new_dict_foreground_prob:
         enrichment_dict[i] = new_dict_foreground_prob[i] / new_dict_background_prob[i]
 
     # Calculate p-value for foreground motifs
     # Create dictionary containing enrichment and p-values
-    n_binom = len(foreground)
-    p_binom = np.average(list(new_dict_background_prob.values()))
+    n_binom: int = len(foreground)
+    p_binom: int = np.average(list(new_dict_background_prob.values()))
 
     for i in foreground:
         r_binom = foreground[i]
