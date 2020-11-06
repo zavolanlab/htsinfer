@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy.stats.distributions import binom
+from typing import Dict
 
 FOREGROUND_DICT = {"UGAUUC": 5, "UAAACC": 3, "AAGUUACCU": 1,
                    "AAGCCUU": 1, "AGUUCUA": 1, "UUUCCCG": 5}
@@ -9,7 +10,9 @@ BACKGROUND_DICT = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1,
                    "AGUUCUA": 1, "UUUCCCG": 5, "UUGGAA": 7}
 
 
-def motif_enrichment(foreground, background):
+def motif_enrichment(
+    foreground: Dict[str, int],
+    background: Dict[str, int]) -> None: 
     """Calculates enrichment and p-values of motifs with similar lengths.
 
     Args:
