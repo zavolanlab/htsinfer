@@ -33,9 +33,9 @@ class TestRandNuqSeq:
         """Checks if the markov matrix probabilities are correct"""
         test_input = ["AT", "TT", "GT", "CT"]
         markov_matrix = make_markov_matrix(test_input)
-        test_matrix = np.array([[0, 0, 0, 1],
-                                [0, 0, 0, 1],
-                                [0, 0, 0, 1],
-                                [0, 0, 0, 1]])
+        test_matrix = np.array([[0.2, 0.2, 0.2, 0.4],
+                                [0.2, 0.2, 0.2, 0.4],
+                                [0.2, 0.2, 0.2, 0.4],
+                                [0.2, 0.2, 0.2, 0.4]])
         assert (markov_matrix == test_matrix).all()
 
