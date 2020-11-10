@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+### Created on 04 November 2020 ###
+###         Issue 21            ###
+### Ji Hoon Han, Elifnaz Celik  ###
+
 """Infer potential barcode k-mers from sample data"""
 
 from enum import Enum
