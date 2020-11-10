@@ -1,3 +1,7 @@
+"""
+Randomize nucleotide sequence based on probabilities
+of input sequences.
+"""
 from collections import Counter
 from typing import List
 
@@ -6,8 +10,8 @@ import numpy as np
 
 def randomize_nucleotide_sequence(
         input_sequences: List,
-        number_random_seq: int = 1,
-        min_prob: float = 0) -> List:
+        number_random_seq: int = 1
+        ) -> List:
     """
     Returns randomised sequences adhering to the dinucleotide probabilites
     found in the input sequences.
@@ -63,7 +67,7 @@ def randomize_nucleotide_sequence(
                 )
 
         # Check if there are chars other than "ATGCN"
-        for i, char in enumerate(sequence):
+        for j, char in enumerate(sequence):
             if char not in "ATGCN":
                 raise ValueError(f"Input sequence "
                                  f"{input_sequences.index(sequence)}"
@@ -71,7 +75,7 @@ def randomize_nucleotide_sequence(
                                  f"than 'ATGCN'.\n"
                                  f"First occurence:\n"
                                  f"{sequence} \n"
-                                 f'{"^":>{i+1}}'
+                                 f'{"^":>{j+1}}'
                                  )
 
     input_sequences = input_seqs_upper
@@ -120,9 +124,9 @@ def make_markov_matrix(sequences: list):
     for seq in sequences:
         for i in range(len(nucl)):  # i represents the row
             for j in range(len(nucl)):  # j represents the column
-                a = CountOccurrences(seq,  comb[i][j])
-                result[i, j] += a
-                a = 1
+                occ = count_occurences(seq, comb[i][j])
+                result[i, j] += occ
+                occ = 1
 
     # convert occurence to probabilities
     for i in range(len(nucl)):  # i represents the row
@@ -135,8 +139,8 @@ def make_markov_matrix(sequences: list):
     return result
 
 
-def CountOccurrences(string, substring):
-
+def count_occurences(string, substring):
+    """Count occurence of base"""
     # Initialize count and start to 0
     count = 0
     start = 0
@@ -210,10 +214,10 @@ def create_random_sequence(
             random_list.append(random_string)
         random_list_all.append(random_list)
 
-    return(random_list_all)
+    return random_list_all
 
 
-def Markov_check(Generated_array, Seq_array, treshold):
+def markov_check(generated_array, seq_array, treshold):
     """
     Goal: Compare the markov matrix of the input and output sequences.
 
@@ -230,37 +234,20 @@ def Markov_check(Generated_array, Seq_array, treshold):
     # Used nucleotides
     nucl = ["A", "C", "G", "T"]
     # Output error list
-    Errorlist = []
-    # Error treshold
-    treshold = treshold
+    errorlist = []
     # treshold_per = round((treshold - 1) * 100,1)
 
     # Division of original markov array (seq array) used to generate
     # the sequence (generated array) to calculate freq difference
-    Dev_array = np.divide(Generated_array, Seq_array)
+    dev_array = np.divide(generated_array, seq_array)
 
     # checking for more than 5% variation in dinucleotide occurences
-    for i in range(len(nucl)):  # i represents the row 
+    for i in range(len(nucl)):  # i represents the row
         for j in range(len(nucl)):  # j represents the column
-            if Dev_array[i][j] >= treshold-1:
-                Errorlist.append(comb[i][j])
+            if dev_array[i][j] >= treshold-1:
+                errorlist.append(comb[i][j])
             else:
                 pass
                 # d = 0
 
-    if not Errorlist:
-        return True
-    else:
-        return False
-    """
-    if not Errorlist :
-        Markov_check = f'There is not more than a {treshold_per}% deviation in the frequences of the computed nucleotide string with comparison to the original dataset'
-    else:
-        Markov_check = f'There is more than a {treshold_per}% deviation in the frequences of the following nucleotides: {Errorlist}' 
-    
-    return Markov_check
-    """
-
-"""
-Limiting case: What to do when certain di-nucleotide combinations never occur.
-"""
+    return not errorlist
