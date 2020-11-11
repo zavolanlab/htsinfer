@@ -12,7 +12,7 @@ BACKGROUND_DICT = {"UGAUUC": 3, "UAAACC": 5, "AAGCCUUAU": 1,
 
 def motif_enrichment(
     foreground: Dict[str, int],
-    background: Dict[str, int]) -> Dict: 
+    background: Dict[str, int]) -> None: 
     """Calculates enrichment and p-values of motifs with similar lengths.
 
     Args:
@@ -71,12 +71,44 @@ def motif_enrichment(
         else:
             new_dict_background[len(i)] = background[i]
             length_list_b.append(len(i))
-
+            
     # Calculates probability of occurrence of motifs
     for i in new_dict_background:
         prob_of_occurrence_f = new_dict_background[i] / sum(background.values())
         new_dict_background_prob[i] = prob_of_occurrence_f
+    
+    # Create same motifs in foreground and background dictionaries
+    for i in foreground:
 
+        if i in background:
+            pass
+        else:
+            background[i] = foreground[i] 
+            for b in background: 
+                if len(b) == len(i):
+                    background[b] += 1
+            for b in foreground: 
+                if len(b) == len(i): 
+                    foreground[b] += 1
+            background[i] = 1
+            
+    for i in background:
+
+        if i in foreground:
+            pass
+        else:
+            foreground[i] = background[i] - 1
+            for f in foreground: 
+                if len(f) == len(i):
+                    foreground[f] += 1
+            for f in background: 
+                if len(f) == len(i):
+                    background[f] += 1
+            foreground[i] = 1
+            
+    print(foreground)
+    print(background)
+            
     # Main
     # Calculates enrichment
     enrichment_dict: Dict = dict()
@@ -91,9 +123,10 @@ def motif_enrichment(
 
     for i in foreground:
         r_binom = foreground[i]
-        new_dict_foreground_final[i] = [enrichment_dict[len(i)],
+        new_dict_foreground_final[i] = [new_dict_foreground[len(i)], 
+                                        enrichment_dict[len(i)],
                                         (1 - binom.cdf(r_binom, n_binom, p_binom))]
-
+    
     return new_dict_foreground_final
 
 
