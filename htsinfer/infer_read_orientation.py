@@ -1,6 +1,12 @@
 """Infer read orientation from sample data."""
 
+import logging
+import os
+import shutil
+import tempfile
 from typing import Union
+
+LOGGER = logging.getLogger(__name__)
 
 
 def infer(
@@ -22,5 +28,22 @@ def infer(
         LIBTYPE string according to Salmon documentation, cf.
         https://salmon.readthedocs.io/en/latest/library_type.html
     """
+
+    # create temporary directory in "../data" directory
+    try:
+        tmp_dir = tempfile.mkdtemp(dir=os.getcwd())
+    except OSError as exc:
+        raise OSError("Creation of temporary directory failed") from exc
+    LOGGER.info(f"Created temporary directory '{tmp_dir}'")
+
     # implement logic
+
+    # delete temporary directory
+    try:
+        shutil.rmtree(tmp_dir)
+    except OSError as exc:
+        raise OSError("Deletion of temporary directory failed") from exc
+    LOGGER.info(f"Deleted temporary directory '{tmp_dir}'")
+
+    # return orientation string
     return "U"
