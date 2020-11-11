@@ -3,11 +3,13 @@
 
 import argparse
 import logging
+from pathlib import Path
 import sys
-from typing import (Optional, Sequence)
+from typing import (Any, Dict, Optional, Sequence)
 
 from htsinfer import (
     infer_single_paired,
+    infer_read_orientation,
     __version__,
 )
 
@@ -44,6 +46,36 @@ def parse_args(
         help=(
             "maximum number of records to process, starting with first "
             "record; set to 0 to process entire file(s)"
+        )
+    )
+    parser.add_argument(
+        '-o', '--organism',
+        metavar="STR",
+        type=str,
+        default='hsapiens',
+        help=(
+            "source organism of the sequencing library, either as a short "
+            "organism name (e.g., 'hsapiens') or taxon identifier (e.g., "
+            "'9606'); if provided, will not not be inferred by the application"
+        )
+    )
+    parser.add_argument(
+        '-t', '--transcripts',
+        metavar="FASTA",
+        type=str,
+        default=(
+            Path(__file__).parent.absolute().parent /
+            "data" /
+            "transcripts.fa"
+        ),
+        help=(
+            "FASTA file containing transcripts to be used for mapping files "
+            "`--file-1` and `--file-2` against for inferring organism and "
+            "read orientation. Requires that sequence identifier lines are "
+            "separated by the pipe (`|`) character and that the 4th and 5th "
+            "columns contain a short organism name and taxon identifier, "
+            "respectively. Example sequence identifier: "
+            "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
         )
     )
     parser.add_argument(
@@ -92,18 +124,36 @@ def main() -> None:
     Args:
         args: Command-line arguments and their values.
     """
+
+    # Parse CLI arguments
     args = parse_args()
+
+    # Set up logging
     setup_logging(
         verbose=args.verbose,
         debug=args.debug,
     )
+
+    # Initialize results container
     LOGGER.info("Started script...")
     LOGGER.debug(f"CLI options: {args}")
-    results = {}
+    results: Dict[str, Any] = {}
+
+    # Infer library type
     results['single_paired'] = infer_single_paired.infer(
         file_1=args.file_1,
         file_2=args.file_2,
     )
+
+    # Infer read orientation
+    results['read_orientation'] = infer_read_orientation.infer(
+        fasta=args.transcripts,
+        file_1=args.file_1,
+        file_2=args.file_2,
+        organism=args.organism,
+    )
+
+    # Log results & end script
     LOGGER.info(f"Results: {results}")
     LOGGER.info("Done.")
 
