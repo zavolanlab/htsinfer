@@ -63,11 +63,7 @@ def parse_args(
         '-t', '--transcripts',
         metavar="FASTA",
         type=str,
-        default=(
-            Path(__file__).parent.absolute().parent /
-            "data" /
-            "transcripts.fa"
-        ),
+        default=Path(__file__).parent.absolute() / "transcripts.fa",
         help=(
             "FASTA file containing transcripts to be used for mapping files "
             "`--file-1` and `--file-2` against for inferring organism and "
