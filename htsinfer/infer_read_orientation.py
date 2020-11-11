@@ -3,7 +3,7 @@
 import logging
 import os
 import shutil
-from tempfile import mkdtemp
+import tempfile
 from typing import Union
 
 LOGGER = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def infer(
 
     # create temporary directory in "../data" directory
     try:
-        tmp_dir = mkdtemp(dir=os.getcwd())
+        tmp_dir = tempfile.mkdtemp(dir=os.getcwd())
     except OSError as exc:
         raise OSError("Creation of temporary directory failed") from exc
     LOGGER.info(f"Created temporary directory '{tmp_dir}'")
