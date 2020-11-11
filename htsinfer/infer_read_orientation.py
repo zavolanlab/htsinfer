@@ -1,7 +1,7 @@
 """Infer read orientation from sample data."""
 
 import logging
-from pathlib import Path
+import os
 import shutil
 from tempfile import mkdtemp
 from typing import Union
@@ -31,7 +31,7 @@ def infer(
 
     # create temporary directory in "../data" directory
     try:
-        tmp_dir = mkdtemp(dir=Path(__file__).resolve().parent.parent / "data")
+        tmp_dir = mkdtemp(dir=os.getcwd())
     except OSError as exc:
         raise OSError("Creation of temporary directory failed") from exc
     LOGGER.info(f"Created temporary directory '{tmp_dir}'")
