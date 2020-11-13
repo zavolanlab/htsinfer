@@ -15,7 +15,8 @@ def infer():
 def randomize_nucleotide_sequence(
         input_sequences: List,
         number_random_seq: int = 1,
-        pseudo_count: int = 1
+        pseudo_count: int = 1,
+        n_freq: float = 5
         ) -> List:
     """
     Returns randomised sequences adhering to the dinucleotide probabilites
@@ -38,8 +39,12 @@ def randomize_nucleotide_sequence(
 
     Raises:
         ValueError: input_string contains too many characters other than ATGCN.
-        ValueError: The percentage of N's one of the input sequences is too
-        high
+        ValueError: The percentage of N's one of the input sequences is higher
+            than n_freq.
+        ValueError: Input sequence is empty.
+        ValueError: Input sequence is not of type 'str'
+        ValueError: number_random_seq < 1.
+        ValueError: pseudo_count < 0.
     """
 
     # Error if input sequences list is empty
@@ -66,7 +71,7 @@ def randomize_nucleotide_sequence(
             )
         # Count the occurences of N's
         count = Counter(sequence)
-        if count["N"] >= 0.05 * len(sequence):
+        if count["N"] >= n_freq * len(sequence):
             raise ValueError(
                 f"Percentage of N in input sequence"
                 f"{input_sequences.index(sequence)} is "
