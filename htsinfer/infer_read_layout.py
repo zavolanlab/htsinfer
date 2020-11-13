@@ -16,7 +16,7 @@ def randomize_nucleotide_sequence(
         input_sequences: List,
         number_random_seq: int = 1,
         pseudo_count: int = 1,
-        n_freq: float = 5
+        n_freq: float = 0.05
         ) -> List:
     """
     Returns randomised sequences adhering to the dinucleotide probabilites
@@ -150,7 +150,6 @@ def make_markov_matrix(sequences: List, pseudo_count: int = 1):
         for i in range(len(nucl)):  # i represents the row
             for j in range(len(nucl)):  # j represents the column
                 occ = count_occurences(seq, comb[i][j])
-                print(occ)
                 result[i, j] += occ
                 occ = 0
 
