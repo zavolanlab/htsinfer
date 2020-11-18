@@ -1,68 +1,8 @@
+'''Extends motifs based on nucleotide representation in sequenced reads'''
 
-sequences_DNA = [
-    "CGTACTTGGTTCGATCAACCAGGCCGTAAAGTACGACGTCATCAAAAACGTTTAAACAAA",
-    "GCTCAACGTGTTGCTCCTCGACCAGCCAAAGGTTCATTACGGCCAGTTGTTCGTGGTACC",
-    "GCTGCTGGTCTTCATCCAACCTATGCTCGAACCATCGGTATTTCAGTTGATCATCGACGA",
-    "ACACGTCGTTATAACATGAAAGTACGTTCTGGACGCGGTTTTTCTTTGGATGAAATTCGT"
-    ]
-
-sequences_RNA = [
-    "CGUACUUGGUUCGAUCAACCAGGCCGUAAAGUACGACGUCAUCAAAAACGUUUAAACAAA",
-    "GCUCAACGUGUUGCUCCUCGACCAGCCAAAGGUUCAUUACGGCCAGUUGUUCGUGGUACC",
-    "GCUGCUGGUCUUCAUCCAACCUAUGCUCGAACCAUCGGUAUUUCAGUUGAUCAUCGACGA",
-    "ACACGUCGUUAUAACAUGAAAGUACGUUCUGGACGCGGUUUUUCUUUGGAUGAAAUUCGU"
-    ]
-
-core_motifs_DNA = ["GCT", "TAT", "ACA", "CGC", "TGT", "GAG", "AAA", "GGG", "CCC", "TTT"]
-
-core_motifs_RNA = ["GCU", "UAU", "ACA", "CGC", "UGU", "GUG", "AAA", "GGG", "CCC", "UUU"]
-
-from typing import Dict
 import math
-
-def extend_motifs(input_sequences:list, core_motifs:list,
-                  nucleic_acid:str):
-    """ Extends motifs based on nucleotide representation in
-        sequenced reads
-
-        Args:
-            input_sequences: list of sequences
-            core_motifs: list of core motifs
-            nucleic_acid: type of nucleic acid (dna, rna)
-
-        Returns:
-            extended_motifs: list of extended motifs
-
-        Raises:
-            TypeError: input_sequences is not a list
-            TypeError: input_sequences is not a list
-            ValueError: nucleic_acid is not in specified range
-
-        """
-"""
-    if not isinstance(input_sequences, list):
-        raise TypeError('input_sequences is not a list of sequences!')
-
-    if not isinstance(core_motifs, list):
-        raise TypeError('core_motifs is not a list of sequences!')
-
-    if nucleic_acid.lower() not in ['rna', 'dna']:
-        raise ValueError('nucleic_acid is not in specified range (dna/rna)!')
-
-
-    base_dict = {
-        'dna': 'ACTG',
-        'rna': 'ACUG'
-    }
-
-    # determine valid characters depending on input sequences
-    try:
-        valid_bases = base_dict[nucleic_acid.lower()]
-    except KeyError:
-        raise ValueError(
-            'nucleic_acid is not in specified range (dna/rna)!')
-    return extended_motifs
-"""
+import numpy as np
+from scipy import stats
 
 def find_motif_positions(read:str, coremotif:str):
     """
@@ -80,7 +20,7 @@ def find_motif_positions(read:str, coremotif:str):
     for i in range(len(read)-len(coremotif)+1): # loop over alignment
         match = True
         for j in range(len(coremotif)): # loop over characters
-            if read[i+j] != t[j]:  # compare characters
+            if read[i+j] != coremotif[j]:  # compare characters
                 match = False   # mismatch
                 break
         if match == True:   # allchars matched
@@ -88,60 +28,127 @@ def find_motif_positions(read:str, coremotif:str):
     print(startpositions)
     endpositions = []
     for k in range(len(startpositions)):
-        endpositions.append(startpositions[k]+len(coremotif))
+        endpositions.append(startpositions[k]+len(coremotif)-1)
     print(endpositions)
     return startpositions, endpositions
 
-s = "GCTCAACGTGTTGCTCCTCGACCAGCCAAAGGTTCATTACGGCCAGTTGTTCGTGGTACC"
-t = "GCT"
-start,end = find_motif_positions(s,t)
+#test
+#s = "GCTCAACGTGTTGCTCCTCGACCAGCCAAAGGTTCATTACGGCCAGTTGTTCGTGGTACC"
+#t = "GCT"
+#start,end = find_motif_positions(s,t)
 
+def compute_entropy(input_sequences: list, motif: str, position: str):
+    """
+    Returns the entropy at a flanking position of a core motif.
 
-#find start and endpositions in all reads:
-right_freq: Dict[str, int] = {'T': 0, 'C': 0, 'A': 0, 'G': 0}
-left_freq: Dict[str, int] = {'T': 0, 'C': 0, 'A': 0, 'G': 0}
-right_prob: Dict[str, int] = {}
-left_prob: Dict[str, int] = {}
-motif = "GCT"
-for read in (input_sequences):
-    start,end = find_motif_positions(read, motif)
-    #iterating through all instances of the core motif in the read
-    for pos in len(start):
-        #left flanking position
-        if start[pos]>0:
-            char = read[start[pos]-1]
-            freq = left_freq.get(char)
-            dict_char = {char: freq+1}
-            left_freq.update(dict_char)
-        else:
-            break
-        #right flanking position
-        if end[pos] < len(read):
-            char = read[start[pos]-1]
-            freq = right_freq.get(char)
-            dict_char = {char: freq+1}
-            right_freq.update(dict_char)
-        else:
-            break
-    #left flanking position
-    tot = sum(left_freq.values())
-    nucleotides = ["T", "C", "A", "G"]
+    Args:
+        input_sequences
+        motif
+        position: left or right
+
+    Returns:
+        entropy: float
+    """
+    nucleotides = np.array(["T", "C", "A", "G"])
+    numbers = np.array([0,1,2,3])
+    freq = np.zeros(shape=4)
+    flanking = np.empty(shape=len(input_sequences), dtype=str)
+    for read_no, read in enumerate(input_sequences):
+        start,end = find_motif_positions(read, motif)
+        for pos in range(len(start)): #iterating through all instances of the core motif in the read
+            if position == "left":
+                if start[pos]>0:
+                    char = read[start[pos]-1]
+                    freq[[numbers[nucleotides == char]]] += 1
+                    flanking[read_no] = char
+                else:
+                    break
+            if position == "right":
+                if end[pos] < (len(read)-1):
+                    char = read[end[pos]+1]
+                    freq[[numbers[nucleotides == char]]] += 1
+                    flanking[read_no] = char
+                else:
+                    break
+    flanking_mode = stats.mode(flanking)[0][0]
+    print(flanking_mode)
+    print(freq)
+    tot = np.sum(freq)
+    print(tot)
     entropy = 0
-    for n in nucleotides:
-        p = left_freq.get(n)/tot
-        left_prob[n] = p
+    for i in range(len(nucleotides)):
+        p = freq[i]/tot + 0.00000000001
         entropy += p*(math.log2(p))
+    print(entropy)
+    return entropy, flanking_mode
 
-    #right flanking position
-    tot = sum(left_freq.values())
-    nucleotides = ["T", "C", "A", "G"]
-    entropy = 0
-    for n in nucleotides:
-        p = left_freq.get(n)/tot
-        left_prob[n] = p
-        entropy += p*(math.log2(p))
+#test
+#motif = "AAG"
+#position = "right"
+#compute_entropy(sequences_DNA, motif, position)
 
-    ##write functions to reduce redundancy!
+def extend_motifs(input_sequences:list, core_motifs:list, nucleic_acid: str):
+    """ Extends motifs based on nucleotide representation in
+        sequenced reads
+
+        Args:
+            input_sequences: list of sequences
+            core_motifs: list of core motifs
+            nucleic_acid: type of nucleic acid (dna, rna)
+
+        Returns:
+            extended_motifs: list of extended motifs
+
+        Raises:
+            TypeError: input_sequences is not a list
+            TypeError: input_sequences is not a list
+            ValueError: nucleic_acid is not in specified range
+
+        """
+    if not isinstance(input_sequences, list):
+        raise TypeError('input_sequences is not a list of sequences!')
+
+    if not isinstance(core_motifs, list):
+        raise TypeError('core_motifs is not a list of sequences!')
+
+    base_dict = {
+        'dna': 'ACTG',
+        'rna': 'ACUG'
+    }
+    # determine valid characters depending on input sequences
+    try:
+        valid_bases = base_dict[nucleic_acid.lower()]
+    except KeyError:
+        raise ValueError(
+            'nucleic_acid is not in specified range (dna/rna)!')
+    for sequence_no, seq in enumerate(input_sequences):
+        if not all(base in valid_bases for base in seq):
+            raise ValueError('invalid bases for specified nucleic_acid in input_sequences')
+    #code
+    cutoff = 0.1
+    extended_motifs = []
+    for motif in core_motifs:
+        position = "left"
+        entropy, flanking_mode = compute_entropy(input_sequences, motif, position)
+        extended_motif = motif
+        while abs(entropy) < cutoff:
+            extended_motif = flanking_mode + extended_motif
+            print(extended_motif)
+            entropy, flanking_mode = compute_entropy(input_sequences, extended_motif, position)
+        position = "right"
+        entropy, flanking_mode = compute_entropy(input_sequences, extended_motif, position)
+        while abs(entropy) < cutoff:
+            extended_motif = extended_motif + flanking_mode
+            print(extended_motif)
+            entropy, flanking_mode = compute_entropy(input_sequences, extended_motif, position)
+        extended_motifs.append(extended_motif)
+    print(extended_motifs)
+    return extended_motifs
+
+#test
+#core_motifs = ["AAG", "AT", "CGT"]
+#extend_motifs(sequences_DNA, core_motifs)
+
 
 
 
