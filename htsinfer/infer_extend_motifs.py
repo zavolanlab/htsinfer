@@ -27,15 +27,15 @@ def find_motif_positions(sequence: str, motif: str):
     startpositions = []
     for i in range(len(sequence) - len(motif) + 1):  # loop over read
         match = True
-        for j in range(len(motif)):  # loop over characters
-            if sequence[i + j] != motif[j]:  # compare characters
+        for j in enumerate(motif):  # loop over characters
+            if sequence[i + j[0]] != motif[j[0]]:  # compare characters
                 match = False   # mismatch
                 break
         if match:   # all chars matched
             startpositions.append(i)
     endpositions = []
-    for k in range(len(startpositions)):
-        endpositions.append(startpositions[k] + len(motif) - 1)
+    for k in enumerate(startpositions):
+        endpositions.append(startpositions[k[0]] + len(motif) - 1)
     return startpositions, endpositions
 
 
@@ -56,29 +56,28 @@ def compute_entropy(input_sequences: list, motif: str, position: str):
     numbers = np.array([0, 1, 2, 3])
     freq = np.zeros(shape=4)
     flanking = np.empty(shape=len(input_sequences), dtype=str)
-    for seq_no, sequence in enumerate(input_sequences):
-        start, end = find_motif_positions(sequence, motif)
-        for pos in range(len(start)):
+    for sequence in enumerate(input_sequences):
+        start, end = find_motif_positions(sequence[1], motif)
+        for pos in enumerate(start):
             if position == "left":
-                if start[pos] > 0:
-                    char = sequence[start[pos]-1]
+                if start[pos[0]] > 0:
+                    char = sequence[1][start[pos[0]]-1]
                     freq[[numbers[nucleotides == char]]] += 1
-                    flanking[seq_no] = char
+                    flanking[sequence[0]] = char
                 else:
                     break
             if position == "right":
-                if end[pos] < (len(sequence)-1):
-                    char = sequence[end[pos]+1]
+                if end[pos[0]] < (len(sequence[1])-1):
+                    char = sequence[1][end[pos[0]]+1]
                     freq[[numbers[nucleotides == char]]] += 1
-                    flanking[seq_no] = char
+                    flanking[sequence[0]] = char
                 else:
                     break
     flanking_mode = stats.mode(flanking)[0][0]
-    tot = np.sum(freq)
     entropy = 0
     for i in range(len(nucleotides)):
-        prob = freq[i]/tot + 0.00000000001
-        entropy += prob*(math.log2(prob))
+        entropy += (freq[i]/np.sum(freq) + 0.00000000001)*\
+                   (math.log2(freq[i]/np.sum(freq) + 0.00000000001))
     return entropy, flanking_mode
 
 
@@ -126,11 +125,11 @@ def extend_motifs(sequences: list, motifs: list, nucleic_acid: str):
     # determine valid characters depending on sequences
     try:
         valid_bases = base_dict[nucleic_acid.lower()]
-    except KeyError:
+    except KeyError as keyerror:
         raise ValueError(
-            'nucleic_acid is not in specified range (dna,rna)!')
-    for seq_no, sequence in enumerate(sequences):
-        if not all(base in valid_bases for base in sequence):
+            'nucleic_acid is not in specified range (dna,rna)!') from keyerror
+    for sequence in enumerate(sequences):
+        if not all(base in valid_bases for base in sequence[1]):
             raise ValueError('invalid bases for specified '
                              'nucleic_acid in sequences')
 
