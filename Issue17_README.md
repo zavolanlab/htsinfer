@@ -1,4 +1,4 @@
-##Issue description:
+## Issue description:
 
 Given a set of core motifs (input: list of core motifs), check whether they represent
 parts of longer motifs in sequenced reads (input: list of reads). 
@@ -11,10 +11,9 @@ entropy of this distribution. Ideally, the motif can be extended if the flanking
 positions contain one specific nucleotide, i.e. entropy is 0. 
 
 But sequencing errors could introduce some noise. So it may be necessary to introduce a cutoff.
-
 Continue the extension greedily until the entropy becomes too high. 
 
-##Proposal:
+## Function description:
 
 Input: list of core motifs & list of reads
 
