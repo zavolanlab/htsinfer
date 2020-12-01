@@ -76,19 +76,21 @@ def compute_entropy(input_sequences: list, motif: str, position: str):
     flanking_mode = stats.mode(flanking)[0][0]
     entropy = 0
     for i in range(len(nucleotides)):
-        entropy += (freq[i]/np.sum(freq) + 0.00000000001)*\
+        entropy += (freq[i]/np.sum(freq) + 0.00000000001) * \
                    (math.log2(freq[i]/np.sum(freq) + 0.00000000001))
     return entropy, flanking_mode
 
 
-def extend_motifs(sequences: list, motifs: list, nucleic_acid: str):
+def extend_motifs(sequences: list, motifs: list, nucleic_acid: str, cutoff: float):
     """ Extends motifs based on nucleotide representation in
-        sequenced reads
+        sequenced reads (if abs(Shannon entropy) < cutoff)
 
         Args:
             sequences: list of sequences
             motifs: list of motifs
             nucleic_acid: type of nucleic acid ('dna', 'rna')
+            cutoff: float value that determines whether motif should be
+             extended based on the computed Shannon entropy
 
         Returns:
             extended_motifs: list of extended motifs
@@ -96,6 +98,7 @@ def extend_motifs(sequences: list, motifs: list, nucleic_acid: str):
         Raises:
             TypeError: sequences is not a list
             TypeError: motifs is not a list
+            TypeError: cutoff is not a float
             ValueError: nucleic_acid is not in specified range
             ValueError: longest motif in motifs longer than shortest sequence
             ValueError: sequences or motifs is not a list
@@ -107,6 +110,9 @@ def extend_motifs(sequences: list, motifs: list, nucleic_acid: str):
 
     if not isinstance(motifs, list):
         raise TypeError('motifs is not a list!')
+
+    if not isinstance(cutoff, float):
+        raise TypeError('cutoff is not a float!')
 
     if len(max(motifs)) > len(min(sequences)):
         raise ValueError('longest motif in motifs '
@@ -133,7 +139,6 @@ def extend_motifs(sequences: list, motifs: list, nucleic_acid: str):
             raise ValueError('invalid bases for specified '
                              'nucleic_acid in sequences')
 
-    cutoff = 0.1
     extended_motifs = []
     for motif in motifs:
         position = "left"
