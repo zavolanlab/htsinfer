@@ -4,6 +4,7 @@ import math
 import numpy as np  # type: ignore
 from scipy import stats  # type: ignore
 
+
 def find_motif_positions(sequence: str, motif: str):
     """
     Returns the start and end position(s) of a core motif in a sequence
