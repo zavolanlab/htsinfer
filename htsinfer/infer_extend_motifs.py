@@ -32,13 +32,13 @@ def find_motif_positions(sequence: str, motif: str):
     return startpositions, endpositions
 
 
-def compute_entropy(input_sequences: list, motif: str, position: str):
+def compute_entropy(sequences: list, motif: str, position: str):
     """
     Returns the entropy at a flanking position (left or right)
     of a motif in a list of sequences
 
     Args:
-        input_sequences: list of sequences
+        sequences: list of sequences
         motif: string of nucleotides representing a motif
         position: left or right flanking position ('left', 'right')
 
@@ -48,8 +48,8 @@ def compute_entropy(input_sequences: list, motif: str, position: str):
     nucleotides = np.array(["T", "C", "A", "G"])
     numbers = np.array([0, 1, 2, 3])
     freq = np.zeros(shape=4)
-    flanking = np.empty(shape=len(input_sequences), dtype=str)
-    for sequence in enumerate(input_sequences):
+    flanking = np.empty(shape=len(sequences), dtype=str)
+    for sequence in enumerate(sequences):
         start, end = find_motif_positions(sequence[1], motif)
         for pos in enumerate(start):
             if position == "left":
@@ -140,14 +140,11 @@ def extend_motifs(sequences: list, motifs: list, nucleic_acid: str,
         extended_motif = motif
         while abs(entropy) < cutoff:
             extended_motif = flanking_mode + extended_motif
-            entropy, flanking_mode = compute_entropy(sequences,
-                                                     extended_motif, position)
+            entropy, flanking_mode = compute_entropy(sequences, extended_motif, position)
         position = "right"
-        entropy, flanking_mode = compute_entropy(sequences,
-                                                 extended_motif, position)
+        entropy, flanking_mode = compute_entropy(sequences, extended_motif, position)
         while abs(entropy) < cutoff:
             extended_motif = extended_motif + flanking_mode
-            entropy, flanking_mode = compute_entropy(sequences,
-                                                     extended_motif, position)
+            entropy, flanking_mode = compute_entropy(sequences, extended_motif, position)
         extended_motifs.append(extended_motif)
     return extended_motifs
