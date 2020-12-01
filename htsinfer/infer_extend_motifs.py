@@ -4,14 +4,6 @@ import math
 import numpy as np  # type: ignore
 from scipy import stats  # type: ignore
 
-sequences_DNA = [
-    "CGTACTTGGTTCGATCAACCAGGCCGTAAAGTACGACGTCATCAAAAACGTTTAAACAAA",
-    "GCTCAACGTGTTGCTCCTCGACCAGCCAAAGGTTCATTACGGCCAGTTGTTCGTGGTACC",
-    "GCTGCTGGTCTTCATCCAACCTATGCTCGAACCATCGGTATTTCAGTTGATCATCGACGA",
-    "ACACGTCGTTATAACATGAAAGTACGTTCTGGACGCGGTTTTTCTTTGGATGAAATTCGT"
-    ]
-
-
 def find_motif_positions(sequence: str, motif: str):
     """
     Returns the start and end position(s) of a core motif in a sequence
@@ -81,7 +73,8 @@ def compute_entropy(input_sequences: list, motif: str, position: str):
     return entropy, flanking_mode
 
 
-def extend_motifs(sequences: list, motifs: list, nucleic_acid: str, cutoff: float):
+def extend_motifs(sequences: list, motifs: list, nucleic_acid: str,
+                  cutoff: float):
     """ Extends motifs based on nucleotide representation in
         sequenced reads (if abs(Shannon entropy) < cutoff)
 
