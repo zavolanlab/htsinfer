@@ -6,5 +6,7 @@ dependencies:
   - biopython=1.78
   - pip=20.2.3
   - python=3.8.5
+  - scipy=1.5.4
+  - numpy=1.19.4
   - pip:
     - -e .
