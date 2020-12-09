@@ -69,7 +69,7 @@ def compute_entropy(sequences: list, motif: str, position: str):
     flanking_mode = stats.mode(flanking)[0][0]
     entropy = 0
     for i in range(len(nucleotides)):
-        entropy += (freq[i]/np.sum(freq) + 0.00000000001) * \
+        entropy += -1*(freq[i]/np.sum(freq) + 0.00000000001) * \
                    (math.log2(freq[i]/np.sum(freq) + 0.00000000001))
     return entropy, flanking_mode
 
