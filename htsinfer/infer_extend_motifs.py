@@ -69,7 +69,7 @@ def compute_entropy(sequences: list, motif: str, position: str):
     flanking_mode = stats.mode(flanking)[0][0]
     entropy = 0
     for i in range(len(nucleotides)):
-        entropy += -1*(freq[i]/np.sum(freq) + 0.00000000001) * \
+        entropy += -1 * (freq[i]/np.sum(freq) + 0.00000000001) * \
                    (math.log2(freq[i]/np.sum(freq) + 0.00000000001))
     return entropy, flanking_mode
 
@@ -77,7 +77,7 @@ def compute_entropy(sequences: list, motif: str, position: str):
 def extend_motifs(sequences: list, motifs: list, nucleic_acid: str,
                   cutoff: float):
     """ Extends motifs based on nucleotide representation in
-        sequenced reads (if abs(Shannon entropy) < cutoff)
+        sequenced reads (if Shannon entropy < cutoff)
 
         Args:
             sequences: list of sequences
@@ -138,12 +138,12 @@ def extend_motifs(sequences: list, motifs: list, nucleic_acid: str,
         position = "left"
         entropy, flanking_mode = compute_entropy(sequences, motif, position)
         extended_motif = motif
-        while abs(entropy) < cutoff:
+        while entropy < cutoff:
             extended_motif = flanking_mode + extended_motif
             entropy, flanking_mode = compute_entropy(sequences, extended_motif, position)
         position = "right"
         entropy, flanking_mode = compute_entropy(sequences, extended_motif, position)
-        while abs(entropy) < cutoff:
+        while entropy < cutoff:
             extended_motif = extended_motif + flanking_mode
             entropy, flanking_mode = compute_entropy(sequences, extended_motif, position)
         extended_motifs.append(extended_motif)
