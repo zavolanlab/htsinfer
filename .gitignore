@@ -325,3 +325,6 @@ pip-selfcheck.json
 
 # Custom additions
 .vscode
+
+# Testing
+tests/test_files/outputs
