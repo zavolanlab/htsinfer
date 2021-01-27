@@ -3,6 +3,7 @@
 
 import argparse
 import logging
+from pathlib import Path
 import sys
 from typing import (Any, Dict, Optional, Sequence)
 
@@ -54,8 +55,23 @@ def parse_args(
         default='hsapiens',
         help=(
             "source organism of the sequencing library, either as a short "
-            "name (e.g., 'hsapiens') or taxon identifier (e.g., '9606'); if "
-            "provided, will not not be inferred by the application"
+            "organism name (e.g., 'hsapiens') or taxon identifier (e.g., "
+            "'9606'); if provided, will not not be inferred by the application"
+        )
+    )
+    parser.add_argument(
+        '-t', '--transcripts',
+        metavar="FASTA",
+        type=str,
+        default=Path(__file__).parent.absolute() / "transcripts.fa",
+        help=(
+            "FASTA file containing transcripts to be used for mapping files "
+            "`--file-1` and `--file-2` against for inferring organism and "
+            "read orientation. Requires that sequence identifier lines are "
+            "separated by the pipe (`|`) character and that the 4th and 5th "
+            "columns contain a short organism name and taxon identifier, "
+            "respectively. Example sequence identifier: "
+            "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
         )
     )
     parser.add_argument(
@@ -127,6 +143,7 @@ def main() -> None:
 
     # Infer read orientation
     results['read_orientation'] = infer_read_orientation.infer(
+        fasta=args.transcripts,
         file_1=args.file_1,
         file_2=args.file_2,
         organism=args.organism,
