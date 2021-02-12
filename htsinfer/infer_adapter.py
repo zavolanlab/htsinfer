@@ -1,0 +1,1 @@
+"""Infer adapter sequences present in reads."""
