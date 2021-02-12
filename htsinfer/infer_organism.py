@@ -10,7 +10,7 @@ from typing import (Dict, Tuple)
 logger = logging.getLogger(__name__)
 
 
-def kallisto(file_1: str, file_2: str = None) -> Dict[Tuple[str, str], float]:
+def kallisto(file_1: str, file_2: str = None) -> pd.DataFrame:
     """Builds index file and run quantification algorithm.
 
     Args:
@@ -18,7 +18,7 @@ def kallisto(file_1: str, file_2: str = None) -> Dict[Tuple[str, str], float]:
         file_2 (str) : File path to second mate library.
 
     Returns:
-        A dictionary of count percentage information for top five organisms.
+        A dataframe of count percentage information for top five organisms.
     """
     index = "kallisto index -i transcripts.idx --make-unique transcripts.fasta"
     quant_single = "kallisto quant -i transcripts.idx -o output -l 100 -s 300 --single " + file_1
@@ -36,11 +36,15 @@ def kallisto(file_1: str, file_2: str = None) -> Dict[Tuple[str, str], float]:
                 sp.call(quant_single, shell=True)
     except sp.CalledProcessError:
         logger.error("Invalid input file")
-        raise Exception("Error running kallisto")
+        raise Exception("Error : running kallisto/transcripts.fasta not located")
 
     logger.debug("Processing organism count info")
     result = process_count_info()
-    return result
+    # Converting result into dataframe
+    oragnism_df = pd.DataFrame(result.items())
+    oragnism_df.columns = ['Organism, Taxon ID', 'Match %']
+    oragnism_df.index = oragnism_df.index + 1
+    return oragnism_df
 
 
 def process_count_info() -> Dict[Tuple[str, str], float]:
