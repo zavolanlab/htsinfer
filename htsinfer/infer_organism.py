@@ -3,23 +3,34 @@
 import os
 import pandas as pd
 import subprocess as sp
-import operator
 import logging
-from typing import (Dict, Tuple)
+import zipfile as zp
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 
 
-def kallisto(file_1: str, file_2: str = None) -> pd.DataFrame:
+def kallisto(
+    file_1: str,
+    file_2: str = None,
+    min_match: float = 10,
+    factor: float = 2
+) -> str:
     """Builds index file and run quantification algorithm.
 
     Args:
         file_1 (str) : File path to read/first mate library.
         file_2 (str) : File path to second mate library.
+        min_match (float) : minimum match percentage that top organism
+        needs to have.
+        factor (float) : factor by which first organism is greater than
+        the second.
 
     Returns:
-        A dataframe of count percentage information for top five organisms.
+        Organism name if it satisfies confidence score else NA.
     """
+    with zp.ZipFile("transcripts.fasta.zip", "r") as zip_ref:
+        zip_ref.extractall()
     index = "kallisto index -i transcripts.idx --make-unique transcripts.fasta"
     quant_single = "kallisto quant -i transcripts.idx -o output -l 100 -s 300 --single " + file_1
     if file_2 is not None:
@@ -39,20 +50,20 @@ def kallisto(file_1: str, file_2: str = None) -> pd.DataFrame:
         raise Exception("Error : running kallisto/transcripts.fasta not located")
 
     logger.debug("Processing organism count info")
-    result = process_count_info()
-    # Converting result into dataframe
-    oragnism_df = pd.DataFrame(result.items())
-    oragnism_df.columns = ['Organism, Taxon ID', 'Match %']
-    oragnism_df.index = oragnism_df.index + 1
-    return oragnism_df
+    organism_df = process_count_info()
+    # Checking confidence score
+    if(confidence(organism_df, min_match, factor)):
+        result = organism_df.iloc[0]['Organism']
+    else:
+        result = "NA"
+    return result
 
 
-def process_count_info() -> Dict[Tuple[str, str], float]:
-    """Infers organisms count and return them as dictionary.
+def process_count_info() -> pd.DataFrame:
+    """Infers organisms count info and return them as dataframe.
 
     Returns:
-        A Dictionary with count percentage for organisms.
-        example : ('scerevisiae', '4932'): 89.22
+        A dataframe with count percentage for all organisms.
     """
     # Reading tsv file created by kallisto quant
     path = os.path.dirname(os.path.abspath(__file__))
@@ -77,12 +88,43 @@ def process_count_info() -> Dict[Tuple[str, str], float]:
         total_tpm += float(df['tpm'][i])
 
     # Calculating Percentage
-    for i in organism_tpm_count:
-        organism_tpm_count[i] = round((organism_tpm_count[i]/total_tpm)*100, 2)
+    if total_tpm != 0:
+        for i in organism_tpm_count:
+            organism_tpm_count[i] = round((organism_tpm_count[i]/total_tpm)*100, 2)
 
     # Sorting as per organism with the highest counts
-    # sorted_organism_count = {k: v for k, v in sorted(organism_count.items(), key=lambda item: -1*item[1])}
+    # sorted_organism_count = {k: v for k, v in sorted(organism_count.items(), key= lambda item: -1*item[1])}
 
-    # Returning top five organisms as per TPM counts
-    top_five = dict(sorted(organism_tpm_count.items(), key=operator.itemgetter(1), reverse=True)[:5])
-    return top_five
+    # Converting dictionary into dataframe
+    organism_df = pd.DataFrame(organism_tpm_count.items())
+    organism_df[['Organism', 'Taxon ID']] = pd.DataFrame(organism_df[0].tolist())
+    organism_df = organism_df.sort_values(by=1,ascending=False).reset_index(drop=True).drop([0], axis=1)
+    organism_df = organism_df.rename(columns={1: 'Match %'})
+    organism_df.to_csv('organism_count_info.csv')
+    return organism_df
+
+
+def confidence(
+    organism_df: pd.DataFrame,
+    min_match: float = 10,
+    factor: float = 2
+) -> bool:
+    """Checks confidence score
+
+    Args:
+        organism_df (dataframe) : count info percentage for all organisms,
+        min_match (float) : minimum match percentage that top organism needs
+        to have.
+        factor (float) : factor by which first organism is greater than the
+        second.
+
+    Returns:
+        bool : whether it satisfies confidence score or not.
+    """
+    if organism_df.iloc[0]['Match %'] < min_match:
+        return False
+    if organism_df.iloc[1]['Match %'] != 0:
+        ratio = organism_df.iloc[0]['Match %']/organism_df.iloc[1]['Match %']
+        if ratio < factor:
+            return False
+    return True
