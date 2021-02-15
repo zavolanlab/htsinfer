@@ -38,7 +38,7 @@ jobs:
     # integration tests
     - htsinfer --help
     - htsinfer --debug -f1 tests/sample_files/first_mate.fastq
-    - htsinfer --debug -f1 tests/sample_files/SRR13496438.fastq
+    # - htsinfer --debug -f1 tests/sample_files/SRR13496438.fastq
     - docker run ${REPO} --help
     - docker run ${REPO} --debug -f1 tests/sample_files/first_mate.fastq
   - stage: publish
