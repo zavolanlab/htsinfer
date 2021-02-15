@@ -29,7 +29,9 @@ def kallisto(
     Returns:
         Organism name if it satisfies confidence score else NA.
     """
-    with zp.ZipFile("transcripts.fasta.zip", "r") as zip_ref:
+    path = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(path, "transcripts.fasta.zip")
+    with zp.ZipFile(file_path, "r") as zip_ref:
         zip_ref.extractall()
     index = "kallisto index -i transcripts.idx --make-unique transcripts.fasta"
     quant_single = "kallisto quant -i transcripts.idx -o output -l 100 -s 300 --single " + file_1
