@@ -13,7 +13,10 @@ import logging
 import sys
 from typing import (Optional, Sequence)
 
-from htsinfer import infer_single_paired
+from htsinfer import (
+    infer_single_paired,
+    infer_organism
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +51,24 @@ def parse_args(
         help=(
             "maximum number of records to process, starting with first "
             "record; set to 0 to process entire file(s)"
+        )
+    )
+    parser.add_argument(
+        '-mm', '--min-match',
+        metavar="FLOAT",
+        type=float,
+        default=10,
+        help=(
+            "minimum match percentage that organism needs to have"
+        )
+    )
+    parser.add_argument(
+        '-fr', '--factor',
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "factor by which first organism is greater than the second"
         )
     )
     parser.add_argument(
@@ -107,6 +128,12 @@ def main() -> None:
     results['single_paired'] = infer_single_paired.infer(
         file_1=args.file_1,
         file_2=args.file_2,
+    )
+    results['organism'] = infer_organism.kallisto(
+        file_1=args.file_1,
+        file_2=args.file_2,
+        min_match=args.min_match,
+        factor=args.factor
     )
     logger.info(f"Results: {results}")
     logger.info("Done.")
