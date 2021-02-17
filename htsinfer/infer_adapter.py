@@ -61,8 +61,10 @@ trie = make_aho_auto(adapters)
 def infer(
     file_1: str,
     file_2: str = None,
-    max_records: int = 100000
-) -> None:
+    max_records: int = 100000,
+    min_match: float = 10,
+    factor: float = 2
+) -> Tuple[str, str]:
     """Infers adapter information for one or two fastq files.
 
     Args:
@@ -70,27 +72,47 @@ def infer(
         file_2 (str) : File path to second mate library.
         max_records: Limit processing to the indicated number of records,
             starting from the first record.
-     """
+        min_match (float) : minimum match percentage that first adapter needs
+        to have.
+        factor (float) : factor by which first adapter is greater than the
+        second adapter.
+
+    Returns:
+        Type of Adapter that is present in library.
+    """
     # Process file 1
     logger.debug(f"Processing file 1: {file_1}")
-    process_fastq_file(file_1, max_records)
+    result_1 = process_fastq_file(file_1, max_records, min_match, factor)
 
     # Process file 2
+    result_2 = "not available"
     if file_2:
         logger.debug(f"Processing file 2: {file_2}")
-        process_fastq_file(file_2, max_records)
+        result_2 = process_fastq_file(file_2, max_records, min_match, factor)
+
+    logger.debug("Returning results...")
+    return (result_1, result_2)
 
 
 def process_fastq_file(
     file: str,
-    max_records: int = 10000
-) -> None:
+    max_records: int = 10000,
+    min_match: float = 10,
+    factor: float = 2
+) -> str:
     """Process adapters count info.
 
     Args:
         file (str) : File path to read/first mate library.
         max_records: Limit processing to the indicated number of records,
             starting from the first record.
+        min_match (float) : minimum match percentage that first adapter needs
+        to have.
+        factor (float) : factor by which first adapter is greater than the
+        second adapter.
+
+    Returns:
+        Adapter information
     """
     _open = partial(
         gzip.open, mode='rt'
@@ -124,7 +146,42 @@ def process_fastq_file(
             adapters_df = pd.DataFrame(adapter_counts.items())
             adapters_df.columns = ['Adapter', 'Count']
             adapters_df = adapters_df.sort_values(by='Count', ascending=False).reset_index(drop=True)
+            logger.debug(f"Creating {file}_adapters_count.csv")
             adapters_df.to_csv(f"{file}_adapters_count.csv")
 
-    except ValueError as exc:
-        logger.error(f"Invalid input file '{file}'. Error: {str(exc)}")
+            # Checking confidence score
+            if(confidence(adapters_df, min_match, factor)):
+                result = adapters_df.iloc[0]['Adapter']
+            else:
+                result = "NA"
+            return result
+
+    except OSError:
+        logger.error(f"Invalid input file '{file}'")
+        return "Invalid File"
+
+
+def confidence(
+    adapters_df: pd.DataFrame,
+    min_match: float = 10,
+    factor: float = 2
+) -> bool:
+    """Checks confidence score
+
+    Args:
+        adapters_df (dataframe) : adapters count.
+        min_match (float) : minimum match percentage that first adapter needs
+        to have.
+        factor (float) : factor by which first adapter is greater than the
+        second adapter.
+
+    Returns:
+        bool : whether it satisfies confidence score or not.
+    """
+    if adapters_df.iloc[0]['Count'] < min_match:
+        return False
+    if adapters_df.iloc[1]['Count'] != 0:
+        ratio = adapters_df.iloc[0]['Count']/adapters_df.iloc[1]['Count']
+        if ratio < factor:
+            return False
+    return True

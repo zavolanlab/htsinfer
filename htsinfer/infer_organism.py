@@ -48,8 +48,10 @@ def kallisto(
             else:
                 sp.call(quant_single, shell=True)
     except sp.CalledProcessError:
-        logger.error("Invalid input file")
-        raise Exception("Error : running kallisto/transcripts.fasta not located")
+        logger.error(
+            f"Error : running kallisto. Invalid input file '{file_1}' '{file_2}'"
+        )
+        return "Invalid File"
 
     logger.debug("Processing organism count info")
     organism_df = process_count_info()
@@ -102,6 +104,7 @@ def process_count_info() -> pd.DataFrame:
     organism_df[['Organism', 'Taxon ID']] = pd.DataFrame(organism_df[0].tolist())
     organism_df = organism_df.sort_values(by=1, ascending=False).reset_index(drop=True).drop([0], axis=1)
     organism_df = organism_df.rename(columns={1: 'Match %'})
+    logger.debug("Creating organism_count_info.csv")
     organism_df.to_csv('organism_count_info.csv')
     return organism_df
 

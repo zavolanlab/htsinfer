@@ -55,22 +55,18 @@ def parse_args(
         )
     )
     parser.add_argument(
-        '-mm', '--min-match',
+        '-mm', '--min_match',
         metavar="FLOAT",
         type=float,
         default=10,
-        help=(
-            "minimum match percentage that organism needs to have"
-        )
+        help="minimum match percentage that organism needs to have"
     )
     parser.add_argument(
         '-fr', '--factor',
         metavar="FLOAT",
         type=float,
         default=2,
-        help=(
-            "factor by which first organism is greater than the second"
-        )
+        help="factor by which first organism is greater than the second"
     )
     parser.add_argument(
         '--verbose', "-v",
@@ -140,7 +136,9 @@ def main() -> None:
     '''
     results['adapters'] = infer_adapter.infer(
         file_1=args.file_1,
-        file_2=args.file_2
+        file_2=args.file_2,
+        min_match=args.min_match,
+        factor=args.factor
     )
     logger.info(f"Results: {results}")
     logger.info("Done.")
