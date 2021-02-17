@@ -100,7 +100,7 @@ def process_count_info() -> pd.DataFrame:
     # Converting dictionary into dataframe
     organism_df = pd.DataFrame(organism_tpm_count.items())
     organism_df[['Organism', 'Taxon ID']] = pd.DataFrame(organism_df[0].tolist())
-    organism_df = organism_df.sort_values(by=1,ascending=False).reset_index(drop=True).drop([0], axis=1)
+    organism_df = organism_df.sort_values(by=1, ascending=False).reset_index(drop=True).drop([0], axis=1)
     organism_df = organism_df.rename(columns={1: 'Match %'})
     organism_df.to_csv('organism_count_info.csv')
     return organism_df

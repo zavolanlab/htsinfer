@@ -15,7 +15,8 @@ from typing import (Optional, Sequence)
 
 from htsinfer import (
     infer_single_paired,
-    infer_organism
+    infer_organism,
+    infer_adapter
 )
 
 logger = logging.getLogger(__name__)
@@ -129,11 +130,17 @@ def main() -> None:
         file_1=args.file_1,
         file_2=args.file_2,
     )
+    '''
     results['organism'] = infer_organism.kallisto(
         file_1=args.file_1,
         file_2=args.file_2,
         min_match=args.min_match,
         factor=args.factor
+    )
+    '''
+    results['adapters'] = infer_adapter.infer(
+        file_1=args.file_1,
+        file_2=args.file_2
     )
     logger.info(f"Results: {results}")
     logger.info("Done.")
