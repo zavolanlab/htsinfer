@@ -41,12 +41,12 @@ def kallisto(
     try:
         with open(os.devnull, "w") as fnull:
             logger.debug("Running Kallisto index")
-            sp.call(index, shell=True)
+            sp.run(index, shell=True, check=True)
             logger.debug("Running Kallisto quant")
             if file_2 is not None:
-                sp.call(quant_paired, shell=True)
+                sp.run(quant_paired, shell=True, check=True)
             else:
-                sp.call(quant_single, shell=True)
+                sp.run(quant_single, shell=True, check=True)
     except sp.CalledProcessError:
         logger.error(
             f"Error : running kallisto. Invalid input file '{file_1}' '{file_2}'"

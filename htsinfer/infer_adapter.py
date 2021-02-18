@@ -124,6 +124,7 @@ def process_fastq_file(
 
             adapter_counts: Dict[str, int] = {}
             records: int = 0
+            total_count = 0
             for record in FastqGeneralIterator(source=_file):
                 # Get next read
                 read = record[1]
@@ -134,6 +135,7 @@ def process_fastq_file(
                         adapter_counts[key] += 1
                     else:
                         adapter_counts[key] = 1
+                    total_count += 1
 
                 # Update records
                 records += 1
@@ -142,10 +144,15 @@ def process_fastq_file(
                 if max_records and records >= max_records:
                     break
 
+            # Calculating Percentage
+            if total_count != 0:
+                for i in adapter_counts:
+                    adapter_counts[i] = round((adapter_counts[i]/total_count)*100, 2)
+
             # Converting dictionary into dataframe
             adapters_df = pd.DataFrame(adapter_counts.items())
-            adapters_df.columns = ['Adapter', 'Count']
-            adapters_df = adapters_df.sort_values(by='Count', ascending=False).reset_index(drop=True)
+            adapters_df.columns = ['Adapter', 'Count %']
+            adapters_df = adapters_df.sort_values(by='Count %', ascending=False).reset_index(drop=True)
             logger.debug(f"Creating {file}_adapters_count.csv")
             adapters_df.to_csv(f"{file}_adapters_count.csv")
 
@@ -178,10 +185,10 @@ def confidence(
     Returns:
         bool : whether it satisfies confidence score or not.
     """
-    if adapters_df.iloc[0]['Count'] < min_match:
+    if adapters_df.iloc[0]['Count %'] < min_match:
         return False
-    if adapters_df.iloc[1]['Count'] != 0:
-        ratio = adapters_df.iloc[0]['Count']/adapters_df.iloc[1]['Count']
+    if adapters_df.iloc[1]['Count %'] != 0:
+        ratio = adapters_df.iloc[0]['Count %']/adapters_df.iloc[1]['Count %']
         if ratio < factor:
             return False
     return True
