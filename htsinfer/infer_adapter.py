@@ -85,7 +85,7 @@ def infer(
     result_1 = process_fastq_file(file_1, max_records, min_match, factor)
 
     # Process file 2
-    result_2 = "not available"
+    result_2 = "not_available"
     if file_2:
         logger.debug(f"Processing file 2: {file_2}")
         result_2 = process_fastq_file(file_2, max_records, min_match, factor)
@@ -144,10 +144,12 @@ def process_fastq_file(
                 if max_records and records >= max_records:
                     break
 
+            if total_count == 0:
+                return "NA"
+
             # Calculating Percentage
-            if total_count != 0:
-                for i in adapter_counts:
-                    adapter_counts[i] = round((adapter_counts[i]/total_count)*100, 2)
+            for i in adapter_counts:
+                adapter_counts[i] = round((adapter_counts[i]/total_count)*100, 2)
 
             # Converting dictionary into dataframe
             adapters_df = pd.DataFrame(adapter_counts.items())
@@ -165,7 +167,7 @@ def process_fastq_file(
 
     except OSError:
         logger.error(f"Invalid input file '{file}'")
-        return "Invalid File"
+        return "invalid_file"
 
 
 def confidence(

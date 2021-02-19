@@ -51,7 +51,7 @@ def kallisto(
         logger.error(
             f"Error : running kallisto. Invalid input file '{file_1}' '{file_2}'"
         )
-        return "Invalid File"
+        return "invalid_file"
 
     logger.debug("Processing organism count info")
     organism_df = process_count_info()
