@@ -4,7 +4,7 @@ import os
 from htsinfer.infer_adapter import infer
 
 path = os.path.dirname(__file__)
-path = os.path.join(path, "sample_files")
+path = os.path.join(path, "test_files")
 
 
 def test_single_file():
@@ -62,3 +62,25 @@ def test_invalid_file():
     result_1, result_2 = infer(file_1=file1)
     assert result_1 == "invalid_file" and \
         result_2 == "not_available"
+
+
+def test_min_match():
+    """Test min match percentage"""
+    file1 = os.path.join(path, "SRR13496438.fastq.gz")
+    result_1, result_2 = infer(file_1=file1, min_match=70)
+    assert result_1 == "NA" and \
+        result_2 == "not_available"
+
+
+def test_params():
+    """Test all params"""
+    file1 = os.path.join(path, "SRR13496438.fastq.gz")
+    file2 = os.path.join(path, "SRR13492831.fastq")
+    result_1, result_2 = infer(
+        file_1=file1,
+        file_2=file2,
+        min_match=30,
+        factor=1.2
+        )
+    assert result_1 == "GATCGGAAGAGCACA" and \
+        result_2 == "AAAAAAAAAAAAAAA"

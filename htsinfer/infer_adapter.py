@@ -124,9 +124,9 @@ def process_fastq_file(
         LOGGER.debug("Opening file...")
         with _open(file) as _file:
 
-            adapter_counts: Dict[str, int] = {}
+            adapter_counts: Dict[str, float] = {}
             records: int = 0
-            total_count = 0
+            total_count: int = 0
             LOGGER.debug("Processing reads")
             for record in FastqGeneralIterator(source=_file):
                 # Get next read
