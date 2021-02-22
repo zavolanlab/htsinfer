@@ -3,6 +3,7 @@ channels:
   - defaults
   - bioconda
 dependencies:
+  - setuptools=52.0
   - biopython=1.78
   - kallisto=0.46.2
   - pip=20.2.3
