@@ -10,6 +10,7 @@ from typing import (Any, Dict, Optional, Sequence)
 from htsinfer import (
     infer_single_paired,
     infer_read_orientation,
+    infer_organism,
     __version__,
 )
 
@@ -147,6 +148,14 @@ def main() -> None:
         file_1=args.file_1,
         file_2=args.file_2,
         organism=args.organism,
+    )
+
+    # Infer organism
+    results['organism'] = infer_organism.infer(
+        file_1=args.file_1,
+        file_2=args.file_2,
+        min_match=args.min_match,
+        factor=args.factor
     )
 
     # Log results & end script
