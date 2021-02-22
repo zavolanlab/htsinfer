@@ -8,5 +8,5 @@ dependencies:
   - pip=20.2.3
   - python=3.8.5
   - pip:
-    - pyahocorasick=1.4.1
+    - pyahocorasick==1.4.1
     - -e .
