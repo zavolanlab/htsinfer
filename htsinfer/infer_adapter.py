@@ -8,7 +8,7 @@ from typing import (Dict, List, Tuple)
 import pandas as pd
 import ahocorasick as ahc
 
-from Bio.SeqIO.QualityIO import FastqGeneralIterator
+from Bio.SeqIO.QualityIO import FastqGeneralIterator # type: ignore
 
 LOGGER = logging.getLogger(__name__)
 
@@ -122,7 +122,7 @@ def process_fastq_file(
 
     try:
         LOGGER.debug("Opening file...")
-        with _open(file) as _file:
+        with _open(file) as _file: # type: ignore
 
             adapter_counts: Dict[str, float] = {}
             records: int = 0
