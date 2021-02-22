@@ -10,6 +10,7 @@ from typing import (Any, Dict, Optional, Sequence)
 from htsinfer import (
     infer_single_paired,
     infer_read_orientation,
+    infer_adapter,
     __version__,
 )
 
@@ -47,6 +48,20 @@ def parse_args(
             "maximum number of records to process, starting with first "
             "record; set to 0 to process entire file(s)"
         )
+    )
+    parser.add_argument(
+        '-mm', '--min_match',
+        metavar="FLOAT",
+        type=float,
+        default=10,
+        help="minimum match percentage that organism needs to have"
+    )
+    parser.add_argument(
+        '-fr', '--factor',
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help="factor by which first organism is greater than the second"
     )
     parser.add_argument(
         '-o', '--organism',
@@ -147,6 +162,12 @@ def main() -> None:
         file_1=args.file_1,
         file_2=args.file_2,
         organism=args.organism,
+    )
+    results['adapters'] = infer_adapter.infer(
+        file_1=args.file_1,
+        file_2=args.file_2,
+        min_match=args.min_match,
+        factor=args.factor
     )
 
     # Log results & end script

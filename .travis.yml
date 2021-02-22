@@ -34,3 +34,4 @@ jobs:
         # integration tests
         - htsinfer --help
         - htsinfer --debug -f1 tests/test_files/first_mate.fastq
+        - htsinfer --debug -f1 tests/sample_files/SRR13492831.fastq
