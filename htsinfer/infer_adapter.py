@@ -1,18 +1,19 @@
 """Infer adapter sequences present in reads."""
 
+
 from functools import partial
-import ahocorasick as ahc
 import logging
 import gzip
 from typing import (Dict, List, Tuple)
 import pandas as pd
+import ahocorasick as ahc
 
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-adapters = [
+ADAPTERS = [
     ('AAAAAAAAAAAAAAA', 1),
     ('AATGATACGGCGACC', 2),
     ('ACACTCTTTCCCTAC', 3),
@@ -44,19 +45,19 @@ adapters = [
 
 
 def make_aho_auto(
-    adapters: List[Tuple[str, int]]
+    ADAPTERS: List[Tuple[str, int]]
 ):
     """Adding all adapters names into trie"""
-    logger.debug("Creating trie")
+    LOGGER.debug("Creating trie")
     trie = ahc.Automaton()
-    for (adapter, tag) in adapters:
+    for (adapter, tag) in ADAPTERS:
         trie.add_word(adapter, (tag, adapter))
 
     trie.make_automaton()
     return trie
 
 
-trie = make_aho_auto(adapters)
+TRIE = make_aho_auto(ADAPTERS)
 
 
 def infer(
@@ -82,16 +83,16 @@ def infer(
         Type of Adapter that is present in library.
     """
     # Process file 1
-    logger.debug(f"Processing file 1: {file_1}")
+    LOGGER.debug(f"Processing file 1: {file_1}")
     result_1 = process_fastq_file(file_1, max_records, min_match, factor)
 
     # Process file 2
     result_2 = "not_available"
     if file_2:
-        logger.debug(f"Processing file 2: {file_2}")
+        LOGGER.debug(f"Processing file 2: {file_2}")
         result_2 = process_fastq_file(file_2, max_records, min_match, factor)
 
-    logger.debug("Returning results...")
+    LOGGER.debug("Returning results...")
     return (result_1, result_2)
 
 
@@ -120,19 +121,19 @@ def process_fastq_file(
     ) if file.endswith(".gz") else open
 
     try:
-        logger.debug("Opening file...")
+        LOGGER.debug("Opening file...")
         with _open(file) as _file:
 
             adapter_counts: Dict[str, int] = {}
             records: int = 0
             total_count = 0
-            logger.debug("Processing reads")
+            LOGGER.debug("Processing reads")
             for record in FastqGeneralIterator(source=_file):
                 # Get next read
                 read = record[1]
 
                 # Searching for adapters in read
-                for _, (_, key) in trie.iter(read):
+                for _, (_, key) in TRIE.iter(read):
                     if key in adapter_counts:
                         adapter_counts[key] += 1
                     else:
@@ -161,7 +162,7 @@ def process_fastq_file(
             adapters_df = adapters_df.sort_values(
                 by='Count %', ascending=False
                 ).reset_index(drop=True)
-            logger.debug(f"Creating {file}_adapters_count.csv")
+            LOGGER.debug(f"Creating {file}_adapters_count.csv")
             adapters_df.to_csv(f"{file}_adapters_count.csv")
 
             # Checking confidence score
@@ -172,7 +173,7 @@ def process_fastq_file(
             return result
 
     except OSError:
-        logger.error(f"Invalid input file '{file}'")
+        LOGGER.error(f"Invalid input file '{file}'")
         return "invalid_file"
 
 
