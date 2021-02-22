@@ -8,7 +8,7 @@ from typing import (Dict, List, Tuple)
 import pandas as pd
 import ahocorasick as ahc
 
-from Bio.SeqIO.QualityIO import FastqGeneralIterator # type: ignore
+from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 
 LOGGER = logging.getLogger(__name__)
 
@@ -45,12 +45,12 @@ ADAPTERS = [
 
 
 def make_aho_auto(
-    ADAPTERS: List[Tuple[str, int]]
+    adapters: List[Tuple[str, int]]
 ):
     """Adding all adapters names into trie"""
     LOGGER.debug("Creating trie")
     trie = ahc.Automaton()
-    for (adapter, tag) in ADAPTERS:
+    for (adapter, tag) in adapters:
         trie.add_word(adapter, (tag, adapter))
 
     trie.make_automaton()
@@ -122,7 +122,7 @@ def process_fastq_file(
 
     try:
         LOGGER.debug("Opening file...")
-        with _open(file) as _file: # type: ignore
+        with _open(file) as _file:  # type: ignore
 
             adapter_counts: Dict[str, float] = {}
             records: int = 0
@@ -166,7 +166,7 @@ def process_fastq_file(
             adapters_df.to_csv(f"{file}_adapters_count.csv")
 
             # Checking confidence score
-            if(confidence(adapters_df, min_match, factor)):
+            if confidence(adapters_df, min_match, factor):
                 result = adapters_df.iloc[0]['Adapter']
             else:
                 result = "NA"
