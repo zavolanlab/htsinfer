@@ -2,11 +2,11 @@
 
 
 import os
-import pandas as pd
 import subprocess as sp
 import logging
 import zipfile as zp
 from typing import (Dict, Tuple)
+import pandas as pd
 
 LOGGER = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def infer(
     LOGGER.debug("Processing organism count info")
     organism_df = process_count_info()
     # Checking confidence score
-    if(confidence(organism_df, min_match, factor)):
+    if confidence(organism_df, min_match, factor):
         result = organism_df.iloc[0]['Organism']
     else:
         result = "NA"
@@ -75,30 +75,30 @@ def process_count_info() -> pd.DataFrame:
     # Reading tsv file created by kallisto quant
     path = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(path, "output", "abundance.tsv")
-    df = pd.read_csv(file_path, sep='\t')
+    abundance_df = pd.read_csv(file_path, sep='\t')
 
     # Dictionary to store organism info
     organism_tpm_count: Dict[Tuple[str, int], float] = {}
-    dimension = df.shape
+    dimension = abundance_df.shape
     rows = dimension[0]
     total_tpm: float = 0.0
     for i in range(rows):
-        row_id = df['target_id'][i]
+        row_id = abundance_df['target_id'][i]
         contents = list(map(str, row_id.split("|")))
         organism_name = contents[3]
         organism_tax_id = int(contents[4])
         # Update organism tpm count
         if (organism_name, organism_tax_id) in organism_tpm_count:
             organism_tpm_count[(organism_name, organism_tax_id)] += \
-                float(df['tpm'][i])
+                float(abundance_df['tpm'][i])
         else:
             organism_tpm_count[(organism_name, organism_tax_id)] = \
-                float(df['tpm'][i])
-        total_tpm += float(df['tpm'][i])
+                float(abundance_df['tpm'][i])
+        total_tpm += float(abundance_df['tpm'][i])
 
     # Calculating Percentage
     if total_tpm != 0:
-        for _name, _id in organism_tpm_count:
+        for (_name, _id), _ in organism_tpm_count.items():
             organism_tpm_count[(_name, _id)] = round(
                 (organism_tpm_count[(_name, _id)]/total_tpm)*100, 2
                 )
