@@ -5,7 +5,7 @@ import gzip
 import logging
 from typing import (Dict, List, Tuple)
 
-import ahocorasick as ahc
+from ahocorasick import Automaton
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 from pandas import DataFrame
 
@@ -13,12 +13,12 @@ LOGGER = logging.getLogger(__name__)
 
 
 def infer(
-    adapter_file: str,
     file_1: str,
     file_2: str = None,
     min_match: float = 10,
     factor: float = 2,
-    max_records: int = 100000
+    max_records: int = 100000,
+    adapter_file: str = "adapters_list.txt",
 ) -> Tuple[str, str]:
     """Infers adapter information for one or two fastq files.
 
@@ -74,7 +74,7 @@ def read_fastq_file(
 
     Args:
         adapters: List of adapters sequences.
-        file: File path to first mate library.
+        file: File path to mate library.
         max_records: Limit processing to the indicated number of records,
             starting from the first record.
         min_match: Minimum percentage of reads that contain a given adapter
@@ -91,7 +91,7 @@ def read_fastq_file(
         gzip.open, mode='rt'
     ) if file.endswith(".gz") else open
 
-    TRIE = make_aho_auto(adapters)
+    trie = make_aho_auto(adapters)
     adapter_counts: Dict[str, float] = {}
     records: int = 0
     total_count: int = 0
@@ -105,7 +105,7 @@ def read_fastq_file(
                 read = record[1]
 
                 # Searching for adapters in read
-                for _, (_, key) in TRIE.iter(read):
+                for _, (_, key) in trie.iter(read):
                     if key in adapter_counts:
                         adapter_counts[key] += 1
                     else:
@@ -131,7 +131,34 @@ def read_fastq_file(
             (adapter_counts[i]/records)*100, 2
             )
 
-    # Converting dictionary into dataframe
+    adapters_df = covert_dic_to_df(adapter_counts, file)
+    # Checking confidence score
+    if confidence(adapters_df, min_match, factor):
+        result = adapters_df.iloc[0]['Adapter']
+    else:
+        result = "NA"
+    return result
+
+
+def covert_dic_to_df(
+    adapter_counts: Dict[str, float],
+    file: str
+) -> DataFrame:
+    """Converting dictionary into dataframe and writing json file.
+
+    Args:
+        adapter_counts: Dictionary of adapter sequence and its count
+        percentage.
+        file: File path to mate library.
+
+    Returns:
+        Dataframe of adapter sequence with and its count percentage.
+
+    Examples:
+        Adapter                Count %
+        GATCGGAAGAGCACA        2.83
+        AAAAAAAAAAAAAAA        1.79
+    """
     adapters_df = DataFrame(adapter_counts.items())
     adapters_df.columns = ['Adapter', 'Count %']
     adapters_df = adapters_df.sort_values(
@@ -139,13 +166,7 @@ def read_fastq_file(
         ).reset_index(drop=True)
     LOGGER.debug(f"Creating {file}_adapters_count.json")
     adapters_df.to_json(f'{file}_adapters_count.json', orient='records')
-
-    # Checking confidence score
-    if confidence(adapters_df, min_match, factor):
-        result = adapters_df.iloc[0]['Adapter']
-    else:
-        result = "NA"
-    return result
+    return adapters_df
 
 
 def load_adapters(
@@ -177,7 +198,7 @@ def load_adapters(
 
 def make_aho_auto(
     adapters: List[Tuple[str, int]]
-) -> ahc.Automaton:
+) -> Automaton:
     """Adding all adapters sequence into trie datastructure.
 
     Args:
@@ -187,7 +208,7 @@ def make_aho_auto(
         Returns trie of adapters sequence.
     """
     LOGGER.debug("Creating trie")
-    trie = ahc.Automaton()
+    trie = Automaton()
     for (adapter, tag) in adapters:
         trie.add_word(adapter, (tag, adapter))
 
