@@ -184,12 +184,11 @@ def main() -> None:
 
     # Infer adapter sequences
     results['adapters'] = infer_adapter.infer(
+        adapter_file=args.adapters,
         file_1=args.file_1,
         file_2=args.file_2,
         min_match=args.adapter_designation_min_match_percentage,
-        factor=args.adapter_designation_frequency_ratio,
-        max_records=args.max_records,
-        adapter_file=args.adapters,
+        factor=args.adapter_designation_frequency_ratio
     )
 
     # Log results & end script

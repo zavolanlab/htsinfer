@@ -5,20 +5,20 @@ import gzip
 import logging
 from typing import (Dict, List, Tuple)
 
-from ahocorasick import Automaton
+from ahocorasick import Automaton  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
-from pandas import DataFrame
+from pandas import DataFrame  # type: ignore
 
 LOGGER = logging.getLogger(__name__)
 
 
 def infer(
+    adapter_file: str,
     file_1: str,
     file_2: str = None,
     min_match: float = 10,
     factor: float = 2,
-    max_records: int = 100000,
-    adapter_file: str = "adapters_list.txt",
+    max_records: int = 100000
 ) -> Tuple[str, str]:
     """Infers adapter information for one or two fastq files.
 
