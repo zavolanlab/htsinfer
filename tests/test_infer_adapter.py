@@ -3,8 +3,9 @@
 import os
 from htsinfer.infer_adapter import infer
 
+dir_path = os.path.abspath(os.path.join(__file__ ,"../.."))
 path = os.path.dirname(__file__)
-adapter_path = os.path.join(path, "htsinfer", "adapters_list.txt")
+adapter_path = os.path.join(dir_path, "htsinfer", "adapters_list.txt")
 path = os.path.join(path, "test_files")
 
 

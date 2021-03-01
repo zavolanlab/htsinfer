@@ -5,7 +5,7 @@ import gzip
 import logging
 from typing import (Dict, List, Tuple)
 
-from ahocorasick import Automaton  # type: ignore
+import ahocorasick as ahc  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 from pandas import DataFrame  # type: ignore
 
@@ -18,7 +18,7 @@ def infer(
     file_2: str = None,
     min_match: float = 10,
     factor: float = 2,
-    max_records: int = 100000
+    max_records: int = 100000,
 ) -> Tuple[str, str]:
     """Infers adapter information for one or two fastq files.
 
@@ -68,7 +68,7 @@ def read_fastq_file(
     file: str,
     max_records: int = 10000,
     min_match: float = 10,
-    factor: float = 2
+    factor: float = 2,
 ) -> str:
     """Process adapters count info.
 
@@ -198,7 +198,7 @@ def load_adapters(
 
 def make_aho_auto(
     adapters: List[Tuple[str, int]]
-) -> Automaton:
+) -> ahc.Automaton:
     """Adding all adapters sequence into trie datastructure.
 
     Args:
@@ -208,7 +208,7 @@ def make_aho_auto(
         Returns trie of adapters sequence.
     """
     LOGGER.debug("Creating trie")
-    trie = Automaton()
+    trie = ahc.Automaton()
     for (adapter, tag) in adapters:
         trie.add_word(adapter, (tag, adapter))
 

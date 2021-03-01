@@ -188,7 +188,7 @@ def main() -> None:
         file_1=args.file_1,
         file_2=args.file_2,
         min_match=args.adapter_designation_min_match_percentage,
-        factor=args.adapter_designation_frequency_ratio
+        factor=args.adapter_designation_frequency_ratio,
     )
 
     # Log results & end script
