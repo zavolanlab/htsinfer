@@ -52,12 +52,13 @@ def infer(
         )
 
     # Reading file 2
-    result_2 = "not_available"
     if file_2 is not None:
         LOGGER.debug(f"Reading mate 2 file: {file_2}")
         result_2 = read_fastq_file(
             adapters, file_2, max_records, min_match, factor
             )
+    else:
+        result_2 = "not_available"
 
     LOGGER.debug("Returning results...")
     return (result_1, result_2)
@@ -133,7 +134,7 @@ def read_fastq_file(
 
     adapters_df = covert_dic_to_df(adapter_counts, file)
     # Checking confidence score
-    if confidence(adapters_df, min_match, factor):
+    if minmatch_factor_validator(adapters_df, min_match, factor):
         result = adapters_df.iloc[0]['Adapter']
     else:
         result = "NA"
@@ -172,7 +173,7 @@ def covert_dic_to_df(
 def load_adapters(
     adapter_file: str
 ) -> List[Tuple[str, int]]:
-    """Loads adapters sequence from the adapter.txt file.
+    """Loads adapters sequence from the adapters_list.txt file.
 
     Args:
         adapter_file: Adapter file containing the list of all adapter sequence
@@ -216,12 +217,13 @@ def make_aho_auto(
     return trie
 
 
-def confidence(
+def minmatch_factor_validator(
     adapters_df: DataFrame,
     min_match: float = 10,
     factor: float = 2
 ) -> bool:
-    """Checks confidence score
+    """Validates min_match and factor for adapter to be considered as
+    resulting adapter.
 
     Args:
         adapters_df: Adapters sequence count.
@@ -233,7 +235,8 @@ def confidence(
             in the JSON result.
 
     Returns:
-        Whether it satisfies confidence score or not.
+        Whether it satisfies the minimum match percentage and the minimum
+        frequency ratio.
     """
     if adapters_df.iloc[0]['Count %'] < min_match:
         return False

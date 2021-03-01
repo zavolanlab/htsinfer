@@ -3,7 +3,7 @@
 import os
 from htsinfer.infer_adapter import infer
 
-dir_path = os.path.abspath(os.path.join(__file__ ,"../.."))
+dir_path = os.path.abspath(os.path.join(__file__, "../.."))
 path = os.path.dirname(__file__)
 adapter_path = os.path.join(dir_path, "htsinfer", "adapters_list.txt")
 path = os.path.join(path, "test_files")
@@ -56,11 +56,11 @@ def test_max_records():
         result_2 == "not_available"
 
 
-def test_confidence():
-    """Test confidence score"""
+def test_validator():
+    """Test validator"""
     file1 = os.path.join(path, "SRR13492831.fastq")
     result_1, result_2 = infer(
-        file_1=file1, min_match=20, factor=3, adapter_file=adapter_path
+        file_1=file1, min_match=1, factor=3, adapter_file=adapter_path
         )
     assert result_1 == "NA" and \
         result_2 == "not_available"
