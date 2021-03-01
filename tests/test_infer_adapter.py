@@ -35,7 +35,7 @@ def test_empty_file():
 def test_adapter():
     """Test adapter name."""
     file1 = os.path.join(path, "SRR13492831.fastq")
-    result_1, result_2 = infer(file_1=file1)
+    result_1, result_2 = infer(file_1=file1, min_match=7)
     assert result_1 == "AAAAAAAAAAAAAAA" and \
         result_2 == "not_available"
 
@@ -79,7 +79,7 @@ def test_params():
     result_1, result_2 = infer(
         file_1=file1,
         file_2=file2,
-        min_match=30,
+        min_match=2,
         factor=1.2
         )
     assert result_1 == "GATCGGAAGAGCACA" and \

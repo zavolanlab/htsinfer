@@ -30,14 +30,14 @@ def parse_args(
         metavar="FILE",
         type=str,
         required=True,
-        help="file path to read/first mate library",
+        help="File path to read/first mate library",
     )
     parser.add_argument(
         '-f2', '--file-2',
         metavar="FILE",
         type=str,
         default=None,
-        help="file path to second mate library",
+        help="File path to second mate library",
     )
     parser.add_argument(
         '-n', '--max-records',
@@ -45,23 +45,31 @@ def parse_args(
         type=int,
         default=10000,
         help=(
-            "maximum number of records to process, starting with first "
+            "Maximum number of records to process, starting with first "
             "record; set to 0 to process entire file(s)"
         )
     )
     parser.add_argument(
-        '-mm', '--min_match',
+        '-p', '--adapter-designation-min-match-percentage',
         metavar="FLOAT",
         type=float,
         default=10,
-        help="minimum match percentage that organism needs to have"
+        help="Minimum percentage of reads that contain a given adapter"
+        "in order for that adapter to be considered as the resulting adapter."
+        "If no adapter is found more frequently than the specified number"
+        "(in percent), null is returned in the JSON result to indicate that"
+        "no adapter could be confidently identified."
     )
     parser.add_argument(
-        '-fr', '--factor',
+        '-r', '--adapter-designation-frequency-ratio',
         metavar="FLOAT",
         type=float,
         default=2,
-        help="factor by which first organism is greater than the second"
+        help="The minimum frequency ratio between the first and second most"
+        "frequent adapters in order for an adapter sequence to be returned in"
+        "the JSON result. If the frequency ratio is less than the specified"
+        "value, null is returned in the JSON result to indicate that no single"
+        "adapter could be confidently identified."
     )
     parser.add_argument(
         '-o', '--organism',
@@ -87,6 +95,16 @@ def parse_args(
             "columns contain a short organism name and taxon identifier, "
             "respectively. Example sequence identifier: "
             "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
+        )
+    )
+    parser.add_argument(
+        '-a', '--adapters',
+        metavar="",
+        type=str,
+        default=Path(__file__).parent.absolute() / "adapters_list.txt",
+        help=(
+            "Adapters file containing the list of all adapter sequences"
+            "that neeeds to be searched in the FASTQ files."
         )
     )
     parser.add_argument(
@@ -163,11 +181,14 @@ def main() -> None:
         file_2=args.file_2,
         organism=args.organism,
     )
+
+    # Infer adapter sequences
     results['adapters'] = infer_adapter.infer(
+        adapter_file=args.adapters,
         file_1=args.file_1,
         file_2=args.file_2,
-        min_match=args.min_match,
-        factor=args.factor
+        min_match=args.adapter_designation_min_match_percentage,
+        factor=args.adapter_designation_frequency_ratio
     )
 
     # Log results & end script
