@@ -1,38 +1,43 @@
 """Infer organism information for sequencing library."""
 
-
+import logging
 import os
 import subprocess as sp
-import logging
-import zipfile as zp
 from typing import (Dict, Tuple)
+import zipfile as zp
+
 import pandas as pd
 
 LOGGER = logging.getLogger(__name__)
 
 
 def infer(
+    transcript_fasta: str,
     file_1: str,
     file_2: str = None,
     min_match: float = 10,
-    factor: float = 2
+    factor: float = 2,
 ) -> str:
     """Builds index file and run quantification algorithm.
 
     Args:
-        file_1 (str) : File path to read/first mate library.
-        file_2 (str) : File path to second mate library.
-        min_match (float) : minimum match percentage that top organism
-        needs to have.
-        factor (float) : factor by which first organism is greater than
-        the second.
+        file_1: File path to first mate library.
+        file_2: File path to second mate library.
+        min_match: Minimum percentage that given organism needs to have
+            to be considered as the resulting organism. If no organism is
+            found more frequently than the specified number (in percent),
+            null is returned in the JSON result to indicate that no organism
+            could be confidently identified.
+        factor: The minimum frequency ratio between the first and second most
+            frequent organism in order for an organism sequence to be returned
+            in the JSON result. If frequency ratio is less than the specified
+            value, null is returned in the JSON result to indicate that no
+            single organism could be confidently identified.
 
     Returns:
-        Organism name if it satisfies confidence score else NA.
+        Organism name.
     """
-    path = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(path, "transcripts.fasta.zip")
-    with zp.ZipFile(file_path, "r") as zip_ref:
+    with zp.ZipFile(transcript_fasta, "r") as zip_ref:
         zip_ref.extractall()
     index = "kallisto index -i transcripts.idx --make-unique transcripts.fasta"
     quant_single = "kallisto quant -i transcripts.idx -o output" + \
@@ -57,25 +62,26 @@ def infer(
         return "invalid_file"
 
     LOGGER.debug("Processing organism count info")
-    organism_df = process_count_info()
+    organism_tpm_count = process_count_info()
+    organism_df = convert_dic_to_df(organism_tpm_count)
     # Checking confidence score
-    if confidence(organism_df, min_match, factor):
+    if minmatch_factor_validator(organism_df, min_match, factor):
         result = organism_df.iloc[0]['Organism']
     else:
         result = "NA"
     return result
 
 
-def process_count_info() -> pd.DataFrame:
-    """Infers organisms count info and return them as dataframe.
+def process_count_info() -> Dict[Tuple[str, int], float]:
+    """Process organisms count info and return them as dictionry.
 
     Returns:
-        A dataframe with count percentage for all organisms.
+        A dictionary with count percentage for all organisms.
     """
     # Reading tsv file created by kallisto quant
-    path = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(path, "output", "abundance.tsv")
-    abundance_df = pd.read_csv(file_path, sep='\t')
+    path = os.getcwd()
+    path = os.path.join(path, "output", "abundance.tsv")
+    abundance_df = pd.read_csv(path, sep='\t')
 
     # Dictionary to store organism info
     organism_tpm_count: Dict[Tuple[str, int], float] = {}
@@ -102,8 +108,21 @@ def process_count_info() -> pd.DataFrame:
             organism_tpm_count[(_name, _id)] = round(
                 (organism_tpm_count[(_name, _id)]/total_tpm)*100, 2
                 )
+    return organism_tpm_count
 
-    # Converting dictionary into dataframe
+
+def convert_dic_to_df(
+    organism_tpm_count: Dict[Tuple[str, int], float]
+) -> pd.DataFrame:
+    """Converting dictionary into dataframe and writing json file.
+
+    Args:
+        organism_tpm_count: Dictionary of organism name, taxon id and
+        it's count percentage.
+
+    Retunrns:
+        Dataframe of count info percentage for all organisms.
+    """
     organism_df = pd.DataFrame(organism_tpm_count.items())
     organism_df[['Organism', 'Taxon ID']] = pd.DataFrame(
         organism_df[0].tolist()
@@ -112,27 +131,30 @@ def process_count_info() -> pd.DataFrame:
         by=1, ascending=False
         ).reset_index(drop=True).drop([0], axis=1)
     organism_df = organism_df.rename(columns={1: 'Match %'})
-    LOGGER.debug("Creating organism_count_info.csv")
-    organism_df.to_csv('organism_count_info.csv')
+    LOGGER.debug("Creating organism_count_info.json")
+    organism_df.to_json('organism_count_info.json', orient='records')
     return organism_df
 
 
-def confidence(
+def minmatch_factor_validator(
     organism_df: pd.DataFrame,
     min_match: float = 10,
     factor: float = 2
 ) -> bool:
-    """Checks confidence score
+    """Validates min_match and factor for organism to be considered as
+    resulting organism.
 
     Args:
-        organism_df (dataframe) : count info percentage for all organisms,
-        min_match (float) : minimum match percentage that top organism needs
-        to have.
-        factor (float) : factor by which first organism is greater than the
-        second.
+        organism_df: Count info percentage for all organisms.
+        min_match: Minimum percentage that given organism needs to have
+            to be considered as the resulting organism.
+        factor: The minimum frequency ratio between the first and second most
+            frequent organism in order for an organism to be returned
+            in the JSON result.
 
     Returns:
-        bool : whether it satisfies confidence score or not.
+        Whether it satisfies the minimum match percentage and the minimum
+        frequency ratio.
     """
     if organism_df.iloc[0]['Match %'] < min_match:
         return False

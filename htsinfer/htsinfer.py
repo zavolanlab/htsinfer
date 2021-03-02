@@ -50,6 +50,32 @@ def parse_args(
         )
     )
     parser.add_argument(
+        '-p', '--organism-designation-min-match-percentage',
+        metavar="FLOAT",
+        type=float,
+        default=10,
+        help=(
+            "Minimum percentage that given organism needs to have"
+            "to be considered as the resulting organism. If no organism is"
+            "found more frequently than the specified number (in percent),"
+            "null is returned in the JSON result to indicate that no organism"
+            "could be confidently identified."
+        )
+    )
+    parser.add_argument(
+        '-r', '--organism-designation-frequency-ratio',
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "The minimum frequency ratio between the first and second most"
+            "frequent organism in order for organism sequence to be returned"
+            "in the JSON result. If frequency ratio is less than the specified"
+            "value, null is returned in the JSON result to indicate that no"
+            "single organism could be confidently identified."
+        )
+    )
+    parser.add_argument(
         '-o', '--organism',
         metavar="STR",
         type=str,
@@ -74,6 +100,13 @@ def parse_args(
             "respectively. Example sequence identifier: "
             "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
         )
+    )
+    parser.add_argument(
+        '-z', '--transcript-fasta',
+        metavar="",
+        type=str,
+        default=Path(__file__).parent.absolute() / "transcripts.fasta.zip",
+        help=("")
     )
     parser.add_argument(
         '--verbose', "-v",
@@ -152,6 +185,7 @@ def main() -> None:
 
     # Infer organism
     results['organism'] = infer_organism.infer(
+        transcript_fasta=args.transcript_fasta,
         file_1=args.file_1,
         file_2=args.file_2,
         min_match=args.min_match,
