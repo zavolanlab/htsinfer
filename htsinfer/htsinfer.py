@@ -188,8 +188,8 @@ def main() -> None:
         transcript_fasta=args.transcript_fasta,
         file_1=args.file_1,
         file_2=args.file_2,
-        min_match=args.min_match,
-        factor=args.factor
+        min_match=args.organism_designation_min_match_percentage,
+        factor=args.organism_designation_frequency_ratio,
     )
 
     # Log results & end script

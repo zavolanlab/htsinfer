@@ -6,7 +6,7 @@ import subprocess as sp
 from typing import (Dict, Tuple)
 import zipfile as zp
 
-import pandas as pd
+import pandas as pd  # type: ignore
 
 LOGGER = logging.getLogger(__name__)
 
