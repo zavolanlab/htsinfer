@@ -54,7 +54,7 @@ def infer(
             sp.run(quant_paired, shell=True, check=True)
         else:
             sp.run(quant_single, shell=True, check=True)
-    except:
+    except sp.CalledProcessError:
         LOGGER.error(
             f"Error:running kallisto. Invalid input file '{file_1}' '{file_2}'"
         )
