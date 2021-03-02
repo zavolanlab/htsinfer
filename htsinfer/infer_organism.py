@@ -47,15 +47,14 @@ def infer(
             file_1 + " " + file_2
 
     try:
-        with open(os.devnull, "w"):
-            LOGGER.debug("Running Kallisto index")
-            sp.run(index, shell=True, check=True)
-            LOGGER.debug("Running Kallisto quant")
-            if file_2 is not None:
-                sp.run(quant_paired, shell=True, check=True)
-            else:
-                sp.run(quant_single, shell=True, check=True)
-    except sp.CalledProcessError:
+        LOGGER.debug("Running Kallisto index")
+        sp.run(index, shell=True, check=True)
+        LOGGER.debug("Running Kallisto quant")
+        if file_2 is not None:
+            sp.run(quant_paired, shell=True, check=True)
+        else:
+            sp.run(quant_single, shell=True, check=True)
+    except:
         LOGGER.error(
             f"Error:running kallisto. Invalid input file '{file_1}' '{file_2}'"
         )
