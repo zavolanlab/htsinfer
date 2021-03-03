@@ -1,9 +1,10 @@
 """Infer adapter sequences present in reads."""
 
+from collections import defaultdict
 from functools import partial
 import gzip
 import logging
-from typing import (Dict, List, Tuple)
+from typing import (DefaultDict, List, Tuple)
 
 import ahocorasick as ahc  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
@@ -43,6 +44,7 @@ def infer(
     Returns:
         Adapter sequence that is present in library.
     """
+    LOGGER.debug("Loading adapters")
     adapters = load_adapters(adapter_file)
 
     # Reading file 1
@@ -93,7 +95,7 @@ def read_fastq_file(
     ) if file.endswith(".gz") else open
 
     trie = make_aho_auto(adapters)
-    adapter_counts: Dict[str, float] = {}
+    adapter_counts: DefaultDict[str, float] = defaultdict(lambda: 0)
     records: int = 0
     total_count: int = 0
 
@@ -107,10 +109,7 @@ def read_fastq_file(
 
                 # Searching for adapters in read
                 for _, (_, key) in trie.iter(read):
-                    if key in adapter_counts:
-                        adapter_counts[key] += 1
-                    else:
-                        adapter_counts[key] = 1
+                    adapter_counts[key] += 1
                     total_count += 1
 
                 records += 1
@@ -142,7 +141,7 @@ def read_fastq_file(
 
 
 def covert_dic_to_df(
-    adapter_counts: Dict[str, float],
+    adapter_counts: DefaultDict[str, float],
     file: str
 ) -> DataFrame:
     """Converting dictionary into dataframe and writing json file.
@@ -166,7 +165,9 @@ def covert_dic_to_df(
         by='Count %', ascending=False
         ).reset_index(drop=True)
     LOGGER.debug(f"Creating {file}_adapters_count.json")
-    adapters_df.to_json(f'{file}_adapters_count.json', orient='records')
+    adapters_df.to_json(
+        f'{file}_adapters_count.json', orient='split', index=False
+        )
     return adapters_df
 
 
@@ -182,7 +183,6 @@ def load_adapters(
     Returns:
         List of adapters sequence.
     """
-
     _file = open(adapter_file, "r")
     adapters: List[Tuple[str, int]] = []
     tag: int = 1
