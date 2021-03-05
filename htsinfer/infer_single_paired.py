@@ -1,6 +1,5 @@
 """Infer mate information from sample data."""
 
-
 from enum import Enum
 from functools import partial
 import gzip
@@ -33,8 +32,8 @@ def infer(
     """Infers mate information for one or two FASTQ files.
 
     Args:
-        file_1 (str) : File path to read/first mate library.
-        file_2 (str) : File path to second mate library.
+        file_1: File path to read/first mate library.
+        file_2: File path to second mate library.
         max_records: Limit processing to the indicated number of records,
             starting from the first record. Set to `0` to process all
             records.
@@ -63,7 +62,7 @@ def infer(
     )
 
     # Process file 2
-    if file_2:
+    if file_2 is not None:
         LOGGER.debug(f"Processing file 2: {file_2}")
         result_lib_2, seq_ids_2 = process_fastq_file(
             file=file_2,
