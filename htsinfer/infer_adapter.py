@@ -10,6 +10,8 @@ import ahocorasick as ahc  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 from pandas import DataFrame  # type: ignore
 
+from utils import minmatch_factor_validator
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -133,7 +135,7 @@ def read_fastq_file(
 
     adapters_df = covert_dic_to_df(adapter_counts, file)
     # Checking confidence score
-    if minmatch_factor_validator(adapters_df, min_match, factor):
+    if minmatch_factor_validator(adapters_df, 1, min_match, factor):
         result = adapters_df.iloc[0]['Adapter']
     else:
         result = "NA"
@@ -215,33 +217,3 @@ def make_aho_auto(
 
     trie.make_automaton()
     return trie
-
-
-def minmatch_factor_validator(
-    adapters_df: DataFrame,
-    min_match: float = 10,
-    factor: float = 2
-) -> bool:
-    """Validates min_match and factor for adapter to be considered as
-    resulting adapter.
-
-    Args:
-        adapters_df: Adapters sequence count.
-        min_match: Minimum percentage of reads that contain a given adapter
-            in order for that adapter to be considered as the resulting
-            adapter.
-        factor: The minimum frequency ratio between the first and second most
-            frequent adapters in order for an adapter sequence to be returned
-            in the JSON result.
-
-    Returns:
-        Whether it satisfies the minimum match percentage and the minimum
-        frequency ratio.
-    """
-    if adapters_df.iloc[0]['Count %'] < min_match:
-        return False
-    if adapters_df.iloc[1]['Count %'] != 0:
-        ratio = adapters_df.iloc[0]['Count %']/adapters_df.iloc[1]['Count %']
-        if ratio < factor:
-            return False
-    return True
