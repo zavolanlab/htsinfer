@@ -1,10 +1,10 @@
 """Validator function for infer_organism and infer_adapter"""
 
-from pandas import DataFrame  # type ignore
+from pandas import DataFrame  # type: ignore
 
 
 def minmatch_factor_validator(
-    df: DataFrame,
+    count_df: DataFrame,
     column_index: int,
     min_match: float = 10,
     factor: float = 2
@@ -13,7 +13,7 @@ def minmatch_factor_validator(
     resulting adapter/organism.
 
     Args:
-        df:
+        count_df:
             adapter: Adapters sequence count percentage.
             organism: Count info percentage for all organisms.
         column_index: Column parameter for adapter and organism dataframe.
@@ -28,10 +28,10 @@ def minmatch_factor_validator(
         Whether it satisfies the minimum match percentage and the minimum
         frequency ratio.
     """
-    if df.iloc[0][column_index] < min_match:
+    if count_df.iloc[0][column_index] < min_match:
         return False
-    if df.iloc[1][column_index] != 0:
-        ratio = df.iloc[0][column_index]/df.iloc[1][column_index]
+    if count_df.iloc[1][column_index] != 0:
+        ratio = count_df.iloc[0][column_index]/count_df.iloc[1][column_index]
         if ratio < factor:
             return False
     return True
