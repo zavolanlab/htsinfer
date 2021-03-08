@@ -8,6 +8,8 @@ import zipfile as zp
 
 import pandas as pd  # type: ignore
 
+from htsinfer.utils import minmatch_factor_validator
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -64,7 +66,7 @@ def infer(
     organism_tpm_count = process_count_info()
     organism_df = convert_dic_to_df(organism_tpm_count)
     # Checking confidence score
-    if minmatch_factor_validator(organism_df, min_match, factor):
+    if minmatch_factor_validator(organism_df, 0, min_match, factor):
         result = organism_df.iloc[0]['Organism']
     else:
         result = "NA"
@@ -131,34 +133,7 @@ def convert_dic_to_df(
         ).reset_index(drop=True).drop([0], axis=1)
     organism_df = organism_df.rename(columns={1: 'Match %'})
     LOGGER.debug("Creating organism_count_info.json")
-    organism_df.to_json('organism_count_info.json', orient='records')
+    organism_df.to_json(
+        'organism_count_info.json', orient='split', index=False, indent=True
+        )
     return organism_df
-
-
-def minmatch_factor_validator(
-    organism_df: pd.DataFrame,
-    min_match: float = 10,
-    factor: float = 2
-) -> bool:
-    """Validates min_match and factor for organism to be considered as
-    resulting organism.
-
-    Args:
-        organism_df: Count info percentage for all organisms.
-        min_match: Minimum percentage that given organism needs to have
-            to be considered as the resulting organism.
-        factor: The minimum frequency ratio between the first and second most
-            frequent organism in order for an organism to be returned
-            in the JSON result.
-
-    Returns:
-        Whether it satisfies the minimum match percentage and the minimum
-        frequency ratio.
-    """
-    if organism_df.iloc[0]['Match %'] < min_match:
-        return False
-    if organism_df.iloc[1]['Match %'] != 0:
-        ratio = organism_df.iloc[0]['Match %']/organism_df.iloc[1]['Match %']
-        if ratio < factor:
-            return False
-    return True
