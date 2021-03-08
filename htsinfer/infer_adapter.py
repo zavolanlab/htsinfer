@@ -10,7 +10,7 @@ import ahocorasick as ahc  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 from pandas import DataFrame  # type: ignore
 
-from utils import minmatch_factor_validator
+from htsinfer.utils import minmatch_factor_validator
 
 LOGGER = logging.getLogger(__name__)
 
