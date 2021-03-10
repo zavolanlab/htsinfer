@@ -325,6 +325,10 @@ pip-selfcheck.json
 
 # Custom additions
 .vscode
+.DS_Store
+htsinfer/.DS_Store
+tests/.DS_Store
+
 
 # Testing
 tests/test_files/outputs
