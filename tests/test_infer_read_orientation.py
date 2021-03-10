@@ -1,11 +1,16 @@
 """Unit tests for read orientation inference module."""
 
+import os
 from pathlib import Path
 
 import pytest
 
 from htsinfer import infer_read_orientation
 
+dir_path = os.path.abspath(os.path.join(__file__, "../.."))
+transcript_fasta_path = os.path.join(
+    dir_path, "htsinfer", "transcripts.fasta.zip"
+    )
 test_files_dir = Path(__file__).parent.absolute() / "test_files"
 file_1 = str(test_files_dir / "first_mate.fastq")
 file_2 = str(test_files_dir / "second_mate.fastq")
@@ -30,7 +35,7 @@ class TestInfer:
     def test_single_file(self):
         """Function returns without errors."""
         assert infer_read_orientation.infer(
-            fasta=fasta_human,
+            fasta=transcript_fasta_path,
             file_1=file_1,
         ) == "U"
 
@@ -58,7 +63,7 @@ class TestInfer:
         )
         with pytest.raises(OSError):
             infer_read_orientation.infer(
-                fasta=fasta_human,
+                fasta=transcript_fasta_path,
                 file_1=file_1,
             )
 
