@@ -3,8 +3,10 @@
 import logging
 import os
 import shutil
+import subprocess as sp
 import tempfile
 from typing import Union
+import zipfile as zp
 
 from Bio import SeqIO  # type: ignore
 
@@ -16,6 +18,7 @@ def infer(
     file_1: str,  # pylint: disable=unused-argument
     file_2: str = None,  # pylint: disable=unused-argument
     organism: Union[int, str] = "hsapiens",
+    threads: int = 1,
 ) -> str:
     """Infers read orientation for single- or paired-ended sequencing libraries
     in FASTQ format.
@@ -33,6 +36,7 @@ def infer(
         organism: Source organism of the sequencing library; either an organism
             short name (string, e.g., `hsapiens`) or a taxon identifier
             (integer, e.g., `9606`).
+        threads: Number of threads to run STAR.
 
     Returns:
         LIBTYPE string according to Salmon documentation, cf.
@@ -46,19 +50,30 @@ def infer(
         raise OSError("Creation of temporary directory failed") from exc
     LOGGER.info(f"Created temporary directory '{tmp_dir}'")
 
+    # Extracting fasta file
+    with zp.ZipFile(fasta, "r") as zip_ref:
+        zip_ref.extractall()
+
     # write FASTA file with transcripts of specified organism
-    transcripts = os.path.join(tmp_dir, f"{str(organism)}.fasta")
+    organism_transcripts = os.path.join(tmp_dir, f"{str(organism)}.fasta")
     subset_fasta_by_organism(
-        fasta_in=fasta,
-        fasta_out=transcripts,
+        fasta_in="transcripts.fasta",
+        fasta_out=organism_transcripts,
         organism=organism,
     )
     LOGGER.info(
         f"Extracted sequence records for organism '{organism}' from FASTA "
-        f"file '{fasta}' and wrote to FASTA file '{transcripts}'"
+        f"file '{fasta}' and wrote to FASTA file '{organism_transcripts}'"
     )
 
     # implement logic
+
+    # Creating transcript index for mapping
+    index_path = star_index(
+        tmp_dir=tmp_dir,
+        organism_transcripts=organism_transcripts,
+        organism=organism,
+    )
 
     # delete temporary directory
     try:
@@ -69,6 +84,40 @@ def infer(
 
     # return orientation string
     return "U"
+
+
+def star_index(
+    tmp_dir: str,
+    organism_transcripts: str,
+    organism: Union[int, str] = "hsapiens",
+    threads: int = 1,
+) -> str:
+    """Prepares trascript index for mapping.
+    Args:
+        tmp_dir: Path to temprary directory.
+        organism_transcripts: Extracted organism transcripts.
+        organism: Source organism of the sequencing library; either an organism
+            short name (string, e.g., `hsapiens`) or a taxon identifier
+            (integer, e.g., `9606`).
+        threads: Number of threads to run STAR.
+
+    Returns:
+        Path to the build index file.
+
+    """
+    index_cmd = "STAR --runThreadN " + str(threads) + " --runMode " + \
+        "genomeGenerate --genomeDir " + tmp_dir + " --genomeFastaFiles " + \
+        organism_transcripts
+    try:
+        LOGGER.debug(f"Running '{organism}' transcript index")
+        sp.run(index_cmd, shell=True, check=True)
+        index_path = os.path.join(tmp_dir, "SAindex")
+        return index_path
+    except sp.CalledProcessError:
+        LOGGER.error(
+            "Error: running STAR."
+        )
+        return "E"
 
 
 def subset_fasta_by_organism(

@@ -60,6 +60,15 @@ def parse_args(
         )
     )
     parser.add_argument(
+        '-d', '--threads',
+        metavar="INT",
+        type=int,
+        default=1,
+        help=(
+            "Number of threads to run STAR"
+        )
+    )
+    parser.add_argument(
         '-t', '--transcripts',
         metavar="FASTA",
         type=str,
@@ -72,6 +81,15 @@ def parse_args(
             "columns contain a short organism name and taxon identifier, "
             "respectively. Example sequence identifier: "
             "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
+        )
+    )
+    parser.add_argument(
+        '-z', '--transcripts-fasta',
+        metavar="",
+        type=str,
+        default=Path(__file__).parent.absolute() / "transcripts.fasta.zip",
+        help=(
+            ""
         )
     )
     parser.add_argument(
@@ -143,10 +161,11 @@ def main() -> None:
 
     # Infer read orientation
     results['read_orientation'] = infer_read_orientation.infer(
-        fasta=args.transcripts,
+        fasta=args.transcripts_fasta,
         file_1=args.file_1,
         file_2=args.file_2,
         organism=args.organism,
+        threads=args.threads,
     )
 
     # Log results & end script
