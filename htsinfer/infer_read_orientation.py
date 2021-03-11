@@ -43,7 +43,7 @@ def infer(
         https://salmon.readthedocs.io/en/latest/library_type.html
     """
 
-    # create temporary directory in "../data" directory
+    # Create temporary directory in "../data" directory
     try:
         tmp_dir = tempfile.mkdtemp(dir=os.getcwd())
     except OSError as exc:
@@ -54,7 +54,7 @@ def infer(
     with zp.ZipFile(fasta, "r") as zip_ref:
         zip_ref.extractall()
 
-    # write FASTA file with transcripts of specified organism
+    # Write FASTA file with transcripts of specified organism
     organism_transcripts = os.path.join(tmp_dir, f"{str(organism)}.fasta")
     subset_fasta_by_organism(
         fasta_in="transcripts.fasta",
@@ -66,23 +66,33 @@ def infer(
         f"file '{fasta}' and wrote to FASTA file '{organism_transcripts}'"
     )
 
-    # implement logic
+    # Implement logic
 
-    # Creating transcript index for mapping
+    # Creates transcript index for mapping
     index_dir = star_index(
         tmp_dir=tmp_dir,
         organism_transcripts=organism_transcripts,
         organism=organism,
     )
 
-    # delete temporary directory
+    # Maps reads to transcripts
+    # Mapping for file 1
+    alignment_dir = star_map(tmp_dir=tmp_dir, index_dir=index_dir, file=file_1)
+
+    # Mapping fot file 2
+    if file_2 is not None:
+        alignment_dir = star_map(
+            tmp_dir=tmp_dir, index_dir=index_dir, file=file_2
+            )
+
+    # Delete temporary directory
     try:
         shutil.rmtree(tmp_dir)
     except OSError as exc:
         raise OSError("Deletion of temporary directory failed") from exc
     LOGGER.info(f"Deleted temporary directory '{tmp_dir}'")
 
-    # return orientation string
+    # Return orientation string
     return "U"
 
 
@@ -93,8 +103,9 @@ def star_index(
     threads: int = 1,
 ) -> str:
     """Prepares trascript index for mapping.
+
     Args:
-        tmp_dir: Path to temprary directory.
+        tmp_dir: Path to temporary directory.
         organism_transcripts: Extracted organism transcripts.
         organism: Source organism of the sequencing library; either an organism
             short name (string, e.g., `hsapiens`) or a taxon identifier
@@ -102,20 +113,53 @@ def star_index(
         threads: Number of threads to run STAR.
 
     Returns:
-        Path to the build index file.
+        Path to the build index directory.
 
     """
-    index_dir = os.path.join(tmp_dir, "index")
+    path = os.path.join(tmp_dir, "index")
     index_cmd = "STAR --runThreadN " + str(threads) + " --runMode " + \
-        "genomeGenerate --genomeDir " + index_dir + " --genomeFastaFiles " + \
+        "genomeGenerate --genomeDir " + path + " --genomeFastaFiles " + \
         organism_transcripts
     try:
         LOGGER.debug(f"Running '{organism}' transcript index")
         sp.run(index_cmd, shell=True, check=True)
-        return index_dir
+        return path
     except sp.CalledProcessError:
         LOGGER.error(
-            "Error: running STAR."
+            "Error: Failed to run STAR indexing job"
+        )
+        return "E"
+
+
+def star_map(
+    tmp_dir: str,
+    index_dir: str,
+    file: str,
+    threads: int = 1,
+) -> str:
+    """Maps reads to transcripts.
+
+    Args:
+        tmp_dir: Path to temprary directory.
+        index_dir: Path to directory where index file was generated.
+        file: FASTQ file to process.
+        threads: Number of threads to run STAR.
+
+    Returns:
+        Path to the build alignment directory.
+
+    """
+    path = os.path.join(tmp_dir, "alignment/")
+    map_cmd = "STAR --runThreadN " + str(threads) + " --genomeDir " + \
+        index_dir + " --readFilesIn " + file + " --alignIntronMax 1" + \
+        " --alignEndsType Local --outFileNamePrefix " + path
+    try:
+        LOGGER.debug(f"Mapping reads to transcripts for '{file}'")
+        sp.run(map_cmd, shell=True, check=True)
+        return path
+    except sp.CalledProcessError:
+        LOGGER.error(
+            "Error: Failed to run STAR mapping job"
         )
         return "E"
 
