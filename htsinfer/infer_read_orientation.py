@@ -69,7 +69,7 @@ def infer(
     # implement logic
 
     # Creating transcript index for mapping
-    index_path = star_index(
+    index_dir = star_index(
         tmp_dir=tmp_dir,
         organism_transcripts=organism_transcripts,
         organism=organism,
@@ -105,14 +105,14 @@ def star_index(
         Path to the build index file.
 
     """
+    index_dir = os.path.join(tmp_dir, "index")
     index_cmd = "STAR --runThreadN " + str(threads) + " --runMode " + \
-        "genomeGenerate --genomeDir " + tmp_dir + " --genomeFastaFiles " + \
+        "genomeGenerate --genomeDir " + index_dir + " --genomeFastaFiles " + \
         organism_transcripts
     try:
         LOGGER.debug(f"Running '{organism}' transcript index")
         sp.run(index_cmd, shell=True, check=True)
-        index_path = os.path.join(tmp_dir, "SAindex")
-        return index_path
+        return index_dir
     except sp.CalledProcessError:
         LOGGER.error(
             "Error: running STAR."
