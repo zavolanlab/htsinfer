@@ -8,5 +8,5 @@ dependencies:
   - python=3.8.5
   - kallisto=0.46.0
   - pip:
-    - pandas=1.0.5
+    - pandas==1.0.5
     - -e .
