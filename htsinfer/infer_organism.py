@@ -56,11 +56,11 @@ def infer(
             sp.run(quant_paired, shell=True, check=True)
         else:
             sp.run(quant_single, shell=True, check=True)
-    except sp.CalledProcessError:
+    except sp.CalledProcessError as exc:
         LOGGER.error(
             f"Error:running kallisto. Invalid input file '{file_1}' '{file_2}'"
         )
-        return "invalid_file"
+        raise exc
 
     LOGGER.debug("Processing organism count info")
     organism_tpm_count = process_count_info()
