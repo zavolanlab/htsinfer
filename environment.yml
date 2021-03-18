@@ -6,7 +6,7 @@ dependencies:
   - biopython=1.77
   - pip=20.2.3
   - python=3.8.5
-  - kallisto=0.45.1
+  - kallisto=0.46.2
   - pandas=1.0.5
   - pip:
     - -e .
