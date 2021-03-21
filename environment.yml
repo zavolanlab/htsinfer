@@ -1,0 +1,8 @@
+name: htsinfer
+channels:
+  - defaults
+dependencies:
+  - pip=20.2.3
+  - python=3.8.5
+  - pip:
+    - -e .

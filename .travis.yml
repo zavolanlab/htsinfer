@@ -1,0 +1,44 @@
+os:
+  - linux
+dist: bionic
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "3.9"
+
+# build for all pushes, as well as PRs coming from forks
+# this ensures that the pipeline is triggered for internal pushes,
+# PRs from forks and pushes to existing PRs from forks
+if: (type == push) OR (type == pull_request AND fork == true)
+
+install:
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda env create --file environment.yml
+  - conda env update --file environment-dev.yml
+  - conda activate htsinfer
+  - python setup.py install
+
+script:
+  # style tests
+  - flake8
+  - pylint --rcfile pylint.cfg setup.py htsinfer/
+  - mypy htsinfer
+  # unit tests
+  - coverage run --source htsinfer -m pytest
+  - coveralls
+  # integration tests
+  - htsinfer --help
+  - htsinfer tests/files/single.fastq
+
+after_success:
+- git config --global user.name "semantic-release (via TravisCI)"
+- git config --global user.email "semantic-release@travis"
+- semantic-release publish -v DEBUG
