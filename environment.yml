@@ -6,3 +6,4 @@ dependencies:
   - python=3.8.5
   - pip:
     - -e .
+    - pydantic==1.81

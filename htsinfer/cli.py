@@ -8,7 +8,7 @@ from pathlib import Path
 import signal
 import sys
 
-from htsinfer import __version__
+from htsinfer import (HtsInfer, __version__)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -131,7 +131,12 @@ def main() -> None:
         LOGGER.debug(f"CLI arguments: {args}")
 
         # determine library metadata
-        # TODO: implement  # pylint: disable=fixme
+        hts_infer = HtsInfer(
+            path_1=args.paths[0],
+            path_2=args.paths[1],
+        )
+        hts_infer.evaluate()
+        hts_infer.print()
 
     except KeyboardInterrupt:
         LOGGER.error('Execution interrupted.')
@@ -139,7 +144,7 @@ def main() -> None:
 
     # conclude execution
     LOGGER.info("Done")
-    sys.exit(0)
+    sys.exit(hts_infer.state.value)
 
 
 if __name__ == '__main__':
