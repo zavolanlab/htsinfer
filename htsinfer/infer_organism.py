@@ -44,11 +44,11 @@ def infer(
 
     # Runs Kallisto index
     exit_code = kallisto_index()
-    if exit_code:
+    if exit_code != 0:
         return "NA"
     # Runs Kallisto quant
     exit_code = kallisto_quant(file_1=file_1, file_2=file_2)
-    if exit_code:
+    if exit_code != 0:
         return "NA"
 
     LOGGER.debug("Processing organism count info")
