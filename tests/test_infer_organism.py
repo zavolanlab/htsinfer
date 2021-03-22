@@ -11,11 +11,11 @@ transcript_fasta_path = os.path.join(
 path = os.path.join(path, "test_files")
 
 
-# def test_single_file():
-#    """Test single file"""
-#    file1 = os.path.join(path, "first_mate.fastq")
-#    result = infer(transcript_fasta=transcript_fasta_path, file_1=file1)
-#    assert result == "invalid_file"
+def test_single_file():
+    """Test single file"""
+    file1 = os.path.join(path, "first_mate.fastq")
+    result = infer(transcript_fasta=transcript_fasta_path, file_1=file1)
+    assert result == "NA"
 
 
 def test_compressed_file():
@@ -25,11 +25,11 @@ def test_compressed_file():
     assert result == "NA"
 
 
-# def test_empty_file():
-#    """Test empty file."""
-#    file1 = os.path.join(path, "empty.fastq")
-#    result = infer(transcript_fasta=transcript_fasta_path, file_1=file1)
-#    assert result == "invalid_file"
+def test_empty_file():
+    """Test empty file."""
+    file1 = os.path.join(path, "empty.fastq")
+    result = infer(transcript_fasta=transcript_fasta_path, file_1=file1)
+    assert result == "NA"
 
 
 def test_organism():

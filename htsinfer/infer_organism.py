@@ -41,26 +41,15 @@ def infer(
     """
     with zp.ZipFile(transcript_fasta, "r") as zip_ref:
         zip_ref.extractall()
-    index = "kallisto index -i transcripts.idx --make-unique transcripts.fasta"
-    quant_single = "kallisto quant -i transcripts.idx -o output" + \
-        " -l 100 -s 300 --single " + file_1
-    if file_2 is not None:
-        quant_paired = "kallisto quant -i transcripts.idx -o output " + \
-            file_1 + " " + file_2
 
-    try:
-        LOGGER.debug("Running Kallisto index")
-        sp.run(index, shell=True, check=True)
-        LOGGER.debug("Running Kallisto quant")
-        if file_2 is not None:
-            sp.run(quant_paired, shell=True, check=True)
-        else:
-            sp.run(quant_single, shell=True, check=True)
-    except sp.CalledProcessError as exc:
-        LOGGER.error(
-            f"Error:running kallisto. Invalid input file '{file_1}' '{file_2}'"
-        )
-        raise exc
+    # Runs Kallisto index
+    exit_code = kallisto_index()
+    if exit_code:
+        return "NA"
+    # Runs Kallisto quant
+    exit_code = kallisto_quant(file_1=file_1, file_2=file_2)
+    if exit_code:
+        return "NA"
 
     LOGGER.debug("Processing organism count info")
     organism_tpm_count = process_count_info()
@@ -71,6 +60,51 @@ def infer(
     else:
         result = "NA"
     return result
+
+
+def kallisto_index() -> int:
+    """Builds an index from a FASTA formatted file of target sequences.
+
+    Returns:
+        Exit status of subprocess.
+    """
+    LOGGER.debug("Running Kallisto index")
+    index_cmd = "kallisto index -i transcripts.idx --make-unique" + \
+        " transcripts.fasta"
+    result = sp.run(index_cmd, shell=True, capture_output=True, text=True)
+    if result.returncode == 0:
+        LOGGER.debug(result.stderr)
+    else:
+        LOGGER.error(result.stderr)
+    return result.returncode
+
+
+def kallisto_quant(
+    file_1: str,
+    file_2: str = None,
+) -> int:
+    """Runs the quantification algorithm.
+
+    Args:
+        file_1: File path to first mate library.
+        file_2: File path to second mate library.
+
+    Returns:
+        Exit status of subprocess.
+    """
+    LOGGER.debug("Running Kallisto quant")
+    if file_2 is not None:
+        quant_cmd = "kallisto quant -i transcripts.idx -o output " + \
+            file_1 + " " + file_2
+    else:
+        quant_cmd = "kallisto quant -i transcripts.idx -o output" + \
+            " -l 100 -s 300 --single " + file_1
+    result = sp.run(quant_cmd, shell=True, capture_output=True, text=True)
+    if result.returncode == 0:
+        LOGGER.debug(result.stderr)
+    else:
+        LOGGER.error(result.stderr)
+    return result.returncode
 
 
 def process_count_info() -> Dict[Tuple[str, int], float]:
