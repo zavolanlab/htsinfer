@@ -183,9 +183,9 @@ class GetFastqType():
                         self.seq_id_format = seq_id_format
                         break
 
-                except StopIteration:
+                except StopIteration as exc:
                     self.result = StatesType.not_available
-                    raise FileProblem(f"File is empty: {self.path}")
+                    raise FileProblem(f"File is empty: {self.path}") from exc
 
                 if self.seq_id_format is None:
                     self.result = StatesType.not_available
@@ -217,11 +217,11 @@ class GetFastqType():
                         self.result = StatesType.not_available
                         raise MetadataWarning(
                             f"{type(exc).__name__}: {str(exc)}"
-                        )
+                        ) from exc
 
         except (OSError, ValueError) as exc:
             self.result = StatesType.not_available
-            raise FileProblem(f"{type(exc).__name__}: {str(exc)}")
+            raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
 
         LOGGER.debug(f"Total records processed: {records}")
 

@@ -1,10 +1,39 @@
 """Data models."""
 
-from enum import Enum
+from enum import (
+    Enum,
+    IntEnum,
+)
+import logging
 import re
 
 # pylint: disable=no-name-in-module,invalid-name
 from pydantic import BaseModel
+
+
+class CleanupRegimes(Enum):
+    """Enumerator of cleanup regimes."""
+    DEFAULT = "default"
+    KEEP_ALL = "keep_all"
+    KEEP_NONE = "keep_none"
+    KEEP_RESULTS = "keep_results"
+
+
+class LogLevels(Enum):
+    """Log level enumerator."""
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARN = logging.WARNING
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL
+
+
+class RunStates(IntEnum):
+    """Enumerator of run states and exit codes."""
+    OKAY = 0
+    WARNING = 1
+    ERROR = 2
 
 
 SeqIdFormats = Enum(  # type: ignore

@@ -76,7 +76,7 @@ class SubsetFastq:
                 if not self.n_processed:
                     raise FileProblem(f"File is empty: {self.path}")
         except Exception as exc:
-            raise FileProblem(exc)
+            raise FileProblem(exc) from exc
         LOGGER.debug(
             f"Written {self.n_processed} records to: {self.out_path}"
         )

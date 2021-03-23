@@ -2,7 +2,6 @@
 """Command-line interface client."""
 
 import argparse
-from enum import Enum
 import logging
 from pathlib import Path
 import signal
@@ -13,19 +12,12 @@ from htsinfer import (
     HtsInfer,
     __version__,
 )
-from htsinfer.htsinfer import CleanupRegimes
+from htsinfer.models import (
+    CleanupRegimes,
+    LogLevels,
+)
 
 LOGGER = logging.getLogger(__name__)
-
-
-class LogLevels(Enum):
-    """Log level enumerator."""
-    DEBUG = logging.DEBUG
-    INFO = logging.INFO
-    WARN = logging.WARNING
-    WARNING = logging.WARNING
-    ERROR = logging.ERROR
-    CRITICAL = logging.CRITICAL
 
 
 def parse_args() -> argparse.Namespace:
@@ -37,7 +29,7 @@ def parse_args() -> argparse.Namespace:
     # set metadata
     usage = (
         """htsinfer [--output-directory PATH] [--temporary-directory PATH]
-                [--cleanup-regime {default,keep_all,keep_none,keep_results}]
+                [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
                 [--records INT ] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
                 [-h] [--version]
                 FASTQ_PATH [FASTQ_PATH]
@@ -88,8 +80,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--cleanup-regime",
-        choices=[e.value for e in CleanupRegimes],
-        default=CleanupRegimes.default.value,
+        choices=[e.name for e in CleanupRegimes],
+        default=CleanupRegimes.DEFAULT.name,
         type=str,
         help=(
             "determine which data to keep after each run; in default mode, "

@@ -8,11 +8,11 @@ from htsinfer.exceptions import (
     FileProblem,
     WorkEnvProblem,
 )
-from htsinfer.htsinfer import (
-    HtsInfer,
+from htsinfer.htsinfer import HtsInfer
+from htsinfer.models import (
     RunStates,
+    StatesType,
 )
-from htsinfer.models import StatesType
 from tests.utils import (
     FILE_EMPTY,
     FILE_MATE_1,
@@ -33,14 +33,14 @@ class TestHtsInfer:
         """One input file path."""
         test_instance = HtsInfer(path_1=FILE_MATE_1)
         assert test_instance.path_1 == FILE_MATE_1
-        assert test_instance.state is RunStates.okay
+        assert test_instance.state is RunStates.OKAY
 
     def test_init_two_paths(self):
         """Two input file paths."""
         test_instance = HtsInfer(path_1=FILE_MATE_1, path_2=FILE_MATE_1)
         assert test_instance.path_1 == FILE_MATE_1
         assert test_instance.path_2 == FILE_MATE_1
-        assert test_instance.state is RunStates.okay
+        assert test_instance.state is RunStates.OKAY
 
     def test_evaluate(self, tmpdir):
         """No warnings."""
@@ -51,7 +51,7 @@ class TestHtsInfer:
         )
         test_instance.evaluate()
         assert test_instance.results.library_type is not None
-        assert test_instance.state is RunStates.okay
+        assert test_instance.state is RunStates.OKAY
 
     def test_evaluate_lib_type_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in library type determination."""
@@ -65,7 +65,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.warning
+        assert test_instance.state is RunStates.WARNING
 
     def test_evaluate_lib_source_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in library source determination."""
@@ -79,7 +79,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.warning
+        assert test_instance.state is RunStates.WARNING
 
     def test_evaluate_read_orient_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in read orientation determination."""
@@ -93,7 +93,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.warning
+        assert test_instance.state is RunStates.WARNING
 
     def test_evaluate_read_layout_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in read layout determination."""
@@ -107,7 +107,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.warning
+        assert test_instance.state is RunStates.WARNING
 
     def test_evaluate_file_problem(self, tmpdir):
         """File problem due to empty file."""
@@ -117,14 +117,14 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.error
+        assert test_instance.state is RunStates.ERROR
 
     def test_evaluate_work_env_problem(self, tmpdir):
         """Cannot create work environment."""
         test_instance = HtsInfer(path_1=FILE_EMPTY)
         test_instance.out_dir = Path(".")
         test_instance.evaluate()
-        assert test_instance.state is RunStates.error
+        assert test_instance.state is RunStates.ERROR
 
     def test_prepare_env_default(self, tmpdir):
         """Test default behavior."""
@@ -196,7 +196,7 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         test_instance.prepare_env()
-        test_instance.state = RunStates.okay
+        test_instance.state = RunStates.OKAY
         test_instance.clean_up()
         assert not Path(test_instance.out_dir).is_dir()
         assert not Path(test_instance.tmp_dir).is_dir()
@@ -209,7 +209,7 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         test_instance.prepare_env()
-        test_instance.state = RunStates.warning
+        test_instance.state = RunStates.WARNING
         test_instance.clean_up()
         assert Path(test_instance.out_dir).is_dir()
         assert not Path(test_instance.tmp_dir).is_dir()
@@ -222,7 +222,7 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         test_instance.prepare_env()
-        test_instance.state = RunStates.error
+        test_instance.state = RunStates.ERROR
         test_instance.clean_up()
         assert Path(test_instance.out_dir).is_dir()
         assert Path(test_instance.tmp_dir).is_dir()
@@ -235,7 +235,7 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         test_instance.prepare_env()
-        test_instance.state = RunStates.okay
+        test_instance.state = RunStates.OKAY
         monkeypatch.setattr(
             'shutil.rmtree',
             RaiseOSError,
@@ -251,7 +251,7 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         test_instance.prepare_env()
-        test_instance.state = RunStates.warning
+        test_instance.state = RunStates.WARNING
         monkeypatch.setattr(
             'shutil.rmtree',
             RaiseOSError,

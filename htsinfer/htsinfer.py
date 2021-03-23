@@ -1,10 +1,6 @@
 """Main module."""
 # pylint: disable=fixme
 
-from enum import (
-    Enum,
-    IntEnum,
-)
 import logging
 from pathlib import Path
 from random import choices
@@ -20,25 +16,14 @@ from htsinfer.exceptions import (
     WorkEnvProblem,
 )
 from htsinfer.get_library_type import GetLibType
-from htsinfer.models import Results
+from htsinfer.models import (
+    CleanupRegimes,
+    Results,
+    RunStates,
+)
 from htsinfer.subset_fastq import SubsetFastq
 
 LOGGER = logging.getLogger(__name__)
-
-
-class CleanupRegimes(Enum):
-    """Enumerator of cleanup regimes."""
-    default = "default"
-    keep_all = "keep_all"
-    keep_none = "keep_none"
-    keep_results = "keep_results"
-
-
-class RunStates(IntEnum):
-    """Enumerator of run states and exit codes."""
-    okay = 0
-    warning = 1
-    error = 2
 
 
 class HtsInfer:  # pylint: disable=too-many-instance-attributes
@@ -74,7 +59,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         path_2: Optional[Path] = None,
         out_dir: Path = Path.cwd(),
         tmp_dir: Path = Path(tempfile.gettempdir()),
-        cleanup_regime: CleanupRegimes = CleanupRegimes.default,
+        cleanup_regime: CleanupRegimes = CleanupRegimes.DEFAULT,
         records: int = 0,
     ):
         """Class constructor."""
@@ -89,7 +74,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         self.records = records
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
-        self.state: RunStates = RunStates.okay
+        self.state: RunStates = RunStates.OKAY
         self.results: Results = Results()
 
     def evaluate(self):
@@ -109,7 +94,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
                 try:
                     self.get_library_type()
                 except MetadataWarning as exc:
-                    self.state = RunStates.warning
+                    self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
                 LOGGER.info(
                     "Library type determined: "
@@ -121,7 +106,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
                 try:
                     self.get_library_source()
                 except MetadataWarning as exc:
-                    self.state = RunStates.warning
+                    self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
 
                 # determine read orientation
@@ -129,7 +114,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
                 try:
                     self.get_read_orientation()
                 except MetadataWarning as exc:
-                    self.state = RunStates.warning
+                    self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
 
                 # determine read layout
@@ -137,11 +122,11 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
                 try:
                     self.get_read_layout()
                 except MetadataWarning as exc:
-                    self.state = RunStates.warning
+                    self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
 
             except FileProblem as exc:
-                self.state = RunStates.error
+                self.state = RunStates.ERROR
                 LOGGER.error(f"{type(exc).__name__}: {str(exc)}")
 
             # postprocessing
@@ -149,7 +134,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
             self.clean_up()
 
         except WorkEnvProblem as exc:
-            self.state = RunStates.error
+            self.state = RunStates.ERROR
             LOGGER.error(f"{type(exc).__name__}: {str(exc)}")
 
         # log results
@@ -160,19 +145,19 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         # create results directory
         try:
             self.out_dir.mkdir()
-        except OSError:
+        except OSError as exc:
             raise WorkEnvProblem(
                 f"Creation of results directory failed: {self.out_dir}"
-            )
+            ) from exc
         LOGGER.info(f"Created results directory: {self.out_dir}")
 
         # create temporary directory
         try:
             self.tmp_dir.mkdir()
-        except OSError:
+        except OSError as exc:
             raise WorkEnvProblem(
                 f"Creation of temporary directory failed: {self.tmp_dir}"
-            )
+            ) from exc
         LOGGER.info(f"Created temporary directory: {self.tmp_dir}")
         LOGGER.debug("Created work environment")
 
@@ -222,39 +207,39 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
     def clean_up(self):
         """Clean up work environment."""
         # set default cleanup regime
-        if self.cleanup_regime is CleanupRegimes.default:
+        if self.cleanup_regime is CleanupRegimes.DEFAULT:
             if (
                 logging.root.level == logging.DEBUG or
-                self.state is RunStates.error
+                self.state is RunStates.ERROR
             ):
-                self.cleanup_regime = CleanupRegimes.keep_all
-            elif self.state is RunStates.warning:
-                self.cleanup_regime = CleanupRegimes.keep_results
+                self.cleanup_regime = CleanupRegimes.KEEP_ALL
+            elif self.state is RunStates.WARNING:
+                self.cleanup_regime = CleanupRegimes.KEEP_RESULTS
             else:
-                self.cleanup_regime = CleanupRegimes.keep_none
+                self.cleanup_regime = CleanupRegimes.KEEP_NONE
         LOGGER.debug(f"Cleanup regime: {self.cleanup_regime}")
 
         # remove results directory
-        if self.cleanup_regime == CleanupRegimes.keep_none:
+        if self.cleanup_regime == CleanupRegimes.KEEP_NONE:
             try:
                 shutil.rmtree(self.out_dir)
-            except OSError:
+            except OSError as exc:
                 raise WorkEnvProblem(
                     f"Removal of results directory failed: {self.out_dir}"
-                )
+                ) from exc
             LOGGER.info(f"Removed results directory: {self.out_dir}")
 
         # remove temporary directory
         if (
-            self.cleanup_regime == CleanupRegimes.keep_results or
-            self.cleanup_regime == CleanupRegimes.keep_none
+            self.cleanup_regime == CleanupRegimes.KEEP_RESULTS or
+            self.cleanup_regime == CleanupRegimes.KEEP_NONE
         ):
             try:
                 shutil.rmtree(self.tmp_dir)
-            except OSError:
+            except OSError as exc:
                 raise WorkEnvProblem(
                     f"Removal of temporary directory failed: {self.tmp_dir}"
-                )
+                ) from exc
             LOGGER.info(f"Removed temporary directory: {self.tmp_dir}")
 
     def print(self):
