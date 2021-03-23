@@ -4,8 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from htsinfer.exceptions import WorkEnvProblem
-from htsinfer.htsinfer import (HtsInfer, RunStates)
+from htsinfer.exceptions import (
+    FileProblem,
+    WorkEnvProblem,
+)
+from htsinfer.htsinfer import (
+    HtsInfer,
+    RunStates,
+)
 
 # Test parameters
 TEST_FILES_DIR = Path(__file__).resolve().parent / "files"
@@ -51,6 +57,15 @@ class TestHtsInfer:
         assert test_instance.results.library_type is None
         assert test_instance.state is RunStates.okay
 
+    def test_evaluate_file_problem(self, tmpdir):
+        """File validation fails."""
+        test_instance = HtsInfer(
+            path_1=FILE_EMPTY,
+            out_dir=tmpdir,
+            tmp_dir=tmpdir,
+        )
+        test_instance.evaluate()
+
     def test_evaluate_work_env_problem(self, tmpdir):
         """Cannot create work environment."""
         test_instance = HtsInfer(path_1=FILE_EMPTY)
@@ -85,6 +100,30 @@ class TestHtsInfer:
         test_instance.tmp_dir = Path(".")
         with pytest.raises(WorkEnvProblem):
             test_instance.prepare_env()
+
+    def test_process_inputs_default(self, tmpdir):
+        """Test default behavior."""
+        test_instance = HtsInfer(
+            path_1=FILE_MATE_1,
+            path_2=FILE_MATE_1,
+            out_dir=tmpdir,
+            tmp_dir=tmpdir,
+        )
+        test_instance.prepare_env()
+        test_instance.process_inputs()
+        test_instance.clean_up()
+
+    def test_process_inputs_file_problem_empty(self, tmpdir):
+        """File validation fails because input file is empty."""
+        test_instance = HtsInfer(
+            path_1=FILE_EMPTY,
+            out_dir=tmpdir,
+            tmp_dir=tmpdir,
+        )
+        test_instance.prepare_env()
+        with pytest.raises(FileProblem):
+            test_instance.process_inputs()
+        test_instance.clean_up()
 
     def test_clean_up_keep_none(self, tmpdir):
         """Remove all data."""

@@ -2,6 +2,7 @@ name: htsinfer
 channels:
   - defaults
   - bioconda
+  - conda-forge
 dependencies:
   - biopython=1.78
   - pip=20.2.3

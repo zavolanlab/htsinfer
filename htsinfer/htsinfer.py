@@ -1,7 +1,10 @@
 """Main module."""
 # pylint: disable=fixme
 
-from enum import (Enum, IntEnum)
+from enum import (
+    Enum,
+    IntEnum,
+)
 import logging
 from pathlib import Path
 from random import choices
@@ -11,7 +14,11 @@ import sys
 import tempfile
 from typing import Optional
 
-from htsinfer.exceptions import WorkEnvProblem
+from htsinfer.exceptions import (
+    FileProblem,
+    WorkEnvProblem,
+)
+from htsinfer.subset_fastq import SubsetFastq
 from htsinfer.models import Results
 
 LOGGER = logging.getLogger(__name__)
@@ -41,6 +48,9 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
         cleanup_regime: Which data to keep after run concludes; one of
+        records: Number of input file records to process; set to `0` to
+            process all records.
+            `CleanupRegimes`.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -50,12 +60,12 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         tmp_dir: Path to directory where temporary output is written to.
         cleanup_regime: Which data to keep after run concludes; one of
             `CleanupRegimes`.
+        records: Number of input file records to process.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
         state: State of the run; one of `RunStates`.
         results: Results container for storing determined library metadata.
     """
-
     def __init__(  # pylint: disable=too-many-arguments
         self,
         path_1: Path,
@@ -63,6 +73,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         out_dir: Path = Path.cwd(),
         tmp_dir: Path = Path(tempfile.gettempdir()),
         cleanup_regime: CleanupRegimes = CleanupRegimes.default,
+        records: int = 0,
     ):
         """Class constructor."""
         self.path_1 = path_1
@@ -73,6 +84,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         self.out_dir = out_dir / self.run_id
         self.tmp_dir = tmp_dir / f"tmp_{self.run_id}"
         self.cleanup_regime = cleanup_regime
+        self.records = records
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
         self.state: RunStates = RunStates.okay
@@ -85,25 +97,30 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
             LOGGER.info("Setting up work environment...")
             self.prepare_env()
 
-            # preprocess inputs
-            LOGGER.info("Processing and validating input data...")
-            self.process_inputs()
+            try:
+                # preprocess inputs
+                LOGGER.info("Processing and validating input data...")
+                self.process_inputs()
 
-            # determine library type
-            LOGGER.info("Determining library type...")
-            self.get_library_type()
+                # determine library type
+                LOGGER.info("Determining library type...")
+                self.get_library_type()
 
-            # determine library source
-            LOGGER.info("Determining library source...")
-            self.get_library_source()
+                # determine library source
+                LOGGER.info("Determining library source...")
+                self.get_library_source()
 
-            # determine read orientation
-            LOGGER.info("Determining read orientation...")
-            self.get_read_orientation()
+                # determine read orientation
+                LOGGER.info("Determining read orientation...")
+                self.get_read_orientation()
 
-            # determine read layout
-            LOGGER.info("Determining read layout...")
-            self.get_read_layout()
+                # determine read layout
+                LOGGER.info("Determining read layout...")
+                self.get_read_layout()
+
+            except FileProblem as exc:
+                self.state = RunStates.error
+                LOGGER.error(f"{type(exc).__name__}: {str(exc)}")
 
             # postprocessing
             LOGGER.info("Cleaning up work environment...")
@@ -138,7 +155,26 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
 
     def process_inputs(self):
         """Process and validate inputs."""
-        # TODO: implement
+        # process first file
+        input_files_1 = SubsetFastq(
+            path=self.path_1,
+            out_dir=self.tmp_dir,
+            records=self.records,
+        )
+        input_files_1.process()
+        self.path_1_processed = input_files_1.out_path
+        LOGGER.info(f"Location processed file 1: {self.path_1_processed}")
+
+        # process second file, if available
+        if self.path_2 is not None:
+            input_files_2 = SubsetFastq(
+                path=self.path_2,
+                out_dir=self.tmp_dir,
+                records=self.records,
+            )
+            input_files_2.process()
+            self.path_2_processed = input_files_2.out_path
+            LOGGER.info(f"Location processed file 2: {self.path_2_processed}")
 
     def get_library_type(self):
         """Determine library type."""

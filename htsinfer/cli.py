@@ -9,7 +9,10 @@ import signal
 import sys
 import tempfile
 
-from htsinfer import (HtsInfer, __version__)
+from htsinfer import (
+    HtsInfer,
+    __version__,
+)
 from htsinfer.htsinfer import CleanupRegimes
 
 LOGGER = logging.getLogger(__name__)
@@ -35,7 +38,8 @@ def parse_args() -> argparse.Namespace:
     usage = (
         """htsinfer [--output-directory PATH] [--temporary-directory PATH]
                 [--cleanup-regime {default,keep_all,keep_none,keep_results}]
-                [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h] [--version]
+                [--records INT ] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
+                [-h] [--version]
                 FASTQ_PATH [FASTQ_PATH]
         """
     )
@@ -92,6 +96,17 @@ def parse_args() -> argparse.Namespace:
             "both temporary data and results are kept when '--verbosity' is "
             "set to 'DEBUG', no data is kept when all metadata could be "
             "successfully determined, and only results are kept otherwise"
+        )
+    )
+    parser.add_argument(
+        "--records",
+        default=0,
+        type=int,
+        metavar="INT",
+        help=(
+            "number of records to process; if set to ``0`` or if the "
+            "specified value equals or exceeds the number of available "
+            "records, all records will be processed"
         )
     )
     parser.add_argument(
@@ -166,6 +181,7 @@ def main() -> None:
             out_dir=args.output_directory,
             tmp_dir=args.temporary_directory,
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
+            records=args.records,
         )
         hts_infer.evaluate()
         hts_infer.print()

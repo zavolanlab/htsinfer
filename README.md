@@ -11,7 +11,8 @@ HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 ```sh
 htsinfer [--output-directory PATH] [--temporary-directory PATH]
          [--cleanup-regime {default,keep_all,keep_none,keep_results}]
-         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h] [--version]
+         [--records INT] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h]
+         [--version]
          FASTQ_PATH [FASTQ_PATH]
 ```
 
@@ -35,6 +36,10 @@ optional arguments:
                         '--verbosity' is set to 'DEBUG', no data is kept when
                         all metadata could be successfully determined, and only
                         results are kept otherwise (default: default)
+  --records INT         number of records to process; if set to ``0`` or if the
+                        specified value equals or exceeds the number of
+                        available records, all records will be processed
+                        (default: 0)
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit
@@ -84,7 +89,7 @@ by email: <zavolab-biozentrum@unibas.ch>
 
 [badge-ci]: <https://travis-ci.com/zavolanlab/htsinfer.svg?branch=master>
 [badge-coverage]: <https://img.shields.io/coveralls/github/zavolanlab/htsinfer/master>
-[badge-license]: <https://img.shields.io/badge/license-Apache%202.0-orange.svg?style=flat&color=important>
+[badge-license]: <https://img.shields.io/badge/license-Apache%202.0-blue.svg>
 [badge-url-ci]: <https://travis-ci.com/zavolanlab/htsinfer>
 [badge-url-coverage]: <https://coveralls.io/github/zavolanlab/htsinfer>
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
