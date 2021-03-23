@@ -9,7 +9,9 @@ HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 ## Usage
 
 ```sh
-htsinfer [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h] [--version]
+htsinfer [--output-directory PATH] [--temporary-directory PATH]
+         [--cleanup-regime {default,keep_all,keep_none,keep_results}]
+         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h] [--version]
          FASTQ_PATH [FASTQ_PATH]
 ```
 
@@ -21,6 +23,18 @@ positional arguments:
                         evaluated.
 
 optional arguments:
+  --output-directory PATH
+                        path to directory where output is written to (default:
+                        current working directory)
+  --temporary-directory PATH
+                        path to directory where temporary output is written to
+                        (default: default temporary directory)
+  --cleanup-regime {default,keep_all,keep_none,keep_results}
+                        determine which data to keep after each run; in default
+                        mode, both temporary data and results are kept when
+                        '--verbosity' is set to 'DEBUG', no data is kept when
+                        all metadata could be successfully determined, and only
+                        results are kept otherwise (default: default)
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit

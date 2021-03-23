@@ -7,8 +7,10 @@ import logging
 from pathlib import Path
 import signal
 import sys
+import tempfile
 
 from htsinfer import (HtsInfer, __version__)
+from htsinfer.htsinfer import CleanupRegimes
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,8 +33,9 @@ def parse_args() -> argparse.Namespace:
     """
     # set metadata
     usage = (
-        """htsinfer [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h]
-                [--version]
+        """htsinfer [--output-directory PATH] [--temporary-directory PATH]
+                [--cleanup-regime {default,keep_all,keep_none,keep_results}]
+                [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h] [--version]
                 FASTQ_PATH [FASTQ_PATH]
         """
     )
@@ -64,6 +67,32 @@ def parse_args() -> argparse.Namespace:
             "either one or two file paths to the read library to be "
             "evaluated."
         ),
+    )
+    parser.add_argument(
+        "--output-directory",
+        default=Path.cwd(),
+        type=lambda p: Path(p).absolute(),
+        metavar="PATH",
+        help="path to directory where output is written to",
+    )
+    parser.add_argument(
+        "--temporary-directory",
+        default=Path(tempfile.gettempdir()),
+        type=lambda p: Path(p).absolute(),
+        metavar="PATH",
+        help="path to directory where temporary output is written to",
+    )
+    parser.add_argument(
+        "--cleanup-regime",
+        choices=[e.value for e in CleanupRegimes],
+        default=CleanupRegimes.default.value,
+        type=str,
+        help=(
+            "determine which data to keep after each run; in default mode, "
+            "both temporary data and results are kept when '--verbosity' is "
+            "set to 'DEBUG', no data is kept when all metadata could be "
+            "successfully determined, and only results are kept otherwise"
+        )
     )
     parser.add_argument(
         "--verbosity",
@@ -134,6 +163,9 @@ def main() -> None:
         hts_infer = HtsInfer(
             path_1=args.paths[0],
             path_2=args.paths[1],
+            out_dir=args.output_directory,
+            tmp_dir=args.temporary_directory,
+            cleanup_regime=CleanupRegimes[args.cleanup_regime],
         )
         hts_infer.evaluate()
         hts_infer.print()

@@ -137,6 +137,8 @@ class TestMain:
             sys, 'argv', [
                 'htsinfer',
                 str(TEST_FILE), str(TEST_FILE),
+                '--output-directory', str(tmpdir),
+                '--temporary-directory', str(tmpdir),
             ]
         )
         with pytest.raises(SystemExit) as exc:
