@@ -16,10 +16,12 @@ from typing import Optional
 
 from htsinfer.exceptions import (
     FileProblem,
+    MetadataWarning,
     WorkEnvProblem,
 )
-from htsinfer.subset_fastq import SubsetFastq
+from htsinfer.get_library_type import GetLibType
 from htsinfer.models import Results
+from htsinfer.subset_fastq import SubsetFastq
 
 LOGGER = logging.getLogger(__name__)
 
@@ -104,19 +106,39 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
 
                 # determine library type
                 LOGGER.info("Determining library type...")
-                self.get_library_type()
+                try:
+                    self.get_library_type()
+                except MetadataWarning as exc:
+                    self.state = RunStates.warning
+                    LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
+                LOGGER.info(
+                    "Library type determined: "
+                    f"{self.results.library_type.json()}"
+                )
 
                 # determine library source
                 LOGGER.info("Determining library source...")
-                self.get_library_source()
+                try:
+                    self.get_library_source()
+                except MetadataWarning as exc:
+                    self.state = RunStates.warning
+                    LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
 
                 # determine read orientation
                 LOGGER.info("Determining read orientation...")
-                self.get_read_orientation()
+                try:
+                    self.get_read_orientation()
+                except MetadataWarning as exc:
+                    self.state = RunStates.warning
+                    LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
 
                 # determine read layout
                 LOGGER.info("Determining read layout...")
-                self.get_read_layout()
+                try:
+                    self.get_read_layout()
+                except MetadataWarning as exc:
+                    self.state = RunStates.warning
+                    LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
 
             except FileProblem as exc:
                 self.state = RunStates.error
@@ -143,6 +165,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
                 f"Creation of results directory failed: {self.out_dir}"
             )
         LOGGER.info(f"Created results directory: {self.out_dir}")
+
         # create temporary directory
         try:
             self.tmp_dir.mkdir()
@@ -174,11 +197,15 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
             )
             input_files_2.process()
             self.path_2_processed = input_files_2.out_path
-            LOGGER.info(f"Location processed file 2: {self.path_2_processed}")
 
     def get_library_type(self):
         """Determine library type."""
-        # TODO: implement
+        get_lib_type = GetLibType(
+            path_1=self.path_1_processed,
+            path_2=self.path_2_processed,
+        )
+        get_lib_type.evaluate()
+        self.results.library_type = get_lib_type.results
 
     def get_library_source(self):
         """Determine library source."""

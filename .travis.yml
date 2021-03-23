@@ -37,6 +37,7 @@ script:
   # integration tests
   - htsinfer --help
   - htsinfer --cleanup-regime=keep_none --records=3 tests/files/single.fastq
+  - htsinfer --cleanup-regime=keep_none tests/files/{first,second}_mate.fastq
 
 after_success:
 - git config --global user.name "semantic-release (via TravisCI)"

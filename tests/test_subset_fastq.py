@@ -1,17 +1,14 @@
 """Unit tests for module ``subset_fastq.py``."""
 
-from pathlib import Path
-
 import pytest
 
 from htsinfer.exceptions import FileProblem
 from htsinfer.subset_fastq import SubsetFastq
-
-# Test parameters
-TEST_FILES_DIR = Path(__file__).resolve().parent / "files"
-FILE_EMPTY = TEST_FILES_DIR / "empty.fastq"
-FILE_GZIPPED = TEST_FILES_DIR / "mixed_mates_compressed.fastq.gz"
-FILE_MATE_1 = TEST_FILES_DIR / "first_mate.fastq"
+from tests.utils import (
+    FILE_EMPTY,
+    FILE_GZIPPED,
+    FILE_MATE_1,
+)
 
 
 class TestSubsetFastq:
@@ -21,11 +18,11 @@ class TestSubsetFastq:
         """Create instance with required parameters."""
         SubsetFastq(path=FILE_MATE_1)
 
-    def test_init_all(self):
+    def test_init_all(self, tmpdir):
         """Create instance with all available parameters."""
         SubsetFastq(
             path=FILE_MATE_1,
-            out_dir=Path("/dev/null"),
+            out_dir=tmpdir,
             records=1,
         )
 

@@ -3,7 +3,6 @@
 import argparse
 import importlib.util
 import os
-from pathlib import Path
 import sys
 
 import pytest
@@ -14,11 +13,11 @@ from htsinfer.cli import (
     setup_logging,
     validate_args,
 )
-
-# Test parameters
-PACKAGE_DIR = Path(__file__).resolve().parents[1] / "htsinfer"
-TEST_FILES_DIR = Path(__file__).resolve().parent / "files"
-TEST_FILE = TEST_FILES_DIR / "first_mate.fastq"
+from tests.utils import (
+    FILE_MATE_1,
+    PACKAGE_DIR,
+    RaiseValueError,
+)
 
 
 class TestParseArgs:
@@ -47,7 +46,7 @@ class TestParseArgs:
         monkeypatch.setattr(
             sys, 'argv', [
                 'htsinfer',
-                str(TEST_FILE), str(TEST_FILE),
+                str(FILE_MATE_1), str(FILE_MATE_1),
             ]
         )
         ret_val = parse_args()
@@ -60,7 +59,7 @@ class TestValidateArgs:
     def test_one_path(self):
         """Call with one path."""
         args = argparse.Namespace(
-            paths=[TEST_FILE]
+            paths=[FILE_MATE_1]
         )
         validate_args(args)
         assert len(args.paths) == 2
@@ -69,7 +68,7 @@ class TestValidateArgs:
     def test_two_paths(self):
         """Call with two paths."""
         args = argparse.Namespace(
-            paths=[TEST_FILE, TEST_FILE]
+            paths=[FILE_MATE_1, FILE_MATE_1]
         )
         validate_args(args)
         assert len(args.paths) == 2
@@ -78,7 +77,7 @@ class TestValidateArgs:
     def test_too_many_paths(self):
         """Call with more than two paths."""
         args = argparse.Namespace(
-            paths=[TEST_FILE, TEST_FILE, TEST_FILE]
+            paths=[FILE_MATE_1, FILE_MATE_1, FILE_MATE_1]
         )
         with pytest.raises(ValueError):
             validate_args(args)
@@ -136,7 +135,7 @@ class TestMain:
         monkeypatch.setattr(
             sys, 'argv', [
                 'htsinfer',
-                str(TEST_FILE), str(TEST_FILE),
+                str(FILE_MATE_1), str(FILE_MATE_1),
                 '--output-directory', str(tmpdir),
                 '--temporary-directory', str(tmpdir),
             ]
@@ -146,10 +145,7 @@ class TestMain:
         assert exc.value.code == 0
 
     def test_keyboard_interrupt(self, monkeypatch):
-
-        class RaiseValueError:
-            def __init__(self, *args, **kwargs):
-                raise ValueError
+        """Test keyboard interrupt."""
 
         monkeypatch.setattr(
             'builtins.KeyboardInterrupt',

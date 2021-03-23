@@ -1,0 +1,329 @@
+"""Unit tests for module ``get_library_type.py``."""
+
+import pytest
+
+from htsinfer.exceptions import (
+    FileProblem,
+    InconsistentFastqIdentifiers,
+    MetadataWarning,
+    UnknownFastqIdentifier,
+)
+from htsinfer.get_library_type import (
+    GetLibType,
+    GetFastqType,
+)
+from htsinfer.models import (
+    ResultsType,
+    SeqIdFormats,
+    StatesType,
+    StatesTypeRelationship,
+)
+from tests.utils import (
+    FILE_DUMMY,
+    FILE_EMPTY,
+    FILE_FASTA,
+    FILE_INCONSISTENT_IDS_MIXED_UNKNOWN,
+    FILE_INCONSISTENT_IDS_SINGLE_MATE,
+    FILE_INCONSISTENT_IDS_SINGLE_OLD_NEW,
+    FILE_MATE_1,
+    FILE_MATE_2,
+    FILE_SINGLE,
+    FILE_UNKNOWN_SEQ_ID,
+    RaiseOSError,
+    SEQ_ID_DUMMY,
+    SEQ_ID_MATE_1,
+    SEQ_ID_MATE_2,
+    SEQ_ID_SINGLE,
+)
+
+
+class TestGetLibType:
+    """Test ``GetLibType`` class."""
+
+    def test_init_required(self):
+        """Create instance with required parameters."""
+        test_instance = GetLibType(path_1=FILE_MATE_1)
+        assert test_instance.path_1 == FILE_MATE_1
+
+    def test_init_all(self):
+        """Create instance with all available parameters."""
+        test_instance = GetLibType(
+            path_1=FILE_MATE_1,
+            path_2=FILE_MATE_2,
+        )
+        assert test_instance.path_1 == FILE_MATE_1
+        assert test_instance.path_2 == FILE_MATE_2
+
+    def test_evaluate_one_file(self):
+        """Get library type for a single file."""
+        test_instance = GetLibType(path_1=FILE_MATE_1)
+        test_instance.evaluate()
+        assert test_instance.results == ResultsType(
+            file_1=StatesType.first_mate,
+            file_2=StatesType.not_available,
+            relationship=StatesTypeRelationship.not_available,
+        )
+
+    def test_evaluate_two_files(self):
+        """Get library type for two files."""
+        test_instance = GetLibType(
+            path_1=FILE_MATE_1,
+            path_2=FILE_MATE_2,
+        )
+        test_instance.evaluate()
+        assert test_instance.results == ResultsType(
+            file_1=StatesType.first_mate,
+            file_2=StatesType.second_mate,
+            relationship=StatesTypeRelationship.split_mates,
+        )
+
+    def test_evaluate_mate_relationship_split_mates(self):
+        """Test mate relationship evaluation logic with input files being
+        mates of a paired-end library.
+        """
+        test_instance = GetLibType(
+            path_1=FILE_MATE_1,
+            path_2=FILE_MATE_2,
+        )
+        test_instance.results.file_1 = StatesType.first_mate
+        test_instance.results.file_2 = StatesType.second_mate
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"],
+            ids_2=["A", "B", "C"],
+        )
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.split_mates
+        )
+        test_instance.results.file_1 = StatesType.second_mate
+        test_instance.results.file_2 = StatesType.first_mate
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"],
+            ids_2=["A", "B", "C"],
+        )
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.split_mates
+        )
+
+    def test_evaluate_mate_relationship_not_mates(self):
+        """Test mate relationship evaluation logic with input files that are
+        not mates from a paired-end library.
+        """
+        test_instance = GetLibType(
+            path_1=FILE_MATE_1,
+            path_2=FILE_MATE_2,
+        )
+        test_instance.results.file_1 = StatesType.first_mate
+        test_instance.results.file_2 = StatesType.second_mate
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"],
+            ids_2=["C", "B", "A"],
+        )
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.not_mates
+        )
+        test_instance.results.file_1 = StatesType.single
+        test_instance.results.file_2 = StatesType.first_mate
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"],
+            ids_2=["A", "B", "C"],
+        )
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.not_mates
+        )
+
+
+class TestGetFastqType:
+    """Test ``GetFastqType`` class."""
+
+    def test_init(self):
+        """Create instance."""
+        test_instance = GetFastqType(path=FILE_MATE_1)
+        assert test_instance.path == FILE_MATE_1
+
+    def test_evaluate_single(self):
+        """Evaluate valid single-end library file."""
+        test_instance = GetFastqType(path=FILE_SINGLE)
+        test_instance.evaluate()
+        assert test_instance.result == StatesType.single
+
+    def test_evaluate_unknown_seq_id(self):
+        """Evaluate file with identifiers of an unknown format."""
+        test_instance = GetFastqType(path=FILE_UNKNOWN_SEQ_ID)
+        with pytest.raises(MetadataWarning):
+            test_instance.evaluate()
+
+    def test_evaluate_inconsistent_identifiers_single_mate(self):
+        """Raise ``MetadataWarning`` by passing a file with inconsistent
+        identifiers, suggesting a single-end library first, then a paired-end
+        library later.
+        """
+        test_instance = GetFastqType(path=FILE_INCONSISTENT_IDS_SINGLE_MATE)
+        with pytest.raises(MetadataWarning):
+            test_instance.evaluate()
+
+    def test_evaluate_inconsistent_identifiers_mixed_unknown(self):
+        """Raise ``MetadataWarning`` by passing a file with inconsistent
+        identifiers, suggesting a mixed paired-end library first, followed by
+        reads of an unknown identifier format.
+        """
+        test_instance = GetFastqType(path=FILE_INCONSISTENT_IDS_MIXED_UNKNOWN)
+        with pytest.raises(MetadataWarning):
+            test_instance.evaluate()
+
+    def test_evaluate_inconsistent_identifiers_single_old_new(self):
+        """Raise ``MetadataWarning`` by passing a file with inconsistent
+        identifier formats (Cavatica <1.8 vs Cavatica >=1.8).
+        """
+        test_instance = GetFastqType(path=FILE_INCONSISTENT_IDS_SINGLE_OLD_NEW)
+        with pytest.raises(MetadataWarning):
+            test_instance.evaluate()
+
+    def test_evaluate_file_problem_empty_file(self):
+        """Pass empty file to simulate a file problem."""
+        test_instance = GetFastqType(path=FILE_EMPTY)
+        with pytest.raises(FileProblem):
+            test_instance.evaluate()
+
+    def test_evaluate_file_problem_fasta(self):
+        """Pass FASTA file to FASTQ parser (raising a ``ValueError``) to
+        simulate a file problem.
+        """
+        test_instance = GetFastqType(path=FILE_FASTA)
+        with pytest.raises(FileProblem):
+            test_instance.evaluate()
+
+    def test_evaluate_file_problem_cannot_open_file(self, monkeypatch):
+        """Force raising of ``OSError`` to simulate file problem."""
+        test_instance = GetFastqType(path=FILE_SINGLE)
+        monkeypatch.setattr(
+            'builtins.open',
+            RaiseOSError,
+        )
+        with pytest.raises(FileProblem):
+            test_instance.evaluate()
+
+    def test_get_read_type_match_single(self):
+        """Evaluate read consistent with single-end library."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance._get_read_type(
+            seq_id=SEQ_ID_SINGLE,
+            regex=SeqIdFormats['Casava <1.8'].value,
+        )
+        assert test_instance.result == StatesType.single
+
+    def test_get_read_type_match_first_mate(self):
+        """Evaluate read consistent with first mate file of a paired-end
+        library.
+        """
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance._get_read_type(
+            seq_id=SEQ_ID_MATE_1,
+            regex=SeqIdFormats['Casava <1.8'].value,
+        )
+        assert test_instance.result == StatesType.first_mate
+
+    def test_get_read_type_match_second_mate(self):
+        """Evaluate read consistent with second mate file of a paired-end
+        library.
+        """
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance._get_read_type(
+            seq_id=SEQ_ID_MATE_2,
+            regex=SeqIdFormats['Casava <1.8'].value,
+        )
+        assert test_instance.result == StatesType.second_mate
+
+    def test_get_read_type_no_match(self):
+        """Evaluate read that does not match the indicated regular expression.
+        """
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        with pytest.raises(UnknownFastqIdentifier):
+            test_instance._get_read_type(
+                seq_id=SEQ_ID_SINGLE,
+                regex=SeqIdFormats['Casava >=1.8'].value,
+            )
+
+    def test_get_read_type_single_pass(self):
+        """Read identifier is consistent with previous state."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.single
+        test_instance._get_read_type_single(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.single
+
+    def test_get_read_type_single_set(self):
+        """Set library type based on read identifier for the first time."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.not_available
+        test_instance._get_read_type_single(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.single
+
+    def test_get_read_type_single_inconsistent(self):
+        """Read identifier is not consistent with previous state."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.first_mate
+        with pytest.raises(InconsistentFastqIdentifiers):
+            test_instance._get_read_type_single(seq_id=SEQ_ID_DUMMY)
+
+    def test_get_read_type_mate_1_pass(self):
+        """Read identifier is consistent with previous state."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.mixed_mates
+        test_instance._get_read_type_paired_mate_1(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.mixed_mates
+
+    def test_get_read_type_mate_1_mixed(self):
+        """Read identifier is consistent with previous state, but suggests
+        mixed paired-end library file.
+        """
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.second_mate
+        test_instance._get_read_type_paired_mate_1(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.mixed_mates
+
+    def test_get_read_type_mate_1_set(self):
+        """Set library type based on read identifier for the first time."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.not_available
+        test_instance._get_read_type_paired_mate_1(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.first_mate
+
+    def test_get_read_type_mate_1_inconsistent(self):
+        """Read identifier is not consistent with previous state."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.single
+        with pytest.raises(InconsistentFastqIdentifiers):
+            test_instance._get_read_type_paired_mate_1(seq_id=SEQ_ID_DUMMY)
+
+    def test_get_read_type_mate_2_pass(self):
+        """Read identifier is consistent with previous state."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.mixed_mates
+        test_instance._get_read_type_paired_mate_2(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.mixed_mates
+
+    def test_get_read_type_mate_2_mixed(self):
+        """Read identifier is consistent with previous state, but suggests
+        mixed paired-end library file.
+        """
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.first_mate
+        test_instance._get_read_type_paired_mate_2(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.mixed_mates
+
+    def test_get_read_type_mate_2_set(self):
+        """Set library type based on read identifier for the first time."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.not_available
+        test_instance._get_read_type_paired_mate_2(seq_id=SEQ_ID_DUMMY)
+        assert test_instance.result == StatesType.second_mate
+
+    def test_get_read_type_mate_2_inconsistent(self):
+        """Read identifier is not consistent with previous state."""
+        test_instance = GetFastqType(path=FILE_DUMMY)
+        test_instance.result = StatesType.single
+        with pytest.raises(InconsistentFastqIdentifiers):
+            test_instance._get_read_type_paired_mate_2(seq_id=SEQ_ID_DUMMY)

@@ -12,7 +12,7 @@ from htsinfer.exceptions import FileProblem
 LOGGER = logging.getLogger(__name__)
 
 
-class SubsetFastq:  # pylint: disable=too-few-public-methods
+class SubsetFastq:
     """Subset, uncompress and validate a FASTQ file.
 
     Args:
