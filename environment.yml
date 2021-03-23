@@ -6,7 +6,7 @@ channels:
 dependencies:
   - biopython=1.78
   - pip=20.2.3
+  - pydantic=1.8.1
   - python=3.8.5
   - pip:
     - -e .
-    - pydantic==1.81

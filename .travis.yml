@@ -24,7 +24,6 @@ install:
   - conda env create --file environment.yml
   - conda env update --file environment-dev.yml
   - conda activate htsinfer
-  - python setup.py install
 
 script:
   # style tests
