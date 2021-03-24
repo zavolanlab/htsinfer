@@ -37,7 +37,7 @@ def parse_args() -> argparse.Namespace:
     )
 
     # custom actions
-    class __PathsAction(argparse.Action):
+    class PathsAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
             if len(values) > 2:
                 parser.print_usage(file=sys.stderr)
@@ -63,7 +63,7 @@ def parse_args() -> argparse.Namespace:
         'paths',
         nargs="+",
         type=Path,
-        action=__PathsAction,
+        action=PathsAction,
         metavar="PATH",
         help=(
             "either one or two paths to FASTQ files representing the "
