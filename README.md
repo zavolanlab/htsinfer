@@ -1,7 +1,8 @@
 # HTSinfer
 
 [![license][badge-license]][badge-url-license]
-[![CI][badge-ci]][badge-url-ci]
+[![ci][badge-ci]][badge-url-ci]
+[![docs][badge-docs]][badge-url-docs]
 [![coverage][badge-coverage]][badge-url-coverage]
 
 HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
@@ -71,6 +72,10 @@ python -m pytest
 Run HTSinfer via the CLI script `htsinfer` as described in the [Usage](#Usage)
 section.
 
+## API documentation
+
+Auto-built API documentation is hosted on [ReadTheDocs][badge-url-docs].
+
 ## Contributing
 
 This project lives off your contributions, be it in the form of bug reports,
@@ -89,9 +94,11 @@ by email: <zavolab-biozentrum@unibas.ch>
 
 [badge-ci]: <https://travis-ci.com/zavolanlab/htsinfer.svg?branch=master>
 [badge-coverage]: <https://img.shields.io/coveralls/github/zavolanlab/htsinfer/master>
+[badge-docs]: <https://readthedocs.org/projects/htsinfer/badge/?version=latest>
 [badge-license]: <https://img.shields.io/badge/license-Apache%202.0-blue.svg>
 [badge-url-ci]: <https://travis-ci.com/zavolanlab/htsinfer>
 [badge-url-coverage]: <https://coveralls.io/github/zavolanlab/htsinfer>
+[badge-url-docs]: <https://htsinfer.readthedocs.io/en/latest/?badge=latest>
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
 [conda]: <https://docs.conda.io/en/latest/miniconda.html>
 [contact]: <https://zavolan.biozentrum.unibas.ch/>
