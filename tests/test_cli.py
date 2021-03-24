@@ -11,7 +11,6 @@ from htsinfer.cli import (
     main,
     parse_args,
     setup_logging,
-    validate_args,
 )
 from tests.utils import (
     FILE_MATE_1,
@@ -35,14 +34,25 @@ class TestParseArgs:
             assert parse_args()
         assert exc.value.code == 0
 
-    def test_no_args(self):
-        """Call without args."""
+    def test_too_few_positional_args(self):
+        """Call without positional args."""
         with pytest.raises(SystemExit) as exc:
             parse_args()
         assert exc.value.code == 2
 
-    def test_positional_args(self, monkeypatch):
-        """Call with positional args."""
+    def test_one_positional_arg(self, monkeypatch):
+        """Call with one positional args"""
+        monkeypatch.setattr(
+            sys, 'argv', [
+                'htsinfer',
+                str(FILE_MATE_1),
+            ]
+        )
+        ret_val = parse_args()
+        assert isinstance(ret_val, argparse.Namespace)
+
+    def test_two_positional_args(self, monkeypatch):
+        """Call with two positional args."""
         monkeypatch.setattr(
             sys, 'argv', [
                 'htsinfer',
@@ -52,35 +62,17 @@ class TestParseArgs:
         ret_val = parse_args()
         assert isinstance(ret_val, argparse.Namespace)
 
-
-class TestValidateArgs:
-    """Test ``validate_args()`` function."""
-
-    def test_one_path(self):
-        """Call with one path."""
-        args = argparse.Namespace(
-            paths=[FILE_MATE_1]
+    def test_too_many_positional_args(self, monkeypatch):
+        """Call with too many positional args."""
+        monkeypatch.setattr(
+            sys, 'argv', [
+                'htsinfer',
+                str(FILE_MATE_1), str(FILE_MATE_1), str(FILE_MATE_1),
+            ]
         )
-        validate_args(args)
-        assert len(args.paths) == 2
-        assert args.paths[1] is None
-
-    def test_two_paths(self):
-        """Call with two paths."""
-        args = argparse.Namespace(
-            paths=[FILE_MATE_1, FILE_MATE_1]
-        )
-        validate_args(args)
-        assert len(args.paths) == 2
-        assert args.paths[1] is not None
-
-    def test_too_many_paths(self):
-        """Call with more than two paths."""
-        args = argparse.Namespace(
-            paths=[FILE_MATE_1, FILE_MATE_1, FILE_MATE_1]
-        )
-        with pytest.raises(ValueError):
-            validate_args(args)
+        with pytest.raises(SystemExit) as exc:
+            parse_args()
+        assert exc.value.code == 2
 
 
 class TestSetupLogging:
@@ -143,6 +135,18 @@ class TestMain:
         with pytest.raises(SystemExit) as exc:
             assert main() is None
         assert exc.value.code == 0
+
+    def test_with_too_many_args(self, monkeypatch):
+        """Call with too many positional args."""
+        monkeypatch.setattr(
+            sys, 'argv', [
+                'htsinfer',
+                str(FILE_MATE_1), str(FILE_MATE_1), str(FILE_MATE_1),
+            ]
+        )
+        with pytest.raises(SystemExit) as exc:
+            main()
+        assert exc.value.code == 2
 
     def test_keyboard_interrupt(self, monkeypatch):
         """Test keyboard interrupt."""

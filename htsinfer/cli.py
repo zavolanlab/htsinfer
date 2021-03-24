@@ -27,14 +27,6 @@ def parse_args() -> argparse.Namespace:
         Parsed CLI arguments.
     """
     # set metadata
-    usage = (
-        """htsinfer [--output-directory PATH] [--temporary-directory PATH]
-                [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-                [--records INT ] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
-                [-h] [--version]
-                FASTQ_PATH [FASTQ_PATH]
-        """
-    )
     description = (
         f"{sys.modules[__name__].__doc__}\n\n"
         ""
@@ -44,11 +36,31 @@ def parse_args() -> argparse.Namespace:
         "(zavolab-biozentrum@unibas.ch)"
     )
 
+    # custom actions
+    class PathsAction(argparse.Action):
+        """Sanitize ``paths`` parsing in positional args."""
+        def __call__(
+            self,
+            parser,
+            namespace,
+            values,
+            option_string=None,
+        ) -> None:
+            if len(values) > 2:
+                parser.print_usage(file=sys.stderr)
+                sys.stderr.write(
+                    "htsinfer: error: only one or two of the following "
+                    "arguments are allowed: PATH\n"
+                )
+                parser.exit(2)
+            if len(values) == 1:
+                values.append(None)
+            setattr(namespace, self.dest, values)
+
     # instantiate parser
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
-        usage=usage,
         add_help=False,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -58,10 +70,11 @@ def parse_args() -> argparse.Namespace:
         'paths',
         nargs="+",
         type=Path,
-        metavar="FASTQ_PATH",
+        action=PathsAction,
+        metavar="PATH",
         help=(
-            "either one or two file paths to the read library to be "
-            "evaluated."
+            "either one or two paths to FASTQ files representing the "
+            "sequencing library to be evaluated."
         ),
     )
     parser.add_argument(
@@ -120,24 +133,12 @@ def parse_args() -> argparse.Namespace:
         help="show version information and exit",
     )
 
+    # fix faulty usage string for nargs={1,2}
+    parser.usage = parser.format_usage()
+    parser.usage = parser.usage.replace("PATH [PATH ...]", "PATH [PATH]")
+
     # return parsed arguments
     return parser.parse_args()
-
-
-def validate_args(args: argparse.Namespace) -> None:
-    """Validate CLI arguments.
-
-    Args:
-        args: CLI arguments.
-
-    Raises:
-        ValueError: A CLI argument is invalid.
-    """
-    # ensure that not more than two file paths are passed
-    if len(args.paths) > 2:
-        raise ValueError("A maximum of two file paths can be specified.")
-    if len(args.paths) == 1:
-        args.paths.append(None)
 
 
 def setup_logging(verbosity: str = 'INFO') -> None:
@@ -159,7 +160,6 @@ def main() -> None:
     try:
         # handle CLI args
         args = parse_args()
-        validate_args(args=args)
 
         # set up logging
         setup_logging(verbosity=args.verbosity)
