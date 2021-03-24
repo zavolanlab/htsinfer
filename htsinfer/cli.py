@@ -38,7 +38,14 @@ def parse_args() -> argparse.Namespace:
 
     # custom actions
     class PathsAction(argparse.Action):
-        def __call__(self, parser, namespace, values, option_string=None):
+        """Sanitize ``paths`` parsing in positional args."""
+        def __call__(
+            self,
+            parser,
+            namespace,
+            values,
+            option_string=None,
+        ) -> None:
             if len(values) > 2:
                 parser.print_usage(file=sys.stderr)
                 sys.stderr.write(
