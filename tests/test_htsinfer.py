@@ -271,7 +271,9 @@ class TestHtsInfer:
             '}, '
             '"library_source": {}, '
             '"read_orientation": {}, '
-            '"read_layout": {}'
+            '"read_layout": {'
+            '"file_1": null, "file_2": null'
+            '}'
             '}'
         )
         assert captured.err == ""
