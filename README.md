@@ -12,7 +12,9 @@ HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 ```sh
 htsinfer [--output-directory PATH] [--temporary-directory PATH]
          [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-         [--records INT] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h]
+         [--records INT] [--adapter-designation-min-match-percentage FLOAT]
+         [--adapter-designation-frequency-ratio FLOAT] [--adapters FILE]
+         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h]
          [--version]
          FASTQ_PATH [FASTQ_PATH]
 ```
@@ -41,6 +43,16 @@ optional arguments:
                         specified value equals or exceeds the number of
                         available records, all records will be processed
                         (default: 0)
+  --adapter-designation-min-match-percentage FLOAT
+                        minimum percentage of reads that contain a given adapter
+                        in order for that adapter sequence to be considered as the
+                        resulting sequence
+  --adapter-designation-frequency-ratio FLOAT
+                        the minimum frequency ratio between the first and second most
+                        frequent adapter in order for an adapter sequence to be returned
+                        as the resulting sequence
+  --adapters FILE       adapter file containing the list of all adapter sequences
+                        that neeeds to be searched in the FASTQ files
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit

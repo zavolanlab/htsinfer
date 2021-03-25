@@ -115,6 +115,38 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
+        '-p', '--adapter-designation-min-match-percentage',
+        metavar="FLOAT",
+        type=float,
+        default=5,
+        help=(
+            "minimum percentage of reads that contain a given adapter "
+            "in order for that adapter sequence to be considered as the "
+            "resulting sequence"
+        )
+    )
+    parser.add_argument(
+        '-r', '--adapter-designation-frequency-ratio',
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "the minimum frequency ratio between the first and second most "
+            "frequent adapter in order for an adapter sequence to be returned "
+            "as the resulting sequence"
+        )
+    )
+    parser.add_argument(
+        '-a', '--adapters',
+        metavar="FILE",
+        type=str,
+        default=Path(__file__).parent.absolute() / "data/adapters_list.txt",
+        help=(
+            "adapter file containing the list of all adapter sequences "
+            "that neeeds to be searched in the FASTQ files"
+        )
+    )
+    parser.add_argument(
         "--verbosity",
         choices=[e.name for e in LogLevels],
         default=LogLevels.INFO.name,
@@ -174,6 +206,9 @@ def main() -> None:
             tmp_dir=args.temporary_directory,
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
             records=args.records,
+            min_match=args.adapter_designation_min_match_percentage,
+            factor=args.adapter_designation_frequency_ratio,
+            adapter_file=args.adapters,
         )
         hts_infer.evaluate()
         hts_infer.print()

@@ -6,6 +6,7 @@ from enum import (
 )
 import logging
 import re
+from typing import Optional
 
 # pylint: disable=no-name-in-module,invalid-name
 from pydantic import BaseModel
@@ -154,8 +155,18 @@ class ResultsReadOrientation(BaseModel):
     """TODO: implement"""
 
 
-class ResultsReadLayout(BaseModel):
-    """TODO: implement"""
+class ResultsLayout(BaseModel):
+    """Container class for adapter sequence information.
+    Args:
+        file_1: Adapter sequence present in first file.
+        file_2: Adapter sequence present in second file.
+
+    Attributes:
+        file_1: Adapter sequence present in first file.
+        file_2: Adapter sequence present in second file.
+    """
+    file_1: Optional[str] = None
+    file_2: Optional[str] = None
 
 
 class Results(BaseModel):
@@ -177,4 +188,4 @@ class Results(BaseModel):
     library_type: ResultsType = ResultsType()
     library_source: ResultsSource = ResultsSource()
     read_orientation: ResultsReadOrientation = ResultsReadOrientation()
-    read_layout: ResultsReadLayout = ResultsReadLayout()
+    read_layout: ResultsLayout = ResultsLayout()

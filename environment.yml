@@ -6,7 +6,9 @@ channels:
 dependencies:
   - biopython=1.78
   - pip=20.2.3
+  - pandas=1.0.5
   - pydantic=1.8.1
   - python=3.8.5
   - pip:
+    - pyahocorasick==1.4.1
     - -e .
