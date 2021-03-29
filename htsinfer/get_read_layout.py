@@ -45,7 +45,7 @@ class GetReadLayout:
             as the resulting sequence.
         out_dir: Path to directory where output is written to.
         results: Results container for storing adapter sequence information for
-            the provided files. 
+            the provided files.
     """
     def __init__(
         self,
