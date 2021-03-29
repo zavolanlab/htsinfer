@@ -43,9 +43,9 @@ class GetReadLayout:
         factor: The minimum frequency ratio between the first and second most
             frequent adapter in order for an adapter sequence to be returned
             as the resulting sequence.
-        results: Results container for storing adapter sequence information for
-            the provided files.
         out_dir: Path to directory where output is written to.
+        results: Results container for storing adapter sequence information for
+            the provided files. 
     """
     def __init__(
         self,
@@ -214,7 +214,7 @@ class GetAdapter():
         adapters_df = adapters_df.sort_values(
             by='Count Percentage', ascending=False
             ).reset_index(drop=True)
-        name = self.out_dir / "ReadLayout_file_1.json"
+        name = Path(self.out_dir) / f"ReadLayout_{Path(self.path).name}.json"
         LOGGER.debug(f"Creating {name}")
         adapters_df.to_json(
             name, orient='split', index=False, indent=True
