@@ -326,3 +326,5 @@ pip-selfcheck.json
 # Custom additions
 .vscode
 results
+.DS_Store
+tests/.DS_Store

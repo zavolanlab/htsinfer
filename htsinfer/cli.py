@@ -115,6 +115,42 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
+        '-p', '--organism-designation-min-match-percentage',
+        metavar="FLOAT",
+        type=float,
+        default=10,
+        help=(
+            "minimum percentage that given organism needs to have"
+            "to be considered as the resulting organism."
+        )
+    )
+    parser.add_argument(
+        '-r', '--organism-designation-frequency-ratio',
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "the minimum frequency ratio between the first and second"
+            "most frequent organism in order for organism to be"
+            "considered as the resulting organism."
+        )
+    )
+    parser.add_argument(
+        '-t', '--transcripts',
+        metavar="FASTA",
+        type=str,
+        default=Path(__file__).parent.absolute() / "data/transcript.fasta.zip",
+        help=(
+            "FASTA file containing transcripts to be used for mapping files "
+            "`--file-1` and `--file-2` against for inferring organism and "
+            "read orientation. Requires that sequence identifier lines are "
+            "separated by the pipe (`|`) character and that the 4th and 5th "
+            "columns contain a short organism name and taxon identifier, "
+            "respectively. Example sequence identifier: "
+            "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
+        )
+    )
+    parser.add_argument(
         "--verbosity",
         choices=[e.name for e in LogLevels],
         default=LogLevels.INFO.name,
@@ -174,6 +210,9 @@ def main() -> None:
             tmp_dir=args.temporary_directory,
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
             records=args.records,
+            min_match=args.organism_designation_min_match_percentage,
+            factor=args.organism_designation_frequency_ratio,
+            fasta=args.transcripts,
         )
         hts_infer.evaluate()
         hts_infer.print()

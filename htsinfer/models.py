@@ -6,6 +6,7 @@ from enum import (
 )
 import logging
 import re
+from typing import Optional
 
 # pylint: disable=no-name-in-module,invalid-name
 from pydantic import BaseModel
@@ -147,14 +148,25 @@ class ResultsType(BaseModel):
 
 
 class ResultsSource(BaseModel):
-    """TODO: implement"""
+    """Container class for aggregating library source.
+
+    Args:
+        file_1: Library source of the first file.
+        file_2: Library source of the second file.
+
+    Attributes:
+        file_1: Library source of the first file.
+        file_2: Library source of the second file.
+    """
+    file_1: Optional[str] = None
+    file_2: Optional[str] = None
 
 
 class ResultsReadOrientation(BaseModel):
     """TODO: implement"""
 
 
-class ResultsReadLayout(BaseModel):
+class ResultsLayout(BaseModel):
     """TODO: implement"""
 
 
@@ -177,4 +189,4 @@ class Results(BaseModel):
     library_type: ResultsType = ResultsType()
     library_source: ResultsSource = ResultsSource()
     read_orientation: ResultsReadOrientation = ResultsReadOrientation()
-    read_layout: ResultsReadLayout = ResultsReadLayout()
+    read_layout: ResultsLayout = ResultsLayout()

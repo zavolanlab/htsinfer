@@ -24,3 +24,7 @@ class UnknownFastqIdentifier(Exception):
 class WorkEnvProblem(Exception):
     """Exception raised when the work environment could not be set up or
     cleaned."""
+
+
+class KallistoProblem(Exception):
+    """Exception raised when running kallisto index and quant commands."""

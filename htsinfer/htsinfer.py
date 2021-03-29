@@ -16,6 +16,7 @@ from htsinfer.exceptions import (
     WorkEnvProblem,
 )
 from htsinfer.get_library_type import GetLibType
+from htsinfer.get_library_source import GetLibSource
 from htsinfer.models import (
     CleanupRegimes,
     Results,
@@ -35,9 +36,15 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
         cleanup_regime: Which data to keep after run concludes; one of
+            `CleanupRegimes`.
         records: Number of input file records to process; set to `0` to
             process all records.
-            `CleanupRegimes`.
+        min_match: Minimum percentage that given organism needs to have
+            to be considered as the resulting organism.
+        factor: The minimum frequency ratio between the first and second
+            most frequent organism in order for organism to be
+            considered as the resulting organism.
+        fasta: File path to transcripts FASTA file.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -48,6 +55,12 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         cleanup_regime: Which data to keep after run concludes; one of
             `CleanupRegimes`.
         records: Number of input file records to process.
+        min_match: Minimum percentage that given organism needs to have
+            to be considered as the resulting organism.
+        factor: The minimum frequency ratio between the first and second
+            most frequent organism in order for organism to be
+            considered as the resulting organism.
+        fasta: File path to transcripts FASTA file.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
         state: State of the run; one of `RunStates`.
@@ -61,6 +74,10 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         tmp_dir: Path = Path(tempfile.gettempdir()),
         cleanup_regime: CleanupRegimes = CleanupRegimes.DEFAULT,
         records: int = 0,
+        min_match: float = 5,
+        factor: float = 2,
+        fasta: Path = Path(__file__).parent.absolute() \
+            / "data/transcript.fasta.zip",
     ):
         """Class constructor."""
         self.path_1 = path_1
@@ -72,6 +89,9 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         self.tmp_dir = tmp_dir / f"tmp_{self.run_id}"
         self.cleanup_regime = cleanup_regime
         self.records = records
+        self.min_match = min_match
+        self.factor = factor
+        self.fasta = fasta
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
         self.state: RunStates = RunStates.OKAY
@@ -194,7 +214,17 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
 
     def get_library_source(self):
         """Determine library source."""
-        # TODO: implement
+        get_organism = GetLibSource(
+            fasta=self.fasta,
+            path_1=self.path_1_processed,
+            path_2=self.path_2_processed,
+            min_match=self.min_match,
+            factor=self.factor,
+            tmp_dir=self.tmp_dir,
+            out_dir=self.out_dir,
+        )
+        get_organism.evaluate()
+        self.results.library_source = get_organism.results
 
     def get_read_orientation(self):
         """Determine read orientation."""

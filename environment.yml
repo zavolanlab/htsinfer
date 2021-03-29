@@ -8,5 +8,6 @@ dependencies:
   - pip=20.2.3
   - pydantic=1.8.1
   - python=3.8.5
+  - kallisto=0.46.0
   - pip:
     - -e .
