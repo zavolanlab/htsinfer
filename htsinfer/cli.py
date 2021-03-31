@@ -118,7 +118,7 @@ def parse_args() -> argparse.Namespace:
         '-p', '--organism-designation-min-match-percentage',
         metavar="FLOAT",
         type=float,
-        default=10,
+        default=5,
         help=(
             "minimum percentage that given organism needs to have"
             "to be considered as the resulting organism."
