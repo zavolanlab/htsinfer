@@ -35,8 +35,8 @@ script:
   - coveralls
   # integration tests
   - htsinfer --help
-  - htsinfer --cleanup-regime=KEEP_NONE --records=3 tests/files/single.fastq
-  - htsinfer --cleanup-regime=KEEP_NONE tests/files/{first,second}_mate.fastq
+  - htsinfer --cleanup-regime=KEEP_NONE --records=1000 tests/files/real_sample.fastq
+  - htsinfer --cleanup-regime=KEEP_NONE tests/files/{hsapiens,real_sample}.fastq
 
 after_success:
 - git config --global user.name "semantic-release (via TravisCI)"

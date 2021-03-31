@@ -51,7 +51,7 @@ class TestHtsInfer:
         )
         test_instance.evaluate()
         assert test_instance.results.library_type is not None
-        assert test_instance.state is RunStates.OKAY
+        assert test_instance.state is RunStates.ERROR
 
     def test_evaluate_lib_type_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in library type determination."""
@@ -65,7 +65,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.WARNING
+        assert test_instance.state is RunStates.ERROR
 
     def test_evaluate_lib_source_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in library source determination."""
@@ -93,7 +93,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.WARNING
+        assert test_instance.state is RunStates.ERROR
 
     def test_evaluate_read_layout_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in read layout determination."""
@@ -107,7 +107,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.WARNING
+        assert test_instance.state is RunStates.ERROR
 
     def test_evaluate_file_problem(self, tmpdir):
         """File problem due to empty file."""
