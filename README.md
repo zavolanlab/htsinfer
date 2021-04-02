@@ -12,8 +12,9 @@ HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 ```sh
 htsinfer [--output-directory PATH] [--temporary-directory PATH]
          [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-         [--records INT] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h]
-         [--version]
+         [--records INT] [--transcripts FASTA] [--threads INT]
+         [--organism STR] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
+         [-h] [--version]
          FASTQ_PATH [FASTQ_PATH]
 ```
 
@@ -41,6 +42,17 @@ optional arguments:
                         specified value equals or exceeds the number of
                         available records, all records will be processed
                         (default: 0)
+   --transcripts FASTA  FASTA file containing transcripts to be used for mapping
+                        files `--file-1` and `--file-2` against for inferring 
+                        organism and read orientation. Requires that sequence 
+                        identifier lines are separated by the pipe (`|`) character
+                        and that the 4th and 5th columns contain a short organism 
+                        name and taxon identifier, respectively. Example sequence 
+                        identifier:
+                        `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
+  --threads INT         number of threads to run STAR
+  --organism STR        source organism of the sequencing library, if provided, 
+                        will not not be inferred by the application
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit

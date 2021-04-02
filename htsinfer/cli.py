@@ -115,6 +115,40 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
+        "--transcripts",
+        metavar="FASTA",
+        type=str,
+        default=Path(__file__).parent.absolute() / "data/transcript.fasta.zip",
+        help=(
+            "FASTA file containing transcripts to be used for mapping files "
+            "`--file-1` and `--file-2` against for inferring organism and "
+            "read orientation. Requires that sequence identifier lines are "
+            "separated by the pipe (`|`) character and that the 4th and 5th "
+            "columns contain a short organism name and taxon identifier, "
+            "respectively. Example sequence identifier: "
+            "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
+        )
+    )
+    parser.add_argument(
+        "--threads",
+        metavar="INT",
+        type=int,
+        default=1,
+        help=(
+            "number of threads to run STAR"
+        )
+    )
+    parser.add_argument(
+        "--organism",
+        metavar="STR",
+        type=str,
+        default='hsapiens',
+        help=(
+            "source organism of the sequencing library, if provided, " 
+            "will not not be inferred by the application"
+        )
+    )
+    parser.add_argument(
         "--verbosity",
         choices=[e.name for e in LogLevels],
         default=LogLevels.INFO.name,
