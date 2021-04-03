@@ -115,7 +115,7 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        '-p', '--adapter-designation-min-match-percentage',
+        "--adapter-designation-min-match-percentage",
         metavar="FLOAT",
         type=float,
         default=5,
@@ -126,7 +126,7 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        '-r', '--adapter-designation-frequency-ratio',
+        "--adapter-designation-frequency-ratio",
         metavar="FLOAT",
         type=float,
         default=2,
@@ -137,7 +137,7 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        '-a', '--adapters',
+        "--adapters",
         metavar="FILE",
         type=str,
         default=Path(__file__).parent.absolute() / "data/adapters_list.txt",
