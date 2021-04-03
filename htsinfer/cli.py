@@ -115,28 +115,28 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        '-p', '--organism-designation-min-match-percentage',
+        "--organism-designation-min-match-percentage",
         metavar="FLOAT",
         type=float,
         default=5,
         help=(
-            "minimum percentage that given organism needs to have"
-            "to be considered as the resulting organism."
+            "minimum percentage that given organism needs to have "
+            "to be considered as the resulting organism"
         )
     )
     parser.add_argument(
-        '-r', '--organism-designation-frequency-ratio',
+        "--organism-designation-frequency-ratio",
         metavar="FLOAT",
         type=float,
         default=2,
         help=(
-            "the minimum frequency ratio between the first and second"
-            "most frequent organism in order for organism to be"
-            "considered as the resulting organism."
+            "the minimum frequency ratio between the first and second "
+            "most frequent organism in order for organism to be "
+            "considered as the resulting organism"
         )
     )
     parser.add_argument(
-        '-t', '--transcripts',
+        "--transcripts",
         metavar="FASTA",
         type=str,
         default=Path(__file__).parent.absolute() / "data/transcript.fasta.zip",
