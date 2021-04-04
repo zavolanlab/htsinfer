@@ -21,6 +21,7 @@ LOGGER = logging.getLogger(__name__)
 
 class GetLibSource:
     """Determine the organism present in the FASTQ sequencing libraries.
+
     Args:
         fasta: File path to transcripts FASTA file.
         path_1: Path to single-end library or first mate file.
@@ -129,6 +130,7 @@ class GetLibSource:
 
 class GetOrganism():
     """Determine organism for an individual FASTQ library.
+
     Args:
         path: File path to read library.
         min_match: Minimum percentage that given organism needs to have
