@@ -142,9 +142,9 @@ def parse_args() -> argparse.Namespace:
         "--organism",
         metavar="STR",
         type=str,
-        default='hsapiens',
+        default="hsapiens",
         help=(
-            "source organism of the sequencing library, if provided, " 
+            "source organism of the sequencing library, if provided: " 
             "will not not be inferred by the application"
         )
     )
@@ -208,6 +208,9 @@ def main() -> None:
             tmp_dir=args.temporary_directory,
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
             records=args.records,
+            fasta=args.transcripts,
+            threads=args.threads,
+            organism=args.organism,
         )
         hts_infer.evaluate()
         hts_infer.print()

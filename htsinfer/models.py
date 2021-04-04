@@ -150,7 +150,7 @@ class ResultsSource(BaseModel):
     """TODO: implement"""
 
 
-class ResultsReadOrientation(BaseModel):
+class ResultsOrientation(BaseModel):
     """TODO: implement"""
 
 
@@ -176,5 +176,5 @@ class Results(BaseModel):
     """
     library_type: ResultsType = ResultsType()
     library_source: ResultsSource = ResultsSource()
-    read_orientation: ResultsReadOrientation = ResultsReadOrientation()
+    read_orientation: ResultsOrientation = ResultsOrientation()
     read_layout: ResultsReadLayout = ResultsReadLayout()
