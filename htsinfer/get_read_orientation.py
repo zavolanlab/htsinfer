@@ -24,6 +24,12 @@ LOGGER = logging.getLogger(__name__)
 class GetOrientation:
     """Determine the read orientation present in the FASTQ sequencing libraries.
 
+    Note:
+        File passed to `fasta` is expected to contain `|`-separated sequence
+        identifier lines that contain an organism short name and a taxon
+        identifier in the fourth and fifth columns, respectively. Example
+        sequence identifier: `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
+
     Args:
         fasta: File path to transcripts FASTA file.
         path_1: Path to single-end library or first mate file.
