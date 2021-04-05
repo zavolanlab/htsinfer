@@ -270,7 +270,9 @@ class TestHtsInfer:
             '"file_1": null, "file_2": null, "relationship": null'
             '}, '
             '"library_source": {}, '
-            '"read_orientation": {}, '
+            '"read_orientation": {'
+            '"file_1": null, "file_2": null'
+            '}, '
             '"read_layout": {}'
             '}'
         )

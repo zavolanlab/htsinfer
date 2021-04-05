@@ -144,7 +144,7 @@ def parse_args() -> argparse.Namespace:
         type=str,
         default="hsapiens",
         help=(
-            "source organism of the sequencing library, if provided: " 
+            "source organism of the sequencing library, if provided: "
             "will not not be inferred by the application"
         )
     )
