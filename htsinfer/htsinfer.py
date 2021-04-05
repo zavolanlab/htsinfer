@@ -39,10 +39,10 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
             `CleanupRegimes`.
         records: Number of input file records to process; set to `0` to
             process all records.
-        fasta: File path to transcripts FASTA file.
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
+        fasta: File path to transcripts FASTA file.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -53,10 +53,10 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         cleanup_regime: Which data to keep after run concludes; one of
             `CleanupRegimes`.
         records: Number of input file records to process.
-        fasta: File path to transcripts FASTA file.
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
+        fasta: File path to transcripts FASTA file.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
         state: State of the run; one of `RunStates`.
@@ -70,10 +70,10 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         tmp_dir: Path = Path(tempfile.gettempdir()),
         cleanup_regime: CleanupRegimes = CleanupRegimes.DEFAULT,
         records: int = 0,
-        fasta: Path = Path(__file__).parent.absolute() \
-            / "data/transcript.fasta.zip",
         threads: int = 1,
         organism: str = "hsapiens",
+        fasta: Path = Path(__file__).parent.absolute() \
+            / "data/transcript.fasta.zip",
     ):
         """Class constructor."""
         self.path_1 = path_1
@@ -85,9 +85,9 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         self.tmp_dir = tmp_dir / f"tmp_{self.run_id}"
         self.cleanup_regime = cleanup_regime
         self.records = records
-        self.fasta = fasta
         self.threads = threads
         self.organism = organism
+        self.fasta = fasta
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
         self.state: RunStates = RunStates.OKAY
