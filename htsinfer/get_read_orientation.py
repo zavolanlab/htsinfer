@@ -202,7 +202,8 @@ class GetOutcomeType():
         _dir = Path(self.tmp_dir) / "index"
         index_cmd = "STAR --runThreadN " + str(self.threads) + " --runMode" + \
             " genomeGenerate --genomeDir " + str(_dir) + \
-            " --genomeFastaFiles " + str(self.organism_transcripts)
+            " --genomeFastaFiles " + str(self.organism_transcripts) + \
+            " --genomeSAindexNbases 7"
         result = sp.run(index_cmd, shell=True, capture_output=True, text=True)
         LOGGER.debug(result.stderr)
         if result.returncode == 0:
