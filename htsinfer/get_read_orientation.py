@@ -37,7 +37,6 @@ class GetOrientation:
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
-        out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
 
     Attrubutes:
@@ -47,7 +46,6 @@ class GetOrientation:
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
-        out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
         results: Results container for storing read orientation information for
             the provided files.
@@ -59,7 +57,6 @@ class GetOrientation:
         path_2: Optional[Path] = None,
         threads: int = 1,
         organism: str = "hsapiens",
-        out_dir: Path = Path.cwd(),
         tmp_dir: Path = Path(tempfile.gettempdir()),
     ):
         """Class contructor."""
@@ -68,7 +65,6 @@ class GetOrientation:
         self.path_2: Optional[Path] = path_2
         self.threads = threads
         self.organism = organism
-        self.out_dir: Path = out_dir
         self.tmp_dir = tmp_dir
         self.results: ResultsOrientation = ResultsOrientation()
 
@@ -90,7 +86,6 @@ class GetOrientation:
             path=self.path_1,
             threads=self.threads,
             organism=self.organism,
-            out_dir=self.out_dir,
             tmp_dir=self.tmp_dir,
         )
         orientation_file_1.evaluate()
@@ -105,7 +100,6 @@ class GetOrientation:
                 path=self.path_2,
                 threads=self.threads,
                 organism=self.organism,
-                out_dir=self.out_dir,
                 tmp_dir=self.tmp_dir,
             )
             orientation_file_2.evaluate()
@@ -122,7 +116,6 @@ class GetOutcomeType():
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
-        out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
 
     Attributes:
@@ -131,7 +124,6 @@ class GetOutcomeType():
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
-        out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
         organism_transcripts: Extracted organism transcripts.
         alignment_count: Dictionary with alignment information for every read.
@@ -143,7 +135,6 @@ class GetOutcomeType():
         path: Path,
         threads: int = 1,
         organism: str = "hsapiens",
-        out_dir: Path = Path.cwd(),
         tmp_dir: Path = Path(tempfile.gettempdir()),
     ):
         """Class constructor."""
@@ -151,7 +142,6 @@ class GetOutcomeType():
         self.path: Path = path
         self.threads = threads
         self.organism = organism
-        self.out_dir: Path = out_dir
         self.tmp_dir: Path = tmp_dir
         self.organism_transcripts: Path = Path(tmp_dir) / \
             f"{str(organism)}.fasta"

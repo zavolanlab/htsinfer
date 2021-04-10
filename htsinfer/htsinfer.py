@@ -221,7 +221,6 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
             threads=self.threads,
             organism=self.organism,
             tmp_dir=self.tmp_dir,
-            out_dir=self.out_dir,
         )
         get_orientation.evaluate()
         self.results.read_orientation = get_orientation.results
