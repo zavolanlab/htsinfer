@@ -39,14 +39,14 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
             `CleanupRegimes`.
         records: Number of input file records to process; set to `0` to
             process all records.
-        min_match: Minimum percentage of reads that contain a given adapter
-            in order for that adapter sequence to be considered as the
-            resulting sequence.
-        factor: The minimum frequency ratio between the first and second most
-            frequent adapter in order for an adapter sequence to be returned
-            as the resulting sequence.
-        adapter_file: Adapter file containing the list of all adapter sequences
-            that neeeds to be searched in the FASTQ files.
+        read_layout_adapter_file: Path to text file containing 3' adapter
+            sequences (one sequence per line) to scan for.
+        read_layout_min_match_pct: Minimum percentage of reads that contain a
+            given adapter in order for it to be considered as the library's
+            3'-end adapter.
+        read_layout_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent adapter in order for the former to be
+            considered as the library's 3'-end adapter.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -57,14 +57,14 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         cleanup_regime: Which data to keep after run concludes; one of
             `CleanupRegimes`.
         records: Number of input file records to process.
-        min_match: Minimum percentage of reads that contain a given adapter
-            in order for that adapter sequence to be considered as the
-            resulting sequence.
-        factor: The minimum frequency ratio between the first and second most
-            frequent adapter in order for an adapter sequence to be returned
-            as the resulting sequence.
-        adapter_file: Adapter file containing the list of all adapter sequences
-            that neeeds to be searched in the FASTQ files.
+        read_layout_adapter_file: Path to text file containing 3' adapter
+            sequences (one sequence per line) to scan for.
+        read_layout_min_match_pct: Minimum percentage of reads that contain a
+            given adapter in order for it to be considered as the library's
+            3'-end adapter.
+        read_layout_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent adapter in order for the former to be
+            considered as the library's 3'-end adapter.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
         state: State of the run; one of `RunStates`.
@@ -78,10 +78,11 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         tmp_dir: Path = Path(tempfile.gettempdir()),
         cleanup_regime: CleanupRegimes = CleanupRegimes.DEFAULT,
         records: int = 0,
-        min_match: float = 5,
-        factor: float = 2,
-        adapter_file: Path = Path(__file__).parent.absolute() \
-            / "data/adapters_list.txt",
+        read_layout_adapter_file: Path = (
+            Path(__file__).parent.parent.absolute() / "data/adapters.txt"
+        ),
+        read_layout_min_match_pct: float = 5,
+        read_layout_min_freq_ratio: float = 2
     ):
         """Class constructor."""
         self.path_1 = path_1
@@ -93,9 +94,9 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         self.tmp_dir = tmp_dir / f"tmp_{self.run_id}"
         self.cleanup_regime = cleanup_regime
         self.records = records
-        self.min_match = min_match
-        self.factor = factor
-        self.adapter_file = adapter_file
+        self.read_layout_adapter_file = read_layout_adapter_file
+        self.read_layout_min_match_pct = read_layout_min_match_pct
+        self.read_layout_min_freq_ratio = read_layout_min_freq_ratio
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
         self.state: RunStates = RunStates.OKAY
@@ -148,6 +149,10 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
                 except MetadataWarning as exc:
                     self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
+                LOGGER.info(
+                    "Read layout determined: "
+                    f"{self.results.read_layout.json()}"
+                )
 
             except FileProblem as exc:
                 self.state = RunStates.ERROR
@@ -226,16 +231,16 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
 
     def get_read_layout(self):
         """Determine read layout."""
-        get_adapter = GetReadLayout(
-            adapter_file=self.adapter_file,
+        get_read_layout = GetReadLayout(
             path_1=self.path_1_processed,
             path_2=self.path_2_processed,
-            min_match=self.min_match,
-            factor=self.factor,
+            adapter_file=self.read_layout_adapter_file,
             out_dir=self.out_dir,
+            min_match_pct=self.read_layout_min_match_pct,
+            min_freq_ratio=self.read_layout_min_freq_ratio,
         )
-        get_adapter.evaluate()
-        self.results.read_layout = get_adapter.results
+        get_read_layout.evaluate()
+        self.results.read_layout = get_read_layout.results
 
     def clean_up(self):
         """Clean up work environment."""

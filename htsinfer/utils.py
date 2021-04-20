@@ -1,37 +1,36 @@
-"""Validator function for infer_organism and infer_adapter"""
+"""Utilities used across multiple HTSinfer modules."""
 
 from pandas import DataFrame  # type: ignore
 
 
-def minmatch_factor_validator(
-    count_df: DataFrame,
+def results_validator(
+    data: DataFrame,
     column_index: int,
-    min_match: float = 5,
-    factor: float = 2
+    min_value: float = 5,
+    min_ratio: float = 2
 ) -> bool:
-    """Validates min_match and factor for adapter/organism to be considered as
-    resulting adapter/organism.
+    """Validates whether (1) the first value of a data frame column is equal to
+    or higher than a specified minimum value, and (2) that the ratio of the
+    first and second values of the column is higher than a specified minimum
+    ratio.
 
     Args:
-        count_df:
-            adapter: Adapters sequence count percentage.
-            organism: Count info percentage for all organisms.
-        column_index: Column parameter for adapter and organism dataframe.
-        min_match: Minimum percentage of reads that contain a given
-            adapter/organism in order for that adapter/organism to be
-            considered as the resulting adapter/organism.
-        factor: The minimum frequency ratio between the first and second most
-            frequent adapter/organism in order for an adapter/organism to be
-            considered as the resulting adapter/organism.
+        data: Pandas data frame containing values to compare in a single
+            column.
+        column_index: Index of `data` column containing values of interest.
+        min_value: Minimum value required in first row of `column_index` for
+            validation to pass.
+        min_ratio: Minimum ratio of first and second rows of `column_index`
+            required for validation to pass.
 
     Returns:
-        Whether it satisfies the minimum match percentage and the minimum
-        frequency ratio.
+        Whether data frame `data` satisfies the `min_value` and `min_ratio`
+        constraints for value in column `column_index`.
     """
-    if count_df.iloc[0][column_index] < min_match:
+    if data.iloc[0][column_index] < min_value:
         return False
-    if count_df.iloc[1][column_index] != 0:
-        ratio = count_df.iloc[0][column_index]/count_df.iloc[1][column_index]
-        if ratio < factor:
+    if data.iloc[1][column_index] != 0:
+        ratio = data.iloc[0][column_index]/data.iloc[1][column_index]
+        if ratio < min_ratio:
             return False
     return True

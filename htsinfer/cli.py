@@ -115,35 +115,35 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        "--adapter-designation-min-match-percentage",
+        "--read-layout-adapters",
+        metavar="PATH",
+        type=str,
+        default=Path(__file__).parent.parent.absolute() / "data/adapters.txt",
+        help=(
+            "path to text file containing 3' adapter sequences (one sequence "
+            "per line) to scan for"
+        )
+    )
+    parser.add_argument(
+        "--read-layout-min-match-percentage",
         metavar="FLOAT",
         type=float,
         default=5,
         help=(
             "minimum percentage of reads that contain a given adapter "
-            "in order for that adapter sequence to be considered as the "
-            "resulting sequence"
+            "sequence in order for it to be considered as the library's "
+            "3'-end adapter"
         )
     )
     parser.add_argument(
-        "--adapter-designation-frequency-ratio",
+        "--read-layout-min-frequency-ratio",
         metavar="FLOAT",
         type=float,
         default=2,
         help=(
-            "the minimum frequency ratio between the first and second most "
-            "frequent adapter in order for an adapter sequence to be returned "
-            "as the resulting sequence"
-        )
-    )
-    parser.add_argument(
-        "--adapters",
-        metavar="FILE",
-        type=str,
-        default=Path(__file__).parent.absolute() / "data/adapters_list.txt",
-        help=(
-            "adapter file containing the list of all adapter sequences "
-            "that neeeds to be searched in the FASTQ files"
+            "minimum frequency ratio between the first and second most "
+            "frequent adapter in order for the former to be considered as the "
+            "library's 3'-end adapter"
         )
     )
     parser.add_argument(
@@ -206,9 +206,9 @@ def main() -> None:
             tmp_dir=args.temporary_directory,
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
             records=args.records,
-            min_match=args.adapter_designation_min_match_percentage,
-            factor=args.adapter_designation_frequency_ratio,
-            adapter_file=args.adapters,
+            read_layout_adapter_file=args.read_layout_adapters,
+            read_layout_min_match_pct=args.read_layout_min_match_percentage,
+            read_layout_min_freq_ratio=args.read_layout_min_frequency_ratio,
         )
         hts_infer.evaluate()
         hts_infer.print()

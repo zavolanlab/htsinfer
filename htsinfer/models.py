@@ -155,8 +155,21 @@ class ResultsReadOrientation(BaseModel):
     """TODO: implement"""
 
 
+class Layout(BaseModel):
+    """Read layout of a single sequencing file.
+
+    Args:
+        adapt_3: Adapter sequence ligated to 3'-end of sequence.
+
+    Attributes:
+        adapt_3: Adapter sequence ligated to 3'-end of sequence.
+    """
+    adapt_3: Optional[str] = None
+
+
 class ResultsLayout(BaseModel):
-    """Container class for adapter sequence information.
+    """Container class for read layout of a sequencing library.
+
     Args:
         file_1: Adapter sequence present in first file.
         file_2: Adapter sequence present in second file.
@@ -165,8 +178,8 @@ class ResultsLayout(BaseModel):
         file_1: Adapter sequence present in first file.
         file_2: Adapter sequence present in second file.
     """
-    file_1: Optional[str] = None
-    file_2: Optional[str] = None
+    file_1: Layout = Layout()
+    file_2: Layout = Layout()
 
 
 class Results(BaseModel):

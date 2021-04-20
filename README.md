@@ -12,18 +12,19 @@ HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 ```sh
 htsinfer [--output-directory PATH] [--temporary-directory PATH]
          [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-         [--records INT] [--adapter-designation-min-match-percentage FLOAT]
-         [--adapter-designation-frequency-ratio FLOAT] [--adapters FILE]
+         [--records INT] [--read-layout-adapters PATH]
+         [--read-layout-min-match-percentage FLOAT]
+         [--read-layout-min-frequency-ratio FLOAT]
          [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h]
          [--version]
-         FASTQ_PATH [FASTQ_PATH]
+         PATH [PATH]
 ```
 
 ## Parameters
 
 ```console
 positional arguments:
-  FASTQ_PATH            either one or two file paths to the read library to be
+  PATH                  either one or two file paths to the read library to be
                         evaluated.
 
 optional arguments:
@@ -32,27 +33,29 @@ optional arguments:
                         current working directory)
   --temporary-directory PATH
                         path to directory where temporary output is written to
-                        (default: default temporary directory)
+                        (default: system default temporary directory)
   --cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}
                         determine which data to keep after each run; in default
                         mode, both temporary data and results are kept when
                         '--verbosity' is set to 'DEBUG', no data is kept when
                         all metadata could be successfully determined, and only
-                        results are kept otherwise (default: default)
+                        results are kept otherwise (default: DEFAULT)
   --records INT         number of records to process; if set to ``0`` or if the
                         specified value equals or exceeds the number of
                         available records, all records will be processed
                         (default: 0)
-  --adapter-designation-min-match-percentage FLOAT
-                        minimum percentage of reads that contain a given adapter
-                        in order for that adapter sequence to be considered as the
-                        resulting sequence
-  --adapter-designation-frequency-ratio FLOAT
-                        the minimum frequency ratio between the first and second most
-                        frequent adapter in order for an adapter sequence to be returned
-                        as the resulting sequence
-  --adapters FILE       adapter file containing the list of all adapter sequences
-                        that neeeds to be searched in the FASTQ files
+  --read-layout-adapters PATH
+                        path to text file containing 3' adapter sequences (one
+                        sequence per line) to scan for (default:
+                        data/adapters.txt in package root directory)
+  --read-layout-min-match-percentage FLOAT
+                        minimum percentage of reads that contain a given
+                        adapter sequence in order for it to be considered
+                        as the library's 3'-end adapter (default: 5)
+  --read-layout-min-frequency-ratio FLOAT
+                        minimum frequency ratio between the first and second
+                        most frequent adapter in order for the former to be
+                        considered as the library's 3'-end adapter (default: 2)
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit
