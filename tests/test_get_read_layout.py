@@ -1,13 +1,10 @@
 """Unit tests for module ``get_read_layout.py``."""
 
 from pathlib import Path
-import pytest
+# import pytest
 
-from htsinfer.exceptions import FileProblem
-from htsinfer.get_read_layout import (
-    GetReadLayout,
-    GetAdapter3
-)
+# from htsinfer.exceptions import FileProblem
+from htsinfer.get_read_layout import GetReadLayout
 from htsinfer.models import (
     Layout,
     ResultsLayout,
@@ -54,8 +51,8 @@ class TestGetReadLayout:
         )
         test_instance.evaluate()
         assert test_instance.results == ResultsLayout(
-            file_1="AAAAAAAAAAAAAAA",
-            file_2=Layout.adapt_3,
+            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
+            file_2=Layout(adapt_3=None),
         )
 
     def test_evaluate_two_files(self):
@@ -69,6 +66,6 @@ class TestGetReadLayout:
         )
         test_instance.evaluate()
         assert test_instance.results == ResultsLayout(
-            file_1="AAAAAAAAAAAAAAA",
-            file_2="AAAAAAAAAAAAAAA",
+            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
+            file_2=Layout(adapt_3="AAAAAAAAAAAAAAA"),
         )
