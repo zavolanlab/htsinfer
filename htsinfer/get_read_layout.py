@@ -154,7 +154,11 @@ class GetAdapter3():
         constraints.
         """
         # load adapters
-        self._load_adapters()
+        try:
+            self._load_adapters()
+        except Exception as exc:
+            self.result = None
+            raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
 
         # create trie of adapters
         self._make_aho_auto()
