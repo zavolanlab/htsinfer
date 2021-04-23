@@ -19,9 +19,11 @@ FILE_INCONSISTENT_IDS_SINGLE_MATE = (
 FILE_INCONSISTENT_IDS_SINGLE_OLD_NEW = (
     TEST_FILES_DIR / "inconsistent_single_old_new.fastq"
 )
-FILE_INVALID_SEQ = TEST_FILES_DIR / "invalid_seq.fastq"
+FILE_INVALID_SEQ_1 = TEST_FILES_DIR / "invalid_seq_1.fastq"
+FILE_INVALID_SEQ_2 = TEST_FILES_DIR / "invalid_seq_2.fastq"
 FILE_MATE_1 = TEST_FILES_DIR / "first_mate.fastq"
 FILE_MATE_2 = TEST_FILES_DIR / "second_mate.fastq"
+FILE_REAL_SAMPLE = TEST_FILES_DIR / "real_sample.fastq"
 FILE_SINGLE = TEST_FILES_DIR / "single.fastq"
 FILE_SRA_SAMPLE_1 = TEST_FILES_DIR / "sra_sample_1.fastq"
 FILE_SRA_SAMPLE_2 = TEST_FILES_DIR / "sra_sample_2.fastq"

@@ -16,9 +16,11 @@ from tests.utils import (
     ADAPTER_FILE,
     FILE_DUMMY,
     FILE_FASTA,
-    FILE_INVALID_SEQ,
+    FILE_INVALID_SEQ_1,
+    FILE_INVALID_SEQ_2,
     FILE_MATE_1,
     FILE_MATE_2,
+    FILE_REAL_SAMPLE,
     FILE_SINGLE,
     FILE_SRA_SAMPLE_1,
     FILE_SRA_SAMPLE_2,
@@ -115,10 +117,10 @@ class TestGetAdapter3:
         with pytest.raises(FileProblem):
             test_instance.evaluate()
 
-    def test_evualte_invalid_sequence(self):
+    def test_evualte_invalid_sequence_1(self):
         """Pass a file with invalid sequence to simulate a file problem."""
         test_instance = GetAdapter3(
-            path=FILE_INVALID_SEQ,
+            path=FILE_INVALID_SEQ_1,
             adapter_file=ADAPTER_FILE,
         )
         with pytest.raises(FileProblem):
@@ -156,3 +158,31 @@ class TestGetAdapter3:
         )
         with pytest.raises(FileProblem):
             test_instance.evaluate()
+
+    def test_evaluate_results_validator(self):
+        """Pass valid file with default values of min_match_pct and
+        min_freq_ratio to evaluate results validator."""
+        test_instance = GetAdapter3(
+            path=FILE_SRA_SAMPLE_1,
+            adapter_file=ADAPTER_FILE,
+        )
+        test_instance.evaluate()
+        assert test_instance.result == None
+
+    def test_evualte_invalid_sequence_2(self):
+        """Pass a file with invalid sequence to simulate a file problem."""
+        test_instance = GetAdapter3(
+            path=FILE_INVALID_SEQ_2,
+            adapter_file=ADAPTER_FILE,
+        )
+        with pytest.raises(FileProblem):
+            test_instance.evaluate()
+
+    def test_evaluate_no_read_layout(self):
+        """Pass a file to test if no read layout found."""
+        test_instance = GetAdapter3(
+            path=FILE_REAL_SAMPLE,
+            adapter_file=ADAPTER_FILE,
+        )
+        test_instance.evaluate()
+        assert test_instance.result == None
