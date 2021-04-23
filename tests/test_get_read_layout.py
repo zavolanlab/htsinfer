@@ -13,7 +13,7 @@ from htsinfer.models import (
     ResultsLayout,
 )
 from tests.utils import (
-    ADAPTER_FILE,
+    FILE_ADAPTER,
     FILE_DUMMY,
     FILE_FASTA,
     FILE_INVALID_SEQ_1,
@@ -41,14 +41,14 @@ class TestGetReadLayout:
         test_instance = GetReadLayout(
             path_1=FILE_MATE_1,
             path_2=FILE_MATE_2,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
             out_dir=Path.cwd(),
             min_match_pct=5,
             min_freq_ratio=2,
         )
         assert test_instance.path_1 == FILE_MATE_1
         assert test_instance.path_2 == FILE_MATE_2
-        assert test_instance.adapter_file == ADAPTER_FILE
+        assert test_instance.adapter_file == FILE_ADAPTER
         assert test_instance.out_dir == Path.cwd()
         assert test_instance.min_match_pct == 5
         assert test_instance.min_freq_ratio == 2
@@ -57,7 +57,7 @@ class TestGetReadLayout:
         """Get read layout for a single file."""
         test_instance = GetReadLayout(
             path_1=FILE_SRA_SAMPLE_2,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         test_instance.evaluate()
         assert test_instance.results == ResultsLayout(
@@ -70,7 +70,7 @@ class TestGetReadLayout:
         test_instance = GetReadLayout(
             path_1=FILE_SRA_SAMPLE_1,
             path_2=FILE_SRA_SAMPLE_2,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
             min_match_pct=2,
             min_freq_ratio=1,
         )
@@ -88,13 +88,13 @@ class TestGetAdapter3:
         """Create instance."""
         test_instance = GetAdapter3(
             path=FILE_MATE_1,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
             out_dir=Path.cwd(),
             min_match_pct=5,
             min_freq_ratio=2,
         )
         assert test_instance.path == FILE_MATE_1
-        assert test_instance.adapter_file == ADAPTER_FILE
+        assert test_instance.adapter_file == FILE_ADAPTER
         assert test_instance.out_dir == Path.cwd()
         assert test_instance.min_match_pct == 5
         assert test_instance.min_freq_ratio == 2
@@ -103,7 +103,7 @@ class TestGetAdapter3:
         """Evaluate valid read layout file."""
         test_instance = GetAdapter3(
             path=FILE_SRA_SAMPLE_2,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         test_instance.evaluate()
         assert test_instance.result == "AAAAAAAAAAAAAAA"
@@ -112,7 +112,7 @@ class TestGetAdapter3:
         """Pass dummy file to simulate a file problem."""
         test_instance = GetAdapter3(
             path=FILE_DUMMY,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         with pytest.raises(FileProblem):
             test_instance.evaluate()
@@ -121,7 +121,7 @@ class TestGetAdapter3:
         """Pass a file with invalid sequence to simulate a file problem."""
         test_instance = GetAdapter3(
             path=FILE_INVALID_SEQ_1,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         with pytest.raises(FileProblem):
             test_instance.evaluate()
@@ -130,7 +130,7 @@ class TestGetAdapter3:
         """Force raising of ``OSError`` to simulate file problem."""
         test_instance = GetAdapter3(
             path=FILE_SINGLE,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         monkeypatch.setattr(
             'builtins.open',
@@ -145,7 +145,7 @@ class TestGetAdapter3:
         """
         test_instance = GetAdapter3(
             path=FILE_FASTA,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         with pytest.raises(FileProblem):
             test_instance.evaluate()
@@ -164,16 +164,16 @@ class TestGetAdapter3:
         min_freq_ratio to evaluate results validator."""
         test_instance = GetAdapter3(
             path=FILE_SRA_SAMPLE_1,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         test_instance.evaluate()
-        assert test_instance.result == None
+        assert test_instance.result is None
 
     def test_evualte_invalid_sequence_2(self):
         """Pass a file with invalid sequence to simulate a file problem."""
         test_instance = GetAdapter3(
             path=FILE_INVALID_SEQ_2,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         with pytest.raises(FileProblem):
             test_instance.evaluate()
@@ -182,7 +182,7 @@ class TestGetAdapter3:
         """Pass a file to test if no read layout found."""
         test_instance = GetAdapter3(
             path=FILE_REAL_SAMPLE,
-            adapter_file=ADAPTER_FILE,
+            adapter_file=FILE_ADAPTER,
         )
         test_instance.evaluate()
-        assert test_instance.result == None
+        assert test_instance.result is None

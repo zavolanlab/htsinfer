@@ -46,6 +46,27 @@ class GetReadLayout:
             the library's 3'-end adapter.
         results: Results container for storing adapter sequence information for
             the provided files.
+
+    Examples:
+        >>> GetReadLayout(
+        ...     path_1="tests/files/sra_sample_2.fastq",
+        ...     adapter_file="data/adapters.txt",
+        ... ).evaluate()
+        ResultsLayout(
+            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
+            file_2=Layout(adapt_3=None),
+        )
+        >>> GetReadLayout(
+        ...     path_1="tests/files/sra_sample_1.fastq",
+        ...     path_2="tests/files/sra_sample_2.fastq",
+        ...     adapter_file="data/adapters.txt",
+        ...     min_match_pct=2,
+        ...     min_freq_ratio=1,
+        ... ).evaluate()
+        ResultsLayout(
+            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
+            file_2=Layout(adapt_3="AAAAAAAAAAAAAAA"),
+        )
     """
     def __init__(
         self,
@@ -129,6 +150,13 @@ class GetAdapter3():
         adapter_counts: Dictionary of adapter sequences and corresponding count
             percentages.
         result: The most frequent adapter sequence in FASTQ file.
+
+    Examples:
+        >>> GetAdapter3(
+        ...     path_1="tests/files/sra_sample_2.fastq",
+        ...     adapter_file="data/adapters.txt",
+        ... ).evaluate()
+        <"AAAAAAAAAAAAAAA">
     """
     def __init__(
         self,

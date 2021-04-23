@@ -6,6 +6,7 @@ from htsinfer.exceptions import MetadataWarning
 
 # test parameters
 TEST_FILES_DIR = Path(__file__).resolve().parent / "files"
+FILE_ADAPTER = TEST_FILES_DIR / "adapters.txt"
 FILE_DUMMY = Path(".")
 FILE_EMPTY = TEST_FILES_DIR / "empty.fastq"
 FILE_FASTA = TEST_FILES_DIR / "single.fasta"
@@ -29,7 +30,6 @@ FILE_SRA_SAMPLE_1 = TEST_FILES_DIR / "sra_sample_1.fastq"
 FILE_SRA_SAMPLE_2 = TEST_FILES_DIR / "sra_sample_2.fastq"
 FILE_UNKNOWN_SEQ_ID = TEST_FILES_DIR / "unknown_seq_id.fastq"
 PACKAGE_DIR = Path(__file__).resolve().parents[1] / "htsinfer"
-ADAPTER_FILE = Path(__file__).resolve().parents[1] / "data" / "adapters.txt"
 SEQ_ID_DUMMY = ""
 SEQ_ID_MATE_1 = "@SRR11971718:6:73:941:1973#0/1"
 SEQ_ID_MATE_2 = "@SRR11971718:6:73:941:1973#0/2"
