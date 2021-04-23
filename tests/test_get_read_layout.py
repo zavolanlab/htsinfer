@@ -169,6 +169,17 @@ class TestGetAdapter3:
         test_instance.evaluate()
         assert test_instance.result is None
 
+    def test_evaluate_min_freq_ratio(self):
+        """Pass valid file with different min_freq_ratio value to evaluate
+        results validator."""
+        test_instance = GetAdapter3(
+            path=FILE_SRA_SAMPLE_2,
+            adapter_file=FILE_ADAPTER,
+            min_freq_ratio=4,
+        )
+        test_instance.evaluate()
+        assert test_instance.result is None
+
     def test_evualte_invalid_sequence_2(self):
         """Pass a file with invalid sequence to simulate a file problem."""
         test_instance = GetAdapter3(
