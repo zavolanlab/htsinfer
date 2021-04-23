@@ -209,7 +209,7 @@ class GetAdapter3():
 
                         records += 1
 
-                except StopIteration as exc:
+                except Exception as exc:
                     self.result = None
                     raise FileProblem(f"File is corrupt: {self.path}") from exc
         except (OSError, ValueError) as exc:
