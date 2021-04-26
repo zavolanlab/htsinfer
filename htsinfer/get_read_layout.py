@@ -53,8 +53,8 @@ class GetReadLayout:
         ...     adapter_file="data/adapters.txt",
         ... ).evaluate()
         ResultsLayout(
-            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
-            file_2=Layout(adapt_3=None),
+            file_1=<Layout().adapt_3: "AAAAAAAAAAAAAAA">,
+            file_2=<Layout().adapt_3: None>,
         )
         >>> GetReadLayout(
         ...     path_1="tests/files/sra_sample_1.fastq",
@@ -64,8 +64,8 @@ class GetReadLayout:
         ...     min_freq_ratio=1,
         ... ).evaluate()
         ResultsLayout(
-            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
-            file_2=Layout(adapt_3="AAAAAAAAAAAAAAA"),
+            file_1=<Layout().adapt_3: "AAAAAAAAAAAAAAA">,
+            file_2=<Layout().adapt_3: "AAAAAAAAAAAAAAA">,
         )
     """
     def __init__(
