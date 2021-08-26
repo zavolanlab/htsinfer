@@ -25,12 +25,13 @@ htsinfer [--output-directory PATH] [--temporary-directory PATH]
 ```console
 positional arguments:
   PATH                  either one or two file paths to the read library to be
-                        evaluated.
+                        evaluated, for single- and paired-ended libraries,
+                        respectively.
 
 optional arguments:
   --output-directory PATH
                         path to directory where output is written to (default:
-                        current working directory)
+                        current working directory + '/results_htsinfer')
   --temporary-directory PATH
                         path to directory where temporary output is written to
                         (default: system default temporary directory)
@@ -45,13 +46,14 @@ optional arguments:
                         available records, all records will be processed
                         (default: 0)
   --read-layout-adapters PATH
-                        path to text file containing 3' adapter sequences (one
-                        sequence per line) to scan for (default:
-                        data/adapters.txt in package root directory)
+                        path to text file containing 3' adapter sequences to
+                        scan for (one sequence per line; default:
+                        data/adapter_fragments.txt relative to package root
+                        directory)
   --read-layout-min-match-percentage FLOAT
                         minimum percentage of reads that contain a given
                         adapter sequence in order for it to be considered
-                        as the library's 3'-end adapter (default: 5)
+                        as the library's 3'-end adapter (default: 2)
   --read-layout-min-frequency-ratio FLOAT
                         minimum frequency ratio between the first and second
                         most frequent adapter in order for the former to be

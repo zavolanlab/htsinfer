@@ -1,5 +1,6 @@
 """Unit tests for module ``htsinfer.py``"""
 
+from os import linesep
 from pathlib import Path
 
 import pytest
@@ -282,5 +283,5 @@ class TestHtsInfer:
             '}'
             '}'
             '}'
-        )
+        ) + linesep
         assert captured.err == ""

@@ -1,17 +1,18 @@
 """Infer adapter sequences present in reads."""
 
-from collections import defaultdict
 import logging
 from pathlib import Path
-from typing import (DefaultDict, List, Optional, Tuple)
+from typing import (Dict, List, Optional, Tuple)
 
 import ahocorasick as ahc  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
-from pandas import DataFrame  # type: ignore
 
 from htsinfer.exceptions import FileProblem
 from htsinfer.models import ResultsLayout
-from htsinfer.utils import results_validator
+from htsinfer.utils import (
+    convert_dict_to_df,
+    validate_top_score,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class GetReadLayout:
     Examples:
         >>> GetReadLayout(
         ...     path_1="tests/files/sra_sample_2.fastq",
-        ...     adapter_file="data/adapters.txt",
+        ...     adapter_file="data/adapter_fragments.txt",
         ... ).evaluate()
         ResultsLayout(
             file_1=<Layout().adapt_3: "AAAAAAAAAAAAAAA">,
@@ -59,7 +60,7 @@ class GetReadLayout:
         >>> GetReadLayout(
         ...     path_1="tests/files/sra_sample_1.fastq",
         ...     path_2="tests/files/sra_sample_2.fastq",
-        ...     adapter_file="data/adapters.txt",
+        ...     adapter_file="data/adapter_fragments.txt",
         ...     min_match_pct=2,
         ...     min_freq_ratio=1,
         ... ).evaluate()
@@ -73,10 +74,11 @@ class GetReadLayout:
         path_1: Path,
         path_2: Optional[Path] = None,
         adapter_file: Path = (
-            Path(__file__).parent.parent.absolute() / "data/adapters.txt"
+            Path(__file__).parent.parent.absolute() /
+            "data/adapter_fragments.txt"
         ),
-        out_dir: Path = Path.cwd(),
-        min_match_pct: float = 5,
+        out_dir: Path = Path.cwd() / 'results_htsinfer',
+        min_match_pct: float = 2,
         min_freq_ratio: float = 2,
     ):
         """Class contructor."""
@@ -154,7 +156,7 @@ class GetAdapter3():
     Examples:
         >>> GetAdapter3(
         ...     path_1="tests/files/sra_sample_2.fastq",
-        ...     adapter_file="data/adapters.txt",
+        ...     adapter_file="data/adapter_fragments.txt",
         ... ).evaluate()
         <"AAAAAAAAAAAAAAA">
     """
@@ -163,7 +165,7 @@ class GetAdapter3():
         path: Path,
         adapter_file: Path,
         out_dir: Path = Path.cwd(),
-        min_match_pct: float = 5,
+        min_match_pct: float = 2,
         min_freq_ratio: float = 2,
     ):
         """Class constructor."""
@@ -174,7 +176,7 @@ class GetAdapter3():
         self.min_freq_ratio: float = min_freq_ratio
         self.adapters: List[Tuple[str, int]] = []
         self.trie: ahc.Automaton = ahc.Automaton()
-        self.adapter_counts: DefaultDict[str, float] = defaultdict(lambda: 0)
+        self.adapter_counts: Dict[str, float] = {}
         self.result: Optional[str] = None
 
     def evaluate(self) -> None:
@@ -184,12 +186,17 @@ class GetAdapter3():
         # load adapters
         try:
             self._load_adapters()
-        except Exception as exc:
+        except OSError as exc:
             self.result = None
             raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
 
         # create trie of adapters
         self._make_aho_auto()
+
+        # set default counts per adapter
+        self.adapter_counts = dict.fromkeys(
+            [tup[0] for tup in self.adapters], 0
+        )
 
         records: int = 0
         total_count: int = 0
@@ -212,59 +219,51 @@ class GetAdapter3():
                 except Exception as exc:
                     self.result = None
                     raise FileProblem(f"File is corrupt: {self.path}") from exc
+
         except (OSError, ValueError) as exc:
             self.result = None
             raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
 
         LOGGER.debug(f"Total records processed: {records}")
 
-        if total_count != 0:
-            # process and convert data to data frame
-            for i in self.adapter_counts:
-                self.adapter_counts[i] = round(
-                    (self.adapter_counts[i]/records)*100, 2
-                    )
-            adapters_df = self._convert_dict_to_df()
+        # process and convert data to data frame
+        LOGGER.debug(f"Adapter counts: {dict(self.adapter_counts)}")
+        for i in self.adapter_counts:
+            self.adapter_counts[i] = round(
+                (self.adapter_counts[i]/records)*100, 2
+                )
+        LOGGER.debug(f"Adapter count fractions: {dict(self.adapter_counts)}")
+        adapters_df = convert_dict_to_df(
+            dic=self.adapter_counts,
+            col_headers=('Adapter Sequence', 'Count Percentage'),
+            sort=True,
+            sort_by=1,
+            sort_ascending=False,
+        )
 
-            # write data frame (in JSON) to file
-            name = (
-                Path(self.out_dir) / f"read_layout_{Path(self.path).name}.json"
-            )
-            LOGGER.debug(f"Writing results to file: {name}")
-            adapters_df.to_json(
-                name,
-                orient='split',
-                index=False,
-                indent=True,
-            )
+        # write data frame (in JSON) to file
+        name = (
+            Path(self.out_dir) / f"read_layout_{Path(self.path).name}.json"
+        )
+        LOGGER.debug(f"Writing results to file: {name}")
+        adapters_df.to_json(
+            name,
+            orient='split',
+            index=False,
+            indent=True,
+        )
 
-            # validate results
-            if results_validator(
-                data=adapters_df,
-                column_index=1,
-                min_value=self.min_match_pct,
-                min_ratio=self.min_freq_ratio,
-            ):
-                self.result = adapters_df.iloc[0]['Adapter Sequence']
-            else:
-                self.result = None
+        # validate results
+        if validate_top_score(
+            vector=adapters_df['Count Percentage'].to_list(),
+            min_value=self.min_match_pct,
+            min_ratio=self.min_freq_ratio,
+            rev_sorted=True,
+            accept_zero=True,
+        ):
+            self.result = str(adapters_df.iloc[0]['Adapter Sequence'])
         else:
             self.result = None
-
-    def _convert_dict_to_df(self) -> DataFrame:
-        """Convert dictionary to data frame.
-
-        Returns:
-            Data frame of adapter sequences and corresponding count
-            percentages.
-        """
-        adapters_df = DataFrame(self.adapter_counts.items())
-        adapters_df.columns = ['Adapter Sequence', 'Count Percentage']
-        adapters_df = adapters_df.sort_values(
-            by='Count Percentage',
-            ascending=False,
-        ).reset_index(drop=True)
-        return adapters_df
 
     def _make_aho_auto(self) -> None:
         """Add adapter sequences into trie data structure."""
@@ -273,14 +272,40 @@ class GetAdapter3():
             self.trie.add_word(adapter, (tag, adapter))
         self.trie.make_automaton()
 
-    def _load_adapters(self) -> None:
-        """Load adapter sequences file."""
+    def _load_adapters(self, allowed_chars="acgtn", max_len=100) -> None:
+        """Load adapter sequences from file.
+
+        Args:
+            allowed_chars: String composed of accepted/allowed characters in
+                each adapter sequence (typically 'acgtn'). It is not necessary
+                to provide both lower- and uppercase versions separately.
+            max_len: Maximum length of each adapter sequence.
+
+        Raises:
+            ValueError: Raised if an adapter sequence is too long or contains
+                invalid characters.
+        """
         LOGGER.debug("Loading adapters")
         with open(self.adapter_file) as _f:
             i: int = 0
             for line in _f:
                 i += 1
                 seq = line.strip()
+                if not all(
+                    c in allowed_chars.lower() for c in seq.lower()
+                ):
+                    raise ValueError(
+                        f"Sequence '{seq}' in adapter file "
+                        f"'{self.adapter_file}' contains invalid characters. "
+                        f"Only '[{allowed_chars}]' (lower- and uppercase) "
+                        "allowed."
+                    )
+                if len(seq) > max_len:
+                    raise ValueError(
+                        f"Sequence '{seq}' in adapter file "
+                        f"'{self.adapter_file}' is too long.contains. Maximum "
+                        f"length is {max_len}."
+                    )
                 if not seq:
                     continue
                 self.adapters.append((seq, i))
