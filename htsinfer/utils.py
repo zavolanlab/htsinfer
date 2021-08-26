@@ -83,8 +83,10 @@ def validate_top_score(
     """
     try:
         vector = [float(item) for item in vector]
-    except ValueError:
-        raise ValueError(f"Input list '{vector}' contains non-numeric items.")
+    except ValueError as exc:
+        raise ValueError(
+            f"Input list '{vector}' contains non-numeric items."
+        ) from exc
     if not rev_sorted:
         vector = sorted(vector, reverse=True)
     try:
