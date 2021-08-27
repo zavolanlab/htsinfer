@@ -1,7 +1,7 @@
 """Main module."""
-# pylint: disable=fixme
 
 import logging
+from os import linesep
 from pathlib import Path
 from random import choices
 import shutil
@@ -16,6 +16,7 @@ from htsinfer.exceptions import (
     WorkEnvProblem,
 )
 from htsinfer.get_library_type import GetLibType
+from htsinfer.get_read_layout import GetReadLayout
 from htsinfer.models import (
     CleanupRegimes,
     Results,
@@ -26,7 +27,7 @@ from htsinfer.subset_fastq import SubsetFastq
 LOGGER = logging.getLogger(__name__)
 
 
-class HtsInfer:  # pylint: disable=too-many-instance-attributes
+class HtsInfer:
     """Determine sequencing library metadata.
 
     Args:
@@ -35,9 +36,17 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
         cleanup_regime: Which data to keep after run concludes; one of
+            `CleanupRegimes`.
         records: Number of input file records to process; set to `0` to
             process all records.
-            `CleanupRegimes`.
+        read_layout_adapter_file: Path to text file containing 3' adapter
+            sequences to scan for (one sequence per line).
+        read_layout_min_match_pct: Minimum percentage of reads that contain a
+            given adapter in order for it to be considered as the library's
+            3'-end adapter.
+        read_layout_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent adapter in order for the former to be
+            considered as the library's 3'-end adapter.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -48,19 +57,33 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         cleanup_regime: Which data to keep after run concludes; one of
             `CleanupRegimes`.
         records: Number of input file records to process.
+        read_layout_adapter_file: Path to text file containing 3' adapter
+            sequences to scan for (one sequence per line).
+        read_layout_min_match_pct: Minimum percentage of reads that contain a
+            given adapter in order for it to be considered as the library's
+            3'-end adapter.
+        read_layout_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent adapter in order for the former to be
+            considered as the library's 3'-end adapter.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
         state: State of the run; one of `RunStates`.
         results: Results container for storing determined library metadata.
     """
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         path_1: Path,
         path_2: Optional[Path] = None,
-        out_dir: Path = Path.cwd(),
-        tmp_dir: Path = Path(tempfile.gettempdir()),
+        out_dir: Path = Path.cwd() / 'results_htsinfer',
+        tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
         cleanup_regime: CleanupRegimes = CleanupRegimes.DEFAULT,
         records: int = 0,
+        read_layout_adapter_file: Path = (
+            Path(__file__).parent.parent.absolute() /
+            "data/adapter_fragments.txt"
+        ),
+        read_layout_min_match_pct: float = 2,
+        read_layout_min_freq_ratio: float = 2,
     ):
         """Class constructor."""
         self.path_1 = path_1
@@ -68,10 +91,13 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         self.run_id = ''.join(
             choices(string.ascii_uppercase + string.digits, k=5)
         )
-        self.out_dir = out_dir / self.run_id
-        self.tmp_dir = tmp_dir / f"tmp_{self.run_id}"
+        self.out_dir = Path(out_dir) / self.run_id
+        self.tmp_dir = Path(tmp_dir) / f"tmp_{self.run_id}"
         self.cleanup_regime = cleanup_regime
         self.records = records
+        self.read_layout_adapter_file = read_layout_adapter_file
+        self.read_layout_min_match_pct = read_layout_min_match_pct
+        self.read_layout_min_freq_ratio = read_layout_min_freq_ratio
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
         self.state: RunStates = RunStates.OKAY
@@ -82,6 +108,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         try:
             # set up work environment
             LOGGER.info("Setting up work environment...")
+            LOGGER.info(f"Run identifier: {self.run_id}")
             self.prepare_env()
 
             try:
@@ -124,6 +151,10 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
                 except MetadataWarning as exc:
                     self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
+                LOGGER.info(
+                    "Read layout determined: "
+                    f"{self.results.read_layout.json()}"
+                )
 
             except FileProblem as exc:
                 self.state = RunStates.ERROR
@@ -144,7 +175,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
         """Set up work environment."""
         # create results directory
         try:
-            self.out_dir.mkdir()
+            self.out_dir.mkdir(parents=True)
         except OSError as exc:
             raise WorkEnvProblem(
                 f"Creation of results directory failed: {self.out_dir}"
@@ -153,7 +184,7 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
 
         # create temporary directory
         try:
-            self.tmp_dir.mkdir()
+            self.tmp_dir.mkdir(parents=True)
         except OSError as exc:
             raise WorkEnvProblem(
                 f"Creation of temporary directory failed: {self.tmp_dir}"
@@ -194,15 +225,24 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
 
     def get_library_source(self):
         """Determine library source."""
-        # TODO: implement
+        # TODO: implement  # pylint: disable=fixme
 
     def get_read_orientation(self):
         """Determine read orientation."""
-        # TODO: implement
+        # TODO: implement  # pylint: disable=fixme
 
     def get_read_layout(self):
         """Determine read layout."""
-        # TODO: implement
+        get_read_layout = GetReadLayout(
+            path_1=self.path_1_processed,
+            path_2=self.path_2_processed,
+            adapter_file=self.read_layout_adapter_file,
+            out_dir=self.out_dir,
+            min_match_pct=self.read_layout_min_match_pct,
+            min_freq_ratio=self.read_layout_min_freq_ratio,
+        )
+        get_read_layout.evaluate()
+        self.results.read_layout = get_read_layout.results
 
     def clean_up(self):
         """Clean up work environment."""
@@ -244,4 +284,4 @@ class HtsInfer:  # pylint: disable=too-many-instance-attributes
 
     def print(self):
         """Print results to STDOUT."""
-        sys.stdout.write(self.results.json())
+        sys.stdout.write(self.results.json() + linesep)

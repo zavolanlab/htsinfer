@@ -1,5 +1,6 @@
 """Unit tests for module ``htsinfer.py``"""
 
+from os import linesep
 from pathlib import Path
 
 import pytest
@@ -271,7 +272,16 @@ class TestHtsInfer:
             '}, '
             '"library_source": {}, '
             '"read_orientation": {}, '
-            '"read_layout": {}'
+            '"read_layout": {'
+            '"file_1": '
+            '{'
+            '"adapt_3": null'
+            '}, '
+            '"file_2": '
+            '{'
+            '"adapt_3": null'
             '}'
-        )
+            '}'
+            '}'
+        ) + linesep
         assert captured.err == ""
