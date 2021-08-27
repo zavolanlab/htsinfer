@@ -35,7 +35,7 @@ class SubsetFastq:
     def __init__(
         self,
         path: Path,
-        out_dir: Path = Path.cwd(),
+        out_dir: Path = Path.cwd() / 'results_htsinfer',
         records: int = 0,
     ):
         """Class constructor."""
