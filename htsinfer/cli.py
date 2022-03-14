@@ -74,19 +74,20 @@ def parse_args() -> argparse.Namespace:
         metavar="PATH",
         help=(
             "either one or two paths to FASTQ files representing the "
-            "sequencing library to be evaluated."
+            "sequencing library to be evaluated, for single- or paired-ended "
+            "libraries, respectively"
         ),
     )
     parser.add_argument(
         "--output-directory",
-        default=Path.cwd(),
+        default=Path.cwd() / 'results_htsinfer',
         type=lambda p: Path(p).absolute(),
         metavar="PATH",
         help="path to directory where output is written to",
     )
     parser.add_argument(
         "--temporary-directory",
-        default=Path(tempfile.gettempdir()),
+        default=Path(tempfile.gettempdir()) / 'tmp_htsinfer',
         type=lambda p: Path(p).absolute(),
         metavar="PATH",
         help="path to directory where temporary output is written to",
@@ -148,6 +149,41 @@ def parse_args() -> argparse.Namespace:
             "columns contain a short organism name and taxon identifier, "
             "respectively. Example sequence identifier: "
             "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
+        )
+    )
+    parser.add_argument(
+        "--read-layout-adapters",
+        metavar="PATH",
+        type=str,
+        default=(
+            Path(__file__).parent.parent.absolute() /
+            "data/adapter_fragments.txt"
+        ),
+        help=(
+            "path to text file containing 3' adapter sequences to scan for "
+            "(one sequence per line)"
+        )
+    )
+    parser.add_argument(
+        "--read-layout-min-match-percentage",
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "minimum percentage of reads that contain a given adapter "
+            "sequence in order for it to be considered as the library's "
+            "3'-end adapter"
+        )
+    )   
+    parser.add_argument(
+        "--read-layout-min-frequency-ratio",
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "minimum frequency ratio between the first and second most "
+            "frequent adapter in order for the former to be considered as the "
+            "library's 3'-end adapter"
         )
     )
     parser.add_argument(
@@ -213,6 +249,9 @@ def main() -> None:
             min_match=args.organism_designation_min_match_percentage,
             factor=args.organism_designation_frequency_ratio,
             fasta=args.transcripts,
+            read_layout_adapter_file=args.read_layout_adapters,
+            read_layout_min_match_pct=args.read_layout_min_match_percentage,
+            read_layout_min_freq_ratio=args.read_layout_min_frequency_ratio,
         )
         hts_infer.evaluate()
         hts_infer.print()
