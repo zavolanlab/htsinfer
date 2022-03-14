@@ -1,5 +1,7 @@
 """Main module."""
 
+from functools import partial
+import gzip
 import logging
 from os import linesep
 from pathlib import Path
@@ -43,7 +45,7 @@ class HtsInfer:
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
-        fasta: File path to transcripts FASTA file.
+        transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
         read_layout_min_match_pct: Minimum percentage of reads that contain a
@@ -65,7 +67,7 @@ class HtsInfer:
         threads: Number of threads to run STAR.
         organism: Source organism of the sequencing library, if provided:
             will not not be inferred by the application.
-        fasta: File path to transcripts FASTA file.
+        transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
         read_layout_min_match_pct: Minimum percentage of reads that contain a
@@ -76,6 +78,7 @@ class HtsInfer:
             considered as the library's 3'-end adapter.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
+        transcripts_file_processed: Path to processed `transcripts_file` file.
         state: State of the run; one of `RunStates`.
         results: Results container for storing determined library metadata.
     """
@@ -89,8 +92,9 @@ class HtsInfer:
         records: int = 0,
         threads: int = 1,
         organism: str = "hsapiens",
-        fasta: Path = (
-            Path(__file__).parent.absolute() / "data/transcript.fasta.zip"
+        transcripts_file: Path = (
+            Path(__file__).parent.parent.absolute() /
+            "data/transcripts.fasta.gz"
         ),
         read_layout_adapter_file: Path = (
             Path(__file__).parent.parent.absolute() /
@@ -111,12 +115,17 @@ class HtsInfer:
         self.records = records
         self.threads = threads
         self.organism = organism
-        self.fasta = fasta
+        self.transcripts_file = transcripts_file
         self.read_layout_adapter_file = read_layout_adapter_file
         self.read_layout_min_match_pct = read_layout_min_match_pct
         self.read_layout_min_freq_ratio = read_layout_min_freq_ratio
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
+        self.transcripts_file_processed: Path = (
+            self.tmp_dir / self.transcripts_file.stem
+            if self.transcripts_file.suffix == ".gz"
+            else self.tmp_dir / self.transcripts_file.name
+        )
         self.state: RunStates = RunStates.OKAY
         self.results: Results = Results()
 
@@ -212,6 +221,7 @@ class HtsInfer:
     def process_inputs(self):
         """Process and validate inputs."""
         # process first file
+        LOGGER.debug(f"Processing read file 1: {self.path_1}")
         input_files_1 = SubsetFastq(
             path=self.path_1,
             out_dir=self.tmp_dir,
@@ -219,10 +229,11 @@ class HtsInfer:
         )
         input_files_1.process()
         self.path_1_processed = input_files_1.out_path
-        LOGGER.info(f"Location processed file 1: {self.path_1_processed}")
+        LOGGER.info(f"Processed read file 1: {self.path_1_processed}")
 
         # process second file, if available
         if self.path_2 is not None:
+            LOGGER.debug(f"Processing read file 2: {self.path_2}")
             input_files_2 = SubsetFastq(
                 path=self.path_2,
                 out_dir=self.tmp_dir,
@@ -230,6 +241,23 @@ class HtsInfer:
             )
             input_files_2.process()
             self.path_2_processed = input_files_2.out_path
+            LOGGER.info(f"Processed read file 2: {self.path_2_processed}")
+
+        # process transcripts file
+        LOGGER.debug(f"Processing transcripts file: {self.transcripts_file}")
+        if self.transcripts_file.suffix == ".gz":
+            _open = partial(gzip.open)
+        else:
+            _open = open
+        try:
+            with _open(self.transcripts_file, 'rb') as f_in:
+                with open(self.transcripts_file_processed, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+        except Exception as exc:
+            raise FileProblem(exc) from exc
+        LOGGER.info(
+            f"Processed transcripts file: {self.transcripts_file_processed}"
+        )
 
     def get_library_type(self):
         """Determine library type."""
@@ -246,16 +274,16 @@ class HtsInfer:
 
     def get_read_orientation(self):
         """Determine read orientation."""
-        get_orientation = GetOrientation(
-            fasta=self.fasta,
+        get_read_orientation = GetOrientation(
             path_1=self.path_1_processed,
             path_2=self.path_2_processed,
-            threads=self.threads,
+            transcripts_file=self.transcripts_file_processed,
+            threads_star=self.threads,
             organism=self.organism,
             tmp_dir=self.tmp_dir,
         )
-        get_orientation.evaluate()
-        self.results.read_orientation = get_orientation.results
+        get_read_orientation.evaluate()
+        self.results.read_orientation = get_read_orientation.results
 
     def get_read_layout(self):
         """Determine read layout."""

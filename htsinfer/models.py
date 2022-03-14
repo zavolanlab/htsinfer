@@ -30,6 +30,66 @@ class LogLevels(Enum):
     CRITICAL = logging.CRITICAL
 
 
+class StatesOrientation(Enum):
+    """Enumerator of read orientation types for individual library files. Cf.
+    https://salmon.readthedocs.io/en/latest/library_type.html
+
+    Attributes:
+        not_available: Orientation type information is not available for a
+            given file, either because no file was provided, the file could not
+            be parsed, an orientation type has not yet been assigned.
+        stranded_forward: Reads are stranded and come from the forward strand.
+        stranded_reverse: Reads are stranded and come from the reverse strand.
+        unstranded: Reads are unstranded.
+    """
+    not_available = None
+    stranded_forward = "SF"
+    stranded_reverse = "SR"
+    unstranded = "U"
+
+
+class StatesOrientationRelationship(Enum):
+    """Enumerator of read orientation type relationships for paired-ended
+    libraries. Cf. https://salmon.readthedocs.io/en/latest/library_type.html
+
+    Attributes:
+        inward_stranded_forward: Mates are oriented toward each other, the
+            library is stranded, and first mates come from the forward strand.
+        inward_stranded_reverse: Mates are oriented toward each other, the
+            library is stranded, and first mates come from the reverse strand.
+        inward_unstranded: Mates are oriented toward each other and the library
+            is unstranded.
+        matching_stranded_forward: Mates are oriented in the same direction,
+            the library is stranded, and both mates come from the forward
+            strand.
+        matching_stranded_reverse: Mates are oriented in the same direction,
+            the library is stranded, and both mates come from the reverse
+            strand.
+        matching_unstranded: Mates are oriented in the same direction and the
+            library is unstranded.
+        not_available: Orientation type relationship information is not
+            available, likely because only a single file was provided or
+            because the orientation type relationship has not yet been
+            evaluated.
+        outward_stranded_forward: Mates are oriented away from each other, the
+            library is stranded, and first mates come from the forward strand.
+        outward_stranded_reverse: Mates are oriented away from each other, the
+            library is stranded, and first mates come from the reverse strand.
+        outward_unstranded: Mates are oriented away from each other and the
+            library is unstranded.
+    """
+    inward_stranded_forward = "ISF"
+    inward_stranded_reverse = "ISR"
+    inward_unstranded = "IU"
+    matching_stranded_forward = "MSF"
+    matching_stranded_reverse = "MSR"
+    matching_unstranded = "MU"
+    not_available = None
+    outward_stranded_forward = "OSF"
+    outward_stranded_reverse = "OSR"
+    outward_unstranded = "OU"
+
+
 class RunStates(IntEnum):
     """Enumerator of run states and exit codes."""
     OKAY = 0
@@ -154,15 +214,19 @@ class ResultsSource(BaseModel):
 class ResultsOrientation(BaseModel):
     """Container class for aggregating library orientation.
      Args:
-        file_1: Read orientation of the first file.
-        file_2: Read orientation of the second file.
+        file_1: Read orientation of first file.
+        file_2: Read orientation of second file.
+        relationship: Orientation type relationship between the provided files.
 
     Attributes:
-        file_1: Read orientation of the first file.
-        file_2: Read orientation of the second file.
+        file_1: Read orientation of first file.
+        file_2: Read orientation of second file.
     """
-    file_1: Optional[str] = None
-    file_2: Optional[str] = None
+    file_1: StatesOrientation = StatesOrientation.not_available
+    file_2: StatesOrientation = StatesOrientation.not_available
+    relationship: StatesOrientationRelationship = (
+        StatesOrientationRelationship.not_available
+    )
 
 
 class Layout(BaseModel):
