@@ -174,7 +174,7 @@ def parse_args() -> argparse.Namespace:
             "sequence in order for it to be considered as the library's "
             "3'-end adapter"
         )
-    )   
+    )
     parser.add_argument(
         "--read-layout-min-frequency-ratio",
         metavar="FLOAT",

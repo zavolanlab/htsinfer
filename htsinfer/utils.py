@@ -1,9 +1,6 @@
 """Utilities used across multiple HTSinfer modules."""
-
 from typing import (Dict, List, Optional, Tuple)
-
 from pandas import DataFrame  # type: ignore
-
 
 
 def convert_dict_to_df(

@@ -93,14 +93,14 @@ class HtsInfer:
         records: int = 0,
         min_match: float = 5,
         factor: float = 2,
-        fasta: Path = Path(__file__).parent.absolute() \
+        fasta: Path = Path(__file__).parent.absolute()
             / "data/transcript.fasta.zip",
-        read_layout_adapter_file: Path = (
+            read_layout_adapter_file: Path = (
             Path(__file__).parent.parent.absolute() /
             "data/adapter_fragments.txt"
         ),
-        read_layout_min_match_pct: float = 2,
-        read_layout_min_freq_ratio: float = 2,
+            read_layout_min_match_pct: float = 2,
+            read_layout_min_freq_ratio: float = 2,
     ):
         """Class constructor."""
         self.path_1 = path_1
