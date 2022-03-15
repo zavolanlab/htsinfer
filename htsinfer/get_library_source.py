@@ -20,13 +20,13 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GetLibSource:
-    """Determine the organism present in the FASTQ sequencing libraries.
+    """Determine the organism of origin for the FASTQ sequencing libraries.
 
     Args:
         fasta: File path to transcripts FASTA file.
         path_1: Path to single-end library or first mate file.
         path_2: Path to second mate file.
-        min_match: Minimum percentage that given organism needs to have
+        min_match: Minimum match percentage that given organism needs to have
             to be considered as the resulting organism.
         factor: The minimum frequency ratio between the first and second
             most frequent organism in order for organism to be
@@ -38,7 +38,7 @@ class GetLibSource:
         fasta: File path to transcripts FASTA file.
         path_1: Path to single-end library or first mate file.
         path_2: Path to second mate file.
-        min_match: Minimum percentage that given organism needs to have
+        min_match: Minimum match percentage that given organism needs to have
             to be considered as the resulting organism.
         factor: The minimum frequency ratio between the first and second
             most frequent organism in order for organism to be
@@ -69,8 +69,9 @@ class GetLibSource:
         self.results: ResultsSource = ResultsSource()
 
     def evaluate(self) -> None:
-        """Decides organism."""
-        # Extracts transcripts fasta file
+        """Decide organism."""
+        # Extract transcripts fasta file
+        LOGGER.debug(f"Processing file: '{self.fasta}'")
         try:
             with zp.ZipFile(self.fasta, "r") as zip_ref:
                 zip_ref.extractall(self.tmp_dir)
@@ -79,7 +80,7 @@ class GetLibSource:
             self.results.file_2 = None
             raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
 
-        # Runs Kallisto index
+        # Run Kallisto index
         try:
             self._kallisto_index()
         except KallistoProblem as exc:
@@ -115,7 +116,7 @@ class GetLibSource:
             LOGGER.debug(f"Organism: {self.results.file_2}")
 
     def _kallisto_index(self) -> None:
-        """Builds an index from a FASTA formatted file of target sequences."""
+        """Build an index from a FASTA formatted file of target sequences."""
         LOGGER.debug("Running Kallisto index")
         _file = Path(Path(self.fasta).name).stem
         index_cmd = "kallisto index -i " + str(self.tmp_dir) + \
@@ -133,7 +134,7 @@ class GetOrganism():
 
     Args:
         path: File path to read library.
-        min_match: Minimum percentage that given organism needs to have
+        min_match: Minimum match percentage that given organism needs to have
             to be considered as the resulting organism.
         factor: The minimum frequency ratio between the first and second
             most frequent organism in order for organism to be
@@ -143,7 +144,7 @@ class GetOrganism():
 
     Attributes:
         path: File path to read library.
-        min_match: Minimum percentage that given organism needs to have
+        min_match: Minimum match percentage that given organism needs to have
             to be considered as the resulting organism.
         factor: The minimum frequency ratio between the first and second
             most frequent organism in order for organism to be
@@ -171,9 +172,9 @@ class GetOrganism():
         self.result: Optional[str] = None
 
     def evaluate(self) -> None:
-        """Determines organism and validates minimum match percentage
+        """Determine organism and validate minimum match percentage
         and minimum frequency ratio."""
-        # Runs Kallisto quant
+        # Run Kallisto quant
         try:
             self._kallisto_quant()
         except KallistoProblem as exc:
@@ -181,10 +182,10 @@ class GetOrganism():
             raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
 
         self._process_count_info()
-        # Converts dictionary to dataframe
+        # Convert dictionary to dataframe
         organism_df = self._convert_dic_to_df()
 
-        # Checks validator
+        # Check validator
         if minmatch_factor_validator(
             count_df=organism_df,
             column_index=0,
@@ -196,7 +197,7 @@ class GetOrganism():
             self.result = None
 
     def _kallisto_quant(self) -> None:
-        """Runs the quantification algorithm."""
+        """Run the quantification algorithm."""
         LOGGER.debug("Running Kallisto quant")
         quant_cmd = "kallisto quant -i " + str(self.tmp_dir) + \
             "/transcripts.idx -o " + str(self.tmp_dir) + \
@@ -244,7 +245,7 @@ class GetOrganism():
                 ) from exc
 
     def _convert_dic_to_df(self) -> pd.DataFrame:
-        """Converting dictionary into dataframe and writing json file.
+        """Convert dictionary into dataframe and write json file.
 
         Returns:
             Dataframe of count info percentage for all organisms.
