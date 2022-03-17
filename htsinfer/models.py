@@ -69,8 +69,8 @@ class StatesOrientationRelationship(Enum):
             library is unstranded.
         not_available: Orientation type relationship information is not
             available, likely because only a single file was provided or
-            because the orientation type relationship has not yet been
-            evaluated.
+            because the orientation type relationship has not been or could not
+            be evaluated.
         outward_stranded_forward: Mates are oriented away from each other, the
             library is stranded, and first mates come from the forward strand.
         outward_stranded_reverse: Mates are oriented away from each other, the

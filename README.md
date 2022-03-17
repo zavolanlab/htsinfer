@@ -18,6 +18,8 @@ htsinfer [--output-directory PATH] [--temporary-directory PATH]
          [--read-layout-adapters PATH]
          [--read-layout-min-match-percentage FLOAT]
          [--read-layout-min-frequency-ratio FLOAT]
+         [--read-orientation-min-mapped-reads INT]
+         [--read-orientation-fraction-range FLOAT]
          [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
          [-h] [--version]
          PATH [PATH]
@@ -48,15 +50,15 @@ optional arguments:
                         specified value equals or exceeds the number of
                         available records, all records will be processed
                         (default: 0)
-   --transcripts FASTA  FASTA file containing transcripts to be used for mapping
-                        files `--file-1` and `--file-2` against for inferring 
-                        organism and read orientation. Requires that sequence 
-                        identifier lines are separated by the pipe (`|`) character
-                        and that the 4th and 5th columns contain a short organism 
-                        name and taxon identifier, respectively. Example sequence 
-                        identifier:
+  --transcripts FASTA   FASTA file containing transcripts to be used for
+                        mapping files `--file-1` and `--file-2` against for
+                        inferring organism and read orientation. Requires that
+                        sequence identifier lines are separated by the pipe
+                        (`|`) character and that the 4th and 5th columns
+                        contain a short organism name and taxon identifier,
+                        respectively. Example sequence identifier:
                         `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
-  --threads INT         number of threads to run STAR
+  --threads INT         number of threads to run STAR with
   --organism STR        source organism of the sequencing library, if provided, 
                         will not not be inferred by the application
   --read-layout-adapters PATH
@@ -72,6 +74,15 @@ optional arguments:
                         minimum frequency ratio between the first and second
                         most frequent adapter in order for the former to be
                         considered as the library's 3'-end adapter (default: 2)
+  --read-orientation-min-mapped-reads INT
+                        minimum number of mapped reads for deeming the read
+                        orientation result reliable (default: 20)
+  --read-orientation-fraction-range FLOAT
+                        size of the range of the fraction of mapped reads that
+                        are consistent with one of the outcomes
+                        'stranded-forward', 'stranded-reverse' and
+                        'unstranded'; must be at least zero and at most one
+                        third (default: 0.2)
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit

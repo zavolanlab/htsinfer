@@ -42,9 +42,9 @@ class HtsInfer:
             `CleanupRegimes`.
         records: Number of input file records to process; set to `0` to
             process all records.
-        threads: Number of threads to run STAR.
+        threads: Number of threads to run STAR with.
         organism: Source organism of the sequencing library, if provided:
-            will not not be inferred by the application.
+            will not be inferred by the application.
         transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
@@ -54,6 +54,12 @@ class HtsInfer:
         read_layout_min_freq_ratio: Minimum frequency ratio between the first
             and second most frequent adapter in order for the former to be
             considered as the library's 3'-end adapter.
+        read_orientation_min_mapped_reads: Minimum number of mapped reads for
+            deeming the read orientation result reliable.
+        read_orientation_fraction_range: Size of the range of the fraction of
+            mapped reads that are consistent with one of the outcomes
+            'stranded-forward', 'stranded-reverse' and 'unstranded'. Must be at
+            least zero and at most one third.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -64,9 +70,9 @@ class HtsInfer:
         cleanup_regime: Which data to keep after run concludes; one of
             `CleanupRegimes`.
         records: Number of input file records to process.
-        threads: Number of threads to run STAR.
+        threads: Number of threads to run STAR with.
         organism: Source organism of the sequencing library, if provided:
-            will not not be inferred by the application.
+            will not be inferred by the application.
         transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
@@ -76,6 +82,12 @@ class HtsInfer:
         read_layout_min_freq_ratio: Minimum frequency ratio between the first
             and second most frequent adapter in order for the former to be
             considered as the library's 3'-end adapter.
+        read_orientation_min_mapped_reads: Minimum number of mapped reads for
+            deeming the read orientation result reliable.
+        read_orientation_fraction_range: Size of the range of the fraction of
+            mapped reads that are consistent with one of the outcomes
+            'stranded-forward', 'stranded-reverse' and 'unstranded'. Must be at
+            least zero and at most one third.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
         transcripts_file_processed: Path to processed `transcripts_file` file.
@@ -102,6 +114,8 @@ class HtsInfer:
         ),
         read_layout_min_match_pct: float = 2,
         read_layout_min_freq_ratio: float = 2,
+        read_orientation_min_mapped_reads: int = 20,
+        read_orientation_fraction_range: float = 0.2,
     ):
         """Class constructor."""
         self.path_1 = path_1
@@ -119,6 +133,10 @@ class HtsInfer:
         self.read_layout_adapter_file = read_layout_adapter_file
         self.read_layout_min_match_pct = read_layout_min_match_pct
         self.read_layout_min_freq_ratio = read_layout_min_freq_ratio
+        self.read_orientation_fraction_range = read_orientation_fraction_range
+        self.read_orientation_min_mapped_reads = (
+            read_orientation_min_mapped_reads
+        )
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
         self.transcripts_file_processed: Path = (
@@ -169,6 +187,10 @@ class HtsInfer:
                 except MetadataWarning as exc:
                     self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
+                LOGGER.info(
+                    "Read orientation determined: "
+                    f"{self.results.read_orientation.json()}"
+                )
 
                 # determine read layout
                 LOGGER.info("Determining read layout...")
@@ -220,6 +242,15 @@ class HtsInfer:
 
     def process_inputs(self):
         """Process and validate inputs."""
+
+        # validate input parameters
+        if not 0 < self.read_orientation_fraction_range <= 1/3:
+            raise ValueError(
+                "Value for parameter 'read_orientation_fraction_range' outside"
+                "permitted boundaries; expected: >0 & <1/3; found: "
+                f"{self.read_orientation_fraction_range}"
+            )
+
         # process first file
         LOGGER.debug(f"Processing read file 1: {self.path_1}")
         input_files_1 = SubsetFastq(
@@ -275,15 +306,16 @@ class HtsInfer:
     def get_read_orientation(self):
         """Determine read orientation."""
         get_read_orientation = GetOrientation(
-            path_1=self.path_1_processed,
-            path_2=self.path_2_processed,
+            paths=(self.path_1_processed, self.path_2_processed),
+            library_type=self.results.library_type,
             transcripts_file=self.transcripts_file_processed,
             threads_star=self.threads,
             organism=self.organism,
             tmp_dir=self.tmp_dir,
+            min_mapped_reads=self.read_orientation_min_mapped_reads,
+            fraction_range=self.read_orientation_fraction_range,
         )
-        get_read_orientation.evaluate()
-        self.results.read_orientation = get_read_orientation.results
+        self.results.read_orientation = get_read_orientation.evaluate()
 
     def get_read_layout(self):
         """Determine read layout."""

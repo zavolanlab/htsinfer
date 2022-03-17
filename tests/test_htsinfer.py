@@ -272,7 +272,7 @@ class TestHtsInfer:
             '}, '
             '"library_source": {}, '
             '"read_orientation": {'
-            '"file_1": null, "file_2": null'
+            '"file_1": null, "file_2": null, "relationship": null'
             '}, '
             '"read_layout": {'
             '"file_1": '

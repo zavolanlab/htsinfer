@@ -119,7 +119,9 @@ def parse_args() -> argparse.Namespace:
         "--transcripts",
         metavar="FASTA",
         type=str,
-        default=Path(__file__).parent.absolute() / "data/transcript.fasta.zip",
+        default=(
+            Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"
+        ),
         help=(
             "FASTA file containing transcripts to be used for mapping files "
             "`--file-1` and `--file-2` against for inferring organism and "
@@ -136,7 +138,7 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=1,
         help=(
-            "number of threads to run STAR"
+            "number of threads to run STAR with"
         )
     )
     parser.add_argument(
@@ -182,6 +184,28 @@ def parse_args() -> argparse.Namespace:
             "minimum frequency ratio between the first and second most "
             "frequent adapter in order for the former to be considered as the "
             "library's 3'-end adapter"
+        )
+    )
+    parser.add_argument(
+        "--read-orientation-min-mapped-reads",
+        metavar="INT",
+        type=int,
+        default=20,
+        help=(
+            "minimum number of mapped reads for deeming the read orientation "
+            "result reliable"
+        )
+    )
+    parser.add_argument(
+        "--read-orientation-fraction-range",
+        metavar="FLOAT",
+        type=float,
+        default=0.2,
+        help=(
+            "size of the range of the fraction of mapped reads that are "
+            "consistent with one of the outcomes 'stranded-forward', "
+            "'stranded-reverse' and 'unstranded'; must be at least zero and "
+            "at most one third"
         )
     )
     parser.add_argument(
@@ -244,12 +268,18 @@ def main() -> None:
             tmp_dir=args.temporary_directory,
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
             records=args.records,
-            fasta=args.transcripts,
             threads=args.threads,
             organism=args.organism,
+            transcripts_file=args.transcripts,
             read_layout_adapter_file=args.read_layout_adapters,
             read_layout_min_match_pct=args.read_layout_min_match_percentage,
             read_layout_min_freq_ratio=args.read_layout_min_frequency_ratio,
+            read_orientation_min_mapped_reads=(
+                args.read_orientation_min_mapped_reads
+            ),
+            read_orientation_fraction_range=(
+                args.read_orientation_fraction_range
+            ),
         )
         hts_infer.evaluate()
         hts_infer.print()
