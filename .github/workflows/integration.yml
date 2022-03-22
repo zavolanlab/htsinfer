@@ -1,0 +1,51 @@
+name: integration-testing
+
+on: [push, pull_request]
+
+jobs:
+
+  integration-testing:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    #strategy:
+    #  matrix:
+    #    python-version: [ '3.6', '3.7', '3.8', '3.9' ]
+
+    #name: Python ${{ matrix.python-version }}
+
+    steps:
+
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Setup miniconda & htsinfer root env
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: htsinfer
+          auto-activate-base: false
+
+      #- name: Set up Python
+      #  uses: actions/setup-python@v2
+      #  with:
+      #    python-version: ${{ matrix.python-version }}
+
+      - name: Update htsinfer env with dev. packages
+        run: conda env update --file environment-dev.yml
+
+      - name: Display all miniconda & env info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Run integration test
+        run: htsinfer --help
+
+      - name: Cleanup
+        run: |
+          htsinfer --cleanup-regime=KEEP_NONE --records=3 tests/files/single.fastq
+          htsinfer --cleanup-regime=KEEP_NONE tests/files/{first,second}_mate.fastq
