@@ -62,5 +62,31 @@ jobs:
       - name: Run Pylint
         run: pylint --rcfile pylint.cfg setup.py htsinfer/
 
+  mypy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
 
+      - name: Checkout the repository
+        uses: actions/checkout@v2
 
+      - name: Setup miniconda & htsinfer root env
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: htsinfer
+          auto-activate-base: false
+
+      - name: Update htsinfer env with dev. packages
+        run: conda env update --file environment-dev.yml
+
+      - name: Display all miniconda & env info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Run Mypy
+        run: mypy htsinfer
