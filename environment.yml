@@ -9,6 +9,6 @@ dependencies:
   - pandas=1.0.5
   - pydantic=1.8.1
   - pyahocorasick=1.4.0
-  - python=3.8.5
+  - python>=3.6, <=3.10
   - pip:
     - -e .
