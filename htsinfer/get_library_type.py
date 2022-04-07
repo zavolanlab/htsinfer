@@ -313,9 +313,9 @@ class GetFastqType():
                 that suggests a different library type than previous
                 identifiers.
         """
-        if (
-            self.result == StatesType.first_mate or
-            self.result == StatesType.mixed_mates
+        if self.result in (
+            StatesType.first_mate,
+            StatesType.mixed_mates
         ):
             pass
         elif self.result == StatesType.second_mate:
@@ -344,9 +344,9 @@ class GetFastqType():
                 that suggests a different library type than previous
                 identifiers.
         """
-        if (
-            self.result == StatesType.second_mate or
-            self.result == StatesType.mixed_mates
+        if self.result in (
+            StatesType.second_mate,
+            StatesType.mixed_mates
         ):
             pass
         elif self.result == StatesType.first_mate:
