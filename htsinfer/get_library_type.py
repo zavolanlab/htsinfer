@@ -161,7 +161,7 @@ class GetFastqType():
         records: int = 0
 
         try:
-            with open(self.path) as _f:  # type: ignore
+            with open(self.path, encoding="utf-8") as _f:  # type: ignore
 
                 # Get sequence identifier format from first record
                 LOGGER.debug(
