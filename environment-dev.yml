@@ -3,7 +3,6 @@ channels:
   - defaults
 dependencies:
   - coverage>=5.3
-  - coveralls>=3.0.0
   - flake8>=3.8.4
   - mypy>=0.782
   - pip=20.2.3

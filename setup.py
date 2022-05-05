@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 from htsinfer import __version__
 
 # Read long description from file
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     LONG_DESCRIPTION = fh.read()
 
 setup(

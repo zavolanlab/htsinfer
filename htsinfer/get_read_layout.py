@@ -202,7 +202,7 @@ class GetAdapter3():
         total_count: int = 0
 
         try:
-            with open(self.path) as _f:  # type: ignore
+            with open(self.path, encoding="utf-8") as _f:  # type: ignore
 
                 LOGGER.debug("Procecssing Reads")
                 try:
@@ -286,7 +286,7 @@ class GetAdapter3():
                 invalid characters.
         """
         LOGGER.debug("Loading adapters")
-        with open(self.adapter_file) as _f:
+        with open(self.adapter_file, encoding="utf-8") as _f:
             i: int = 0
             for line in _f:
                 i += 1
