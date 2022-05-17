@@ -292,7 +292,7 @@ class GetOrientation:
             cmd_base: List[str] = [
                 "STAR",
                 "--alignIntronMax", "1",
-                "--alignEndsType", "EndToEnd",
+                "--alignEndsType", "Local",
                 "--runThreadN", f"{str(self.threads_star)}",
                 "--genomeDir", f"{str(index_dir)}",
                 "--outFilterMultimapNmax", "50",
