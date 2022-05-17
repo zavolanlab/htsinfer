@@ -224,6 +224,17 @@ class TestHtsInfer:
             test_instance.process_inputs()
         test_instance.clean_up()
 
+    def test_get_library_stats_default(self):
+        """Test default behavior."""
+        test_instance = HtsInfer(path_1=FILE_MATE_1)
+        test_instance.get_library_stats()
+        assert (
+            test_instance.results.library_stats.file_1.read_length.min == 150
+        )
+        assert (
+            test_instance.results.library_stats.file_1.read_length.max == 150
+        )
+
     def test_get_library_type_default(self):
         """Test default behavior."""
         test_instance = HtsInfer(path_1=FILE_MATE_1)
@@ -312,6 +323,16 @@ class TestHtsInfer:
         captured = capsys.readouterr()
         assert captured.out == (
             '{'
+            '"library_stats": {'
+            '"file_1": '
+            '{'
+            '"read_length": {"min": null, "max": null}'
+            '}, '
+            '"file_2": '
+            '{'
+            '"read_length": {"min": null, "max": null}'
+            '}'
+            '}, '
             '"library_type": {'
             '"file_1": null, "file_2": null, "relationship": null'
             '}, '

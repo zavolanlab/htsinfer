@@ -1,4 +1,4 @@
-"""Unit tests for module ``get_read_layout.py``."""
+"""Unit tests for module ``get_read_orientation.py``."""
 
 from htsinfer.get_read_orientation import GetOrientation
 from htsinfer.models import (

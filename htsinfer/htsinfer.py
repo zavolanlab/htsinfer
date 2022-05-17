@@ -17,6 +17,7 @@ from htsinfer.exceptions import (
     MetadataWarning,
     WorkEnvProblem,
 )
+from htsinfer.get_library_stats import GetLibStats
 from htsinfer.get_library_type import GetLibType
 from htsinfer.get_read_orientation import GetOrientation
 from htsinfer.get_read_layout import GetReadLayout
@@ -158,6 +159,14 @@ class HtsInfer:
                 LOGGER.info("Processing and validating input data...")
                 self.process_inputs()
 
+                # determine library stats
+                LOGGER.info("Determining library statistics...")
+                self.get_library_stats()
+                LOGGER.info(
+                    "Library stats determined: "
+                    f"{self.results.library_stats.json()}"
+                )
+
                 # determine library type
                 LOGGER.info("Determining library type...")
                 try:
@@ -287,6 +296,14 @@ class HtsInfer:
         LOGGER.info(
             f"Processed transcripts file: {self.transcripts_file_processed}"
         )
+
+    def get_library_stats(self):
+        """Determine library statistics."""
+        get_lib_stats = GetLibStats(
+            paths=(self.path_1_processed, self.path_2_processed),
+            tmp_dir=self.tmp_dir,
+        )
+        self.results.library_stats = get_lib_stats.evaluate()
 
     def get_library_type(self):
         """Determine library type."""
