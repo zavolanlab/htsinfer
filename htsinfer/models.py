@@ -113,6 +113,48 @@ SeqIdFormats = Enum(  # type: ignore
 )
 
 
+class ReadLength(BaseModel):
+    """Read length of a sequencing file.
+
+    Args:
+        min: Minimum read length.
+        max: Maximum read length.
+
+    Attributes:
+        min: Minimum read length.
+        max: Maximum read length.
+    """
+    min: Optional[int] = None
+    max: Optional[int] = None
+
+
+class Stats(BaseModel):
+    """Library statistics of an individual sequencing file.
+
+    Args:
+        read_length: Tuple of minimum and maximum length of reads in library.
+
+    Attributes:
+        read_length: Tuple of minimum and maximum length of reads in library.
+    """
+    read_length: ReadLength = ReadLength()
+
+
+class ResultsStats(BaseModel):
+    """Container class for aggregating library statistics information.
+
+    Args:
+        file_1: Library statistics for the first file.
+        file_2: Library statistics for the second file.
+
+    Attributes:
+        file_1: Library statistics for the first file.
+        file_2: Library statistics for the second file.
+    """
+    file_1: Stats = Stats()
+    file_2: Stats = Stats()
+
+
 class StatesType(Enum):
     """Possible outcomes of determining the sequencing library type of an
     individual FASTQ file.
@@ -252,6 +294,7 @@ class Results(BaseModel):
         read_orientation: Read orientation inference results.
         read_layout: Read layout inference results.
     """
+    library_stats: ResultsStats = ResultsStats()
     library_type: ResultsType = ResultsType()
     library_source: ResultsSource = ResultsSource()
     read_orientation: ResultsOrientation = ResultsOrientation()
