@@ -17,6 +17,8 @@ from htsinfer.models import (
 from tests.utils import (
     FILE_EMPTY,
     FILE_MATE_1,
+    FILE_TRANSCRIPTS,
+    RaiseFileProblem,
     RaiseMetadataWarning,
     RaiseOSError,
 )
@@ -167,12 +169,55 @@ class TestHtsInfer:
         test_instance.process_inputs()
         test_instance.clean_up()
 
+    def test_process_input_param_orient_min_fraction_value_error(self, tmpdir):
+        """Invalid value for read orientation min fraction parameter."""
+        test_instance = HtsInfer(
+            path_1=FILE_MATE_1,
+            path_2=FILE_MATE_1,
+            out_dir=tmpdir,
+            tmp_dir=tmpdir,
+            read_orientation_min_fraction=0.49,
+        )
+        test_instance.prepare_env()
+        with pytest.raises(ValueError):
+            test_instance.process_inputs()
+        test_instance.clean_up()
+
     def test_process_inputs_file_problem_empty(self, tmpdir):
         """File validation fails because input file is empty."""
         test_instance = HtsInfer(
             path_1=FILE_EMPTY,
             out_dir=tmpdir,
             tmp_dir=tmpdir,
+        )
+        test_instance.prepare_env()
+        with pytest.raises(FileProblem):
+            test_instance.process_inputs()
+        test_instance.clean_up()
+
+    def test_process_transcripts_file_unzipped(self, tmpdir):
+        """Transcripts file is not compressed."""
+        test_instance = HtsInfer(
+            path_1=FILE_MATE_1,
+            out_dir=tmpdir,
+            tmp_dir=tmpdir,
+            transcripts_file=FILE_TRANSCRIPTS,
+        )
+        test_instance.prepare_env()
+        test_instance.process_inputs()
+        test_instance.clean_up()
+
+    def test_process_transcripts_file_problem_empty(self, monkeypatch, tmpdir):
+        """File validation fails because transcripts file is empty."""
+        test_instance = HtsInfer(
+            path_1=FILE_MATE_1,
+            out_dir=tmpdir,
+            tmp_dir=tmpdir,
+            transcripts_file=FILE_EMPTY,
+        )
+        monkeypatch.setattr(
+            'shutil.copyfileobj',
+            RaiseFileProblem,
         )
         test_instance.prepare_env()
         with pytest.raises(FileProblem):
@@ -271,7 +316,9 @@ class TestHtsInfer:
             '"file_1": null, "file_2": null, "relationship": null'
             '}, '
             '"library_source": {}, '
-            '"read_orientation": {}, '
+            '"read_orientation": {'
+            '"file_1": null, "file_2": null, "relationship": null'
+            '}, '
             '"read_layout": {'
             '"file_1": '
             '{'

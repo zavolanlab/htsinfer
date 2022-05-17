@@ -24,3 +24,7 @@ class UnknownFastqIdentifier(Exception):
 class WorkEnvProblem(Exception):
     """Exception raised when the work environment could not be set up or
     cleaned."""
+
+
+class StarProblem(Exception):
+    """Exception raised when running STAR index and quant commands."""
