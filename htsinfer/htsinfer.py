@@ -354,9 +354,9 @@ class HtsInfer:
             LOGGER.info(f"Removed results directory: {self.out_dir}")
 
         # remove temporary directory
-        if (
-            self.cleanup_regime == CleanupRegimes.KEEP_RESULTS or
-            self.cleanup_regime == CleanupRegimes.KEEP_NONE
+        if self.cleanup_regime in (
+            CleanupRegimes.KEEP_RESULTS,
+            CleanupRegimes.KEEP_NONE
         ):
             try:
                 shutil.rmtree(self.tmp_dir)

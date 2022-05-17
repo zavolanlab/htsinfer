@@ -56,7 +56,7 @@ class SubsetFastq:
             _open = open
         self.out_path = self.out_dir / name
         try:
-            with open(self.out_path, 'wt') as out_file:
+            with open(self.out_path, 'wt', encoding="utf-8") as out_file:
                 with _open(self.path, 'rt') as in_file:
                     seq_iter = SeqIO.parse(
                         handle=in_file,
