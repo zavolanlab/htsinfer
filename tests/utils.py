@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from htsinfer.exceptions import MetadataWarning
+from htsinfer.exceptions import (FileProblem, MetadataWarning)
 
 # test parameters
 TEST_FILES_DIR = Path(__file__).resolve().parent / "files"
@@ -30,11 +30,25 @@ FILE_INVALID_SEQ_1 = TEST_FILES_DIR / "invalid_seq_1.fastq"
 FILE_INVALID_SEQ_2 = TEST_FILES_DIR / "invalid_seq_2.fastq"
 FILE_MATE_1 = TEST_FILES_DIR / "first_mate.fastq"
 FILE_MATE_2 = TEST_FILES_DIR / "second_mate.fastq"
+FILE_ORIENTATION_ISF_1 = TEST_FILES_DIR / "orientation_isf_mate_1.fastq"
+FILE_ORIENTATION_ISF_2 = TEST_FILES_DIR / "orientation_isf_mate_2.fastq"
+FILE_ORIENTATION_ISR_1 = TEST_FILES_DIR / "orientation_isr_mate_1.fastq"
+FILE_ORIENTATION_ISR_2 = TEST_FILES_DIR / "orientation_isr_mate_2.fastq"
+FILE_ORIENTATION_IU_1 = TEST_FILES_DIR / "orientation_iu_mate_1.fastq"
+FILE_ORIENTATION_IU_2 = TEST_FILES_DIR / "orientation_iu_mate_2.fastq"
+FILE_ORIENTATION_SF = TEST_FILES_DIR / "orientation_sf.fastq"
+FILE_ORIENTATION_SR = TEST_FILES_DIR / "orientation_sr.fastq"
+FILE_ORIENTATION_U = TEST_FILES_DIR / "orientation_u.fastq"
 FILE_2000_RECORDS = TEST_FILES_DIR / "2000_records.fastq"
 FILE_SINGLE = TEST_FILES_DIR / "single.fastq"
 FILE_SRA_SAMPLE_1 = TEST_FILES_DIR / "sra_sample_1.fastq"
 FILE_SRA_SAMPLE_2 = TEST_FILES_DIR / "sra_sample_2.fastq"
+FILE_TRANSCRIPTS = TEST_FILES_DIR / "transcripts.fa"
+FILE_TRANSCRIPTS_GZ = TEST_FILES_DIR / "transcripts.fa.gz"
 FILE_UNKNOWN_SEQ_ID = TEST_FILES_DIR / "unknown_seq_id.fastq"
+FILE_UNMAPPED_PAIRED_1 = TEST_FILES_DIR / "unmapped_paired_mate_1.fastq"
+FILE_UNMAPPED_PAIRED_2 = TEST_FILES_DIR / "unmapped_paired_mate_2.fastq"
+FILE_UNMAPPED_SINGLE = TEST_FILES_DIR / "unmapped_single.fastq"
 PACKAGE_DIR = Path(__file__).resolve().parents[1] / "htsinfer"
 SEQ_ID_DUMMY = ""
 SEQ_ID_MATE_1 = "@SRR11971718:6:73:941:1973#0/1"
@@ -48,6 +62,11 @@ DICT_DF = {
 
 
 # helper classes
+class RaiseFileProblem:
+    def __init__(self, *args, **kwargs):
+        raise FileProblem
+
+
 class RaiseMetadataWarning:
     """Raise ``MetadataWarning``."""
     def __init__(self, *args, **kwargs):

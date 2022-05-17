@@ -11,8 +11,16 @@ class InconsistentFastqIdentifiers(Exception):
     """
 
 
+class KallistoProblem(Exception):
+    """Exception raised when running kallisto index and quant commands."""
+
+
 class MetadataWarning(Exception):
     """Exception raised when metadata could not be determined."""
+
+
+class StarProblem(Exception):
+    """Exception raised when running STAR index and quant commands."""
 
 
 class UnknownFastqIdentifier(Exception):
@@ -24,7 +32,3 @@ class UnknownFastqIdentifier(Exception):
 class WorkEnvProblem(Exception):
     """Exception raised when the work environment could not be set up or
     cleaned."""
-
-
-class KallistoProblem(Exception):
-    """Exception raised when running kallisto index and quant commands."""

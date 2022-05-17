@@ -116,37 +116,27 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        "--organism-designation-min-match-percentage",
-        metavar="FLOAT",
-        type=float,
-        default=5,
+        "--threads",
+        metavar="INT",
+        type=int,
+        default=1,
         help=(
-            "minimum match percentage that given organism needs to have "
-            "to be considered as the resulting organism"
-        )
-    )
-    parser.add_argument(
-        "--organism-designation-frequency-ratio",
-        metavar="FLOAT",
-        type=float,
-        default=2,
-        help=(
-            "the minimum frequency ratio between the first and second "
-            "most frequent organism in order for organism to be "
-            "considered as the resulting organism"
+            "number of threads to run STAR with"
         )
     )
     parser.add_argument(
         "--transcripts",
         metavar="FASTA",
         type=str,
-        default=Path(__file__).parent.absolute() / "data/transcript.fasta.zip",
+        default=(
+            Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"
+        ),
         help=(
             "FASTA file containing transcripts to be used for mapping files "
-            "`--file-1` and `--file-2` against for inferring organism and "
-            "read orientation. Requires that sequence identifier lines are "
+            "`--file-1` and `--file-2` for inferring library source and read "
+            "orientation. Requires that sequence identifier lines are "
             "separated by the pipe (`|`) character and that the 4th and 5th "
-            "columns contain a short organism name and taxon identifier, "
+            "columns contain a short source name and taxon identifier, "
             "respectively. Example sequence identifier: "
             "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
         )
@@ -184,6 +174,48 @@ def parse_args() -> argparse.Namespace:
             "minimum frequency ratio between the first and second most "
             "frequent adapter in order for the former to be considered as the "
             "library's 3'-end adapter"
+        )
+    )
+    parser.add_argument(
+        "--library-source-min-match-percentage",
+        metavar="FLOAT",
+        type=float,
+        default=5,
+        help=(
+            "minimum percentage of reads that are consistent with a given "
+            "source in order for it to be considered the library's source"
+        )
+    )
+    parser.add_argument(
+        "--library-source-min-frequency-ratio",
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "minimum frequency ratio between the first and second "
+            "most frequent source in order for the former to be considered "
+            "the library's source"
+        )
+    )
+    parser.add_argument(
+        "--read-orientation-min-mapped-reads",
+        metavar="INT",
+        type=int,
+        default=20,
+        help=(
+            "minimum number of mapped reads for deeming the read orientation "
+            "result reliable"
+        )
+    )
+    parser.add_argument(
+        "--read-orientation-min-fraction",
+        metavar="FLOAT",
+        type=float,
+        default=0.75,
+        help=(
+            "minimum fraction of mapped reads required to be consistent with "
+            "a given read orientation state in order for that orientation to "
+            "be reported. Must be above 0.5."
         )
     )
     parser.add_argument(
@@ -246,12 +278,19 @@ def main() -> None:
             tmp_dir=args.temporary_directory,
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
             records=args.records,
-            min_match=args.organism_designation_min_match_percentage,
-            factor=args.organism_designation_frequency_ratio,
-            fasta=args.transcripts,
+            threads=args.threads,
+            transcripts_file=args.transcripts,
             read_layout_adapter_file=args.read_layout_adapters,
             read_layout_min_match_pct=args.read_layout_min_match_percentage,
             read_layout_min_freq_ratio=args.read_layout_min_frequency_ratio,
+            lib_source_min_match_pct=args.library_source_min_match_percentage,
+            lib_source_min_freq_ratio=args.library_source_min_frequency_ratio,
+            read_orientation_min_mapped_reads=(
+                args.read_orientation_min_mapped_reads
+            ),
+            read_orientation_min_fraction=(
+                args.read_orientation_min_fraction
+            ),
         )
         hts_infer.evaluate()
         hts_infer.print()

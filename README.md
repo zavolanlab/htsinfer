@@ -12,13 +12,18 @@ HTSinfer infers metadata from High Throughput Sequencing (HTS) data.
 ```sh
 htsinfer [--output-directory PATH] [--temporary-directory PATH]
          [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-         [--records INT] [--organism-designation-min-match-percentage FLOAT]
-         [--organism-designation-frequency-ratio FLOAT] [--transcripts FASTA]
+         [--records INT]
+         [--threads INT]
+         [--transcripts FASTA]
          [--read-layout-adapters PATH]
          [--read-layout-min-match-percentage FLOAT]
          [--read-layout-min-frequency-ratio FLOAT]
-         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [-h]
-         [--version]
+         [--library-source-min-match-percentage FLOAT]
+         [--library-source-min-frequency-ratio FLOAT]
+         [--read-orientation-min-mapped-reads INT]
+         [--read-orientation-min-fraction FLOAT]
+         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
+         [-h] [--version]
          PATH [PATH]
 ```
 
@@ -47,20 +52,14 @@ optional arguments:
                         specified value equals or exceeds the number of
                         available records, all records will be processed
                         (default: 0)
-  --organism-designation-min-match-percentage FLOAT
-                        Minimum percentage that given organism needs to have
-                        to be considered as the resulting organism.
-  --organism-designation-frequency-ratio FLOAT
-                        The minimum frequency ratio between the first and second
-                        most frequent organism in order for organism to be
-                        considered as the resulting organism.
-  --transcripts FASTA   FASTA file containing transcripts to be used for mapping
-                        files `--file-1` and `--file-2` against for inferring 
-                        organism and read orientation. Requires that sequence 
-                        identifier lines are separated by the pipe (`|`) character
-                        and that the 4th and 5th columns contain a short organism 
-                        name and taxon identifier, respectively. Example sequence 
-                        identifier:
+  --threads INT         number of threads to run STAR with
+  --transcripts FASTA   FASTA file containing transcripts to be used for
+                        mapping files `--file-1` and `--file-2` for inferring
+                        library source and read orientation. Requires that
+                        sequence identifier lines are separated by the pipe
+                        (`|`) character and that the 4th and 5th columns
+                        contain a short source name and taxon identifier,
+                        respectively. Example sequence identifier:
                         `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
   --read-layout-adapters PATH
                         path to text file containing 3' adapter sequences to
@@ -75,6 +74,22 @@ optional arguments:
                         minimum frequency ratio between the first and second
                         most frequent adapter in order for the former to be
                         considered as the library's 3'-end adapter (default: 2)
+  --library-source-min-match-percentage FLOAT
+                        Minimum percentage of reads that are consistent with a
+                        given source in order for it to be considered as the
+                        to be considered the library's source.
+  --library-source-min-frequency-ratio FLOAT
+                        Minimum frequency ratio between the first and second
+                        most frequent source in order for the former to be
+                        considered the library's source.
+  --read-orientation-min-mapped-reads INT
+                        minimum number of mapped reads for deeming the read
+                        orientation result reliable (default: 20)
+  --read-orientation-min-fraction FLOAT
+                        minimum fraction of mapped reads required to be
+                        consistent with a given read orientation state in order
+                        for that orientation to be reported. Must be above 0.5.
+                        (default: 0.75)
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit

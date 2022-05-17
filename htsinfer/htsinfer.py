@@ -1,5 +1,7 @@
 """Main module."""
 
+from functools import partial
+import gzip
 import logging
 from os import linesep
 from pathlib import Path
@@ -15,8 +17,10 @@ from htsinfer.exceptions import (
     MetadataWarning,
     WorkEnvProblem,
 )
-from htsinfer.get_library_type import GetLibType
 from htsinfer.get_library_source import GetLibSource
+from htsinfer.get_library_stats import GetLibStats
+from htsinfer.get_library_type import GetLibType
+from htsinfer.get_read_orientation import GetOrientation
 from htsinfer.get_read_layout import GetReadLayout
 from htsinfer.models import (
     CleanupRegimes,
@@ -40,12 +44,8 @@ class HtsInfer:
             `CleanupRegimes`.
         records: Number of input file records to process; set to `0` to
             process all records.
-        min_match: Minimum percentage that given organism needs to have
-            to be considered as the resulting organism.
-        factor: The minimum frequency ratio between the first and second
-            most frequent organism in order for organism to be
-            considered as the resulting organism.
-        fasta: File path to transcripts FASTA file.
+        threads: Number of threads to run STAR with.
+        transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
         read_layout_min_match_pct: Minimum percentage of reads that contain a
@@ -54,6 +54,17 @@ class HtsInfer:
         read_layout_min_freq_ratio: Minimum frequency ratio between the first
             and second most frequent adapter in order for the former to be
             considered as the library's 3'-end adapter.
+        lib_source_min_match_pct: Minimum percentage of reads that are
+            consistent with a given source in order for it to be considered as
+            the to be considered the library's source.
+        lib_source_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent source in order for the former to be
+            considered the library's source.
+        read_orientation_min_mapped_reads: Minimum number of mapped reads for
+            deeming the read orientation result reliable.
+        read_orientation_min_fraction: Minimum fraction of mapped reads
+            required to be consistent with a given read orientation state in
+            order for that orientation to be reported. Must be above 0.5.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -64,12 +75,8 @@ class HtsInfer:
         cleanup_regime: Which data to keep after run concludes; one of
             `CleanupRegimes`.
         records: Number of input file records to process.
-        min_match: Minimum percentage that given organism needs to have
-            to be considered as the resulting organism.
-        factor: The minimum frequency ratio between the first and second
-            most frequent organism in order for organism to be
-            considered as the resulting organism.
-        fasta: File path to transcripts FASTA file.
+        threads: Number of threads to run STAR with.
+        transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
         read_layout_min_match_pct: Minimum percentage of reads that contain a
@@ -78,8 +85,20 @@ class HtsInfer:
         read_layout_min_freq_ratio: Minimum frequency ratio between the first
             and second most frequent adapter in order for the former to be
             considered as the library's 3'-end adapter.
+        lib_source_min_match_pct: Minimum percentage of reads that are
+            consistent with a given source in order for it to be considered as
+            the to be considered the library's source.
+        lib_source_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent source in order for the former to be
+            considered the library's source.
+        read_orientation_min_mapped_reads: Minimum number of mapped reads for
+            deeming the read orientation result reliable.
+        read_orientation_min_fraction: Minimum fraction of mapped reads
+            required to be consistent with a given read orientation state in
+            order for that orientation to be reported. Must be above 0.5.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
+        transcripts_file_processed: Path to processed `transcripts_file` file.
         state: State of the run; one of `RunStates`.
         results: Results container for storing determined library metadata.
     """
@@ -91,16 +110,21 @@ class HtsInfer:
         tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
         cleanup_regime: CleanupRegimes = CleanupRegimes.DEFAULT,
         records: int = 0,
-        min_match: float = 5,
-        factor: float = 2,
-        fasta: Path = Path(__file__).parent.absolute()
-            / "data/transcript.fasta.zip",
-            read_layout_adapter_file: Path = (
+        threads: int = 1,
+        transcripts_file: Path = (
+            Path(__file__).parent.parent.absolute() /
+            "data/transcripts.fasta.gz"
+        ),
+        read_layout_adapter_file: Path = (
             Path(__file__).parent.parent.absolute() /
             "data/adapter_fragments.txt"
         ),
-            read_layout_min_match_pct: float = 2,
-            read_layout_min_freq_ratio: float = 2,
+        read_layout_min_match_pct: float = 2,
+        read_layout_min_freq_ratio: float = 2,
+        lib_source_min_match_pct: float = 2,
+        lib_source_min_freq_ratio: float = 2,
+        read_orientation_min_mapped_reads: int = 20,
+        read_orientation_min_fraction: float = 0.75,
     ):
         """Class constructor."""
         self.path_1 = path_1
@@ -112,14 +136,24 @@ class HtsInfer:
         self.tmp_dir = Path(tmp_dir) / f"tmp_{self.run_id}"
         self.cleanup_regime = cleanup_regime
         self.records = records
-        self.min_match = min_match
-        self.factor = factor
-        self.fasta = fasta
+        self.threads = threads
+        self.transcripts_file = transcripts_file
         self.read_layout_adapter_file = read_layout_adapter_file
         self.read_layout_min_match_pct = read_layout_min_match_pct
         self.read_layout_min_freq_ratio = read_layout_min_freq_ratio
+        self.lib_source_min_match_pct = lib_source_min_match_pct
+        self.lib_source_min_freq_ratio = lib_source_min_freq_ratio
+        self.read_orientation_min_fraction = read_orientation_min_fraction
+        self.read_orientation_min_mapped_reads = (
+            read_orientation_min_mapped_reads
+        )
         self.path_1_processed: Path = self.path_1
         self.path_2_processed: Optional[Path] = self.path_2
+        self.transcripts_file_processed: Path = (
+            self.tmp_dir / self.transcripts_file.stem
+            if self.transcripts_file.suffix == ".gz"
+            else self.tmp_dir / self.transcripts_file.name
+        )
         self.state: RunStates = RunStates.OKAY
         self.results: Results = Results()
 
@@ -135,6 +169,14 @@ class HtsInfer:
                 # preprocess inputs
                 LOGGER.info("Processing and validating input data...")
                 self.process_inputs()
+
+                # determine library stats
+                LOGGER.info("Determining library statistics...")
+                self.get_library_stats()
+                LOGGER.info(
+                    "Library stats determined: "
+                    f"{self.results.library_stats.json()}"
+                )
 
                 # determine library type
                 LOGGER.info("Determining library type...")
@@ -163,6 +205,10 @@ class HtsInfer:
                 except MetadataWarning as exc:
                     self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
+                LOGGER.info(
+                    "Read orientation determined: "
+                    f"{self.results.read_orientation.json()}"
+                )
 
                 # determine read layout
                 LOGGER.info("Determining read layout...")
@@ -214,7 +260,17 @@ class HtsInfer:
 
     def process_inputs(self):
         """Process and validate inputs."""
+
+        # validate input parameters
+        if self.read_orientation_min_fraction <= 0.5:
+            raise ValueError(
+                "Value for parameter 'read_orientation_min_fraction' outside"
+                "permitted boundaries; expected: >0.5; found: "
+                f"{self.read_orientation_min_fraction}"
+            )
+
         # process first file
+        LOGGER.debug(f"Processing read file 1: {self.path_1}")
         input_files_1 = SubsetFastq(
             path=self.path_1,
             out_dir=self.tmp_dir,
@@ -222,10 +278,11 @@ class HtsInfer:
         )
         input_files_1.process()
         self.path_1_processed = input_files_1.out_path
-        LOGGER.info(f"Location processed file 1: {self.path_1_processed}")
+        LOGGER.info(f"Processed read file 1: {self.path_1_processed}")
 
         # process second file, if available
         if self.path_2 is not None:
+            LOGGER.debug(f"Processing read file 2: {self.path_2}")
             input_files_2 = SubsetFastq(
                 path=self.path_2,
                 out_dir=self.tmp_dir,
@@ -233,6 +290,31 @@ class HtsInfer:
             )
             input_files_2.process()
             self.path_2_processed = input_files_2.out_path
+            LOGGER.info(f"Processed read file 2: {self.path_2_processed}")
+
+        # process transcripts file
+        LOGGER.debug(f"Processing transcripts file: {self.transcripts_file}")
+        if self.transcripts_file.suffix == ".gz":
+            _open = partial(gzip.open)
+        else:
+            _open = open
+        try:
+            with _open(self.transcripts_file, 'rb') as f_in:
+                with open(self.transcripts_file_processed, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+        except Exception as exc:
+            raise FileProblem(exc) from exc
+        LOGGER.info(
+            f"Processed transcripts file: {self.transcripts_file_processed}"
+        )
+
+    def get_library_stats(self):
+        """Determine library statistics."""
+        get_lib_stats = GetLibStats(
+            paths=(self.path_1_processed, self.path_2_processed),
+            tmp_dir=self.tmp_dir,
+        )
+        self.results.library_stats = get_lib_stats.evaluate()
 
     def get_library_type(self):
         """Determine library type."""
@@ -259,7 +341,17 @@ class HtsInfer:
 
     def get_read_orientation(self):
         """Determine read orientation."""
-        # TODO: implement  # pylint: disable=fixme
+        get_read_orientation = GetOrientation(
+            paths=(self.path_1_processed, self.path_2_processed),
+            library_type=self.results.library_type,
+            transcripts_file=self.transcripts_file_processed,
+            threads_star=self.threads,
+            organism=self.organism,
+            tmp_dir=self.tmp_dir,
+            min_mapped_reads=self.read_orientation_min_mapped_reads,
+            min_fraction=self.read_orientation_min_fraction,
+        )
+        self.results.read_orientation = get_read_orientation.evaluate()
 
     def get_read_layout(self):
         """Determine read layout."""
@@ -300,9 +392,9 @@ class HtsInfer:
             LOGGER.info(f"Removed results directory: {self.out_dir}")
 
         # remove temporary directory
-        if (
-            self.cleanup_regime == CleanupRegimes.KEEP_RESULTS or
-            self.cleanup_regime == CleanupRegimes.KEEP_NONE
+        if self.cleanup_regime in (
+            CleanupRegimes.KEEP_RESULTS,
+            CleanupRegimes.KEEP_NONE
         ):
             try:
                 shutil.rmtree(self.tmp_dir)
