@@ -19,7 +19,7 @@ htsinfer [--output-directory PATH] [--temporary-directory PATH]
          [--read-layout-min-match-percentage FLOAT]
          [--read-layout-min-frequency-ratio FLOAT]
          [--read-orientation-min-mapped-reads INT]
-         [--read-orientation-fraction-range FLOAT]
+         [--read-orientation-min-fraction FLOAT]
          [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
          [-h] [--version]
          PATH [PATH]
@@ -60,7 +60,7 @@ optional arguments:
                         `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
   --threads INT         number of threads to run STAR with
   --organism STR        source organism of the sequencing library, if provided, 
-                        will not not be inferred by the application
+                        will not be inferred by the application
   --read-layout-adapters PATH
                         path to text file containing 3' adapter sequences to
                         scan for (one sequence per line; default:
@@ -77,12 +77,11 @@ optional arguments:
   --read-orientation-min-mapped-reads INT
                         minimum number of mapped reads for deeming the read
                         orientation result reliable (default: 20)
-  --read-orientation-fraction-range FLOAT
-                        size of the range of the fraction of mapped reads that
-                        are consistent with one of the outcomes
-                        'stranded-forward', 'stranded-reverse' and
-                        'unstranded'; must be at least zero and at most one
-                        third (default: 0.2)
+  --read-orientation-min-fraction FLOAT
+                        minimum fraction of mapped reads required to be
+                        consistent with a given read orientation state in order
+                        for that orientation to be reported. Must be above 0.5.
+                        (default: 0.75)
   --verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}
                         logging verbosity level (default: INFO)
   -h, --help            show this help message and exit

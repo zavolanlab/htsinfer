@@ -148,7 +148,7 @@ def parse_args() -> argparse.Namespace:
         default="hsapiens",
         help=(
             "source organism of the sequencing library, if provided: "
-            "will not not be inferred by the application"
+            "will not be inferred by the application"
         )
     )
     parser.add_argument(
@@ -197,15 +197,14 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        "--read-orientation-fraction-range",
+        "--read-orientation-min-fraction",
         metavar="FLOAT",
         type=float,
-        default=0.2,
+        default=0.75,
         help=(
-            "size of the range of the fraction of mapped reads that are "
-            "consistent with one of the outcomes 'stranded-forward', "
-            "'stranded-reverse' and 'unstranded'; must be at least zero and "
-            "at most one third"
+            "minimum fraction of mapped reads required to be consistent with "
+            "a given read orientation state in order for that orientation to "
+            "be reported. Must be above 0.5."
         )
     )
     parser.add_argument(
@@ -277,8 +276,8 @@ def main() -> None:
             read_orientation_min_mapped_reads=(
                 args.read_orientation_min_mapped_reads
             ),
-            read_orientation_fraction_range=(
-                args.read_orientation_fraction_range
+            read_orientation_min_fraction=(
+                args.read_orientation_min_fraction
             ),
         )
         hts_infer.evaluate()

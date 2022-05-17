@@ -59,35 +59,15 @@ class StatesOrientationRelationship(Enum):
             library is stranded, and first mates come from the reverse strand.
         inward_unstranded: Mates are oriented toward each other and the library
             is unstranded.
-        matching_stranded_forward: Mates are oriented in the same direction,
-            the library is stranded, and both mates come from the forward
-            strand.
-        matching_stranded_reverse: Mates are oriented in the same direction,
-            the library is stranded, and both mates come from the reverse
-            strand.
-        matching_unstranded: Mates are oriented in the same direction and the
-            library is unstranded.
         not_available: Orientation type relationship information is not
             available, likely because only a single file was provided or
             because the orientation type relationship has not been or could not
             be evaluated.
-        outward_stranded_forward: Mates are oriented away from each other, the
-            library is stranded, and first mates come from the forward strand.
-        outward_stranded_reverse: Mates are oriented away from each other, the
-            library is stranded, and first mates come from the reverse strand.
-        outward_unstranded: Mates are oriented away from each other and the
-            library is unstranded.
     """
     inward_stranded_forward = "ISF"
     inward_stranded_reverse = "ISR"
     inward_unstranded = "IU"
-    matching_stranded_forward = "MSF"
-    matching_stranded_reverse = "MSR"
-    matching_unstranded = "MU"
     not_available = None
-    outward_stranded_forward = "OSF"
-    outward_stranded_reverse = "OSR"
-    outward_unstranded = "OU"
 
 
 class RunStates(IntEnum):
