@@ -1,11 +1,11 @@
-"""Infer organism information for sequencing library."""
+"""Infer library source from sample data."""
 
+from collections import defaultdict
 import logging
 from pathlib import Path
 import subprocess as sp
 import tempfile
-from typing import (Dict, Optional, Tuple)
-import zipfile as zp
+from typing import (DefaultDict, Dict, Optional, Tuple)
 
 import pandas as pd  # type: ignore
 
@@ -13,254 +13,285 @@ from htsinfer.exceptions import (
     FileProblem,
     KallistoProblem,
 )
-from htsinfer.models import ResultsSource
-from htsinfer.utils import minmatch_factor_validator
+from htsinfer.models import (
+    ResultsSource,
+    Source,
+)
+from htsinfer.utils import (
+    convert_dict_to_df,
+    validate_top_score,
+)
+
 
 LOGGER = logging.getLogger(__name__)
 
 
 class GetLibSource:
-    """Determine the organism of origin for the FASTQ sequencing libraries.
+    """Determine the source of FASTQ sequencing of a single- or paired-end
+    seguencing library.
 
     Args:
-        fasta: File path to transcripts FASTA file.
-        path_1: Path to single-end library or first mate file.
-        path_2: Path to second mate file.
-        min_match: Minimum match percentage that given organism needs to have
-            to be considered as the resulting organism.
-        factor: The minimum frequency ratio between the first and second
-            most frequent organism in order for organism to be
-            considered as the resulting organism.
+        paths: Tuple of one or two paths for single-end and paired end library
+            files.
+        transcripts_file: File path to an uncompressed transcripts file in
+            FASTA format. Expected to contain `|`-separated sequence identifier
+            lines that contain an organism short name and a taxon identifier in
+            the fourth and fifth columns, respectively. Example sequence
+            identifier: `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
         out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
+        min_match_pct: Minimum percentage of reads that are consistent with a
+            given source in order for it to be considered as the to be
+            considered the library's source.
+        min_freq_ratio: Minimum frequency ratio between the first and second
+            most frequent source in order for the former to be considered the
+            library's source.
 
     Attrubutes:
-        fasta: File path to transcripts FASTA file.
-        path_1: Path to single-end library or first mate file.
-        path_2: Path to second mate file.
-        min_match: Minimum match percentage that given organism needs to have
-            to be considered as the resulting organism.
-        factor: The minimum frequency ratio between the first and second
-            most frequent organism in order for organism to be
-            considered as the resulting organism.
+        paths: Tuple of one or two paths for single-end and paired end library
+            files.
+        transcripts_file: File path to an uncompressed transcripts file in
+            FASTA format. Expected to contain `|`-separated sequence identifier
+            lines that contain an organism short name and a taxon identifier in
+            the fourth and fifth columns, respectively. Example sequence
+            identifier: `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
         out_dir: Path to directory where output is written to.
         tmp_dir: Path to directory where temporary output is written to.
-        results: Results container for storing organism information for
-            the provided files.
+        min_match_pct: Minimum percentage of reads that are consistent with a
+            given source in order for it to be considered as the to be
+            considered the library's source.
+        min_freq_ratio: Minimum frequency ratio between the first and second
+            most frequent source in order for the former to be considered the
+            library's source.
     """
     def __init__(
         self,
-        fasta: Path,
-        path_1: Path,
-        path_2: Optional[Path] = None,
-        min_match: float = 5,
-        factor: float = 2,
-        out_dir: Path = Path.cwd(),
-        tmp_dir: Path = Path(tempfile.gettempdir()),
+        paths: Tuple[Path, Optional[Path]],
+        transcripts_file: Path,
+        out_dir: Path = Path(
+            __file__
+        ).parents[2].absolute() / 'results_htsinfer',
+        tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
+        min_match_pct: float = 2,
+        min_freq_ratio: float = 2,
     ):
         """Class contructor."""
-        self.fasta: Path = fasta
-        self.path_1: Path = path_1
-        self.path_2: Optional[Path] = path_2
-        self.min_match: float = min_match
-        self.factor: float = factor
-        self.out_dir: Path = out_dir
+        self.paths = paths
+        self.transcripts_file = transcripts_file
+        self.out_dir = out_dir
         self.tmp_dir = tmp_dir
-        self.results: ResultsSource = ResultsSource()
+        self.min_match_pct = min_match_pct
+        self.min_freq_ratio = min_freq_ratio
 
-    def evaluate(self) -> None:
-        """Decide organism."""
-        # Extract transcripts fasta file
-        LOGGER.debug(f"Processing file: '{self.fasta}'")
-        try:
-            with zp.ZipFile(self.fasta, "r") as zip_ref:
-                zip_ref.extractall(self.tmp_dir)
-        except (FileNotFoundError, zp.BadZipFile) as exc:
-            self.results.file_1 = None
-            self.results.file_2 = None
-            raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
-
-        # Run Kallisto index
-        try:
-            self._kallisto_index()
-        except KallistoProblem as exc:
-            self.results.file_1 = None
-            self.results.file_2 = None
-            raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
-
-        # process file 1
-        LOGGER.debug(f"Processing file: '{self.path_1}'")
-        organism_file_1 = GetOrganism(
-            path=self.path_1,
-            min_match=self.min_match,
-            factor=self.factor,
-            out_dir=self.out_dir,
-            tmp_dir=self.tmp_dir,
-        )
-        organism_file_1.evaluate()
-        self.results.file_1 = organism_file_1.result
-        LOGGER.debug(f"Organism: {self.results.file_1}")
-
-        # process file 2
-        if self.path_2 is not None:
-            LOGGER.debug(f"Processing file: '{self.path_2}'")
-            organism_file_2 = GetOrganism(
-                path=self.path_2,
-                min_match=self.min_match,
-                factor=self.factor,
-                out_dir=self.out_dir,
-                tmp_dir=self.tmp_dir,
-            )
-            organism_file_2.evaluate()
-            self.results.file_2 = organism_file_2.result
-            LOGGER.debug(f"Organism: {self.results.file_2}")
-
-    def _kallisto_index(self) -> None:
-        """Build an index from a FASTA formatted file of target sequences."""
-        LOGGER.debug("Running Kallisto index")
-        _file = Path(Path(self.fasta).name).stem
-        index_cmd = "kallisto index -i " + str(self.tmp_dir) + \
-            "/transcripts.idx --make-unique " + str(self.tmp_dir) + "/" + _file
-        result = sp.run(index_cmd, shell=True, capture_output=True, text=True)
-        LOGGER.debug(result.stderr)
-        if result.returncode == 0:
-            pass
-        else:
-            raise KallistoProblem("Failed to run Kallisto index")
-
-
-class GetOrganism():
-    """Determine organism for an individual FASTQ library.
-
-    Args:
-        path: File path to read library.
-        min_match: Minimum match percentage that given organism needs to have
-            to be considered as the resulting organism.
-        factor: The minimum frequency ratio between the first and second
-            most frequent organism in order for organism to be
-            considered as the resulting organism.
-        out_dir: Path to directory where output is written to.
-        tmp_dir: Path to directory where temporary output is written to.
-
-    Attributes:
-        path: File path to read library.
-        min_match: Minimum match percentage that given organism needs to have
-            to be considered as the resulting organism.
-        factor: The minimum frequency ratio between the first and second
-            most frequent organism in order for organism to be
-            considered as the resulting organism.
-        out_dir: Path to directory where output is written to.
-        tmp_dir: Path to directory where temporary output is written to.
-        organism_count: Dictionary with count percentage for all organisms.
-        result: The most frequent organism in FASTQ file.
-    """
-    def __init__(
-        self,
-        path: Path,
-        min_match: float = 5,
-        factor: float = 2,
-        out_dir: Path = Path.cwd(),
-        tmp_dir: Path = Path(tempfile.gettempdir()),
-    ):
-        """Class constructor."""
-        self.path: Path = path
-        self.min_match: float = min_match
-        self.factor: float = factor
-        self.out_dir: Path = out_dir
-        self.tmp_dir: Path = tmp_dir
-        self.organism_count: Dict[Tuple[str, int], float] = {}
-        self.result: Optional[str] = None
-
-    def evaluate(self) -> None:
-        """Determine organism and validate minimum match percentage
-        and minimum frequency ratio."""
-        # Run Kallisto quant
-        try:
-            self._kallisto_quant()
-        except KallistoProblem as exc:
-            self.result = None
-            raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
-
-        self._process_count_info()
-        # Convert dictionary to dataframe
-        organism_df = self._convert_dic_to_df()
-
-        # Check validator
-        if minmatch_factor_validator(
-            count_df=organism_df,
-            column_index=0,
-            min_match=self.min_match,
-            factor=self.factor,
-        ):
-            self.result = organism_df.iloc[0]['Organism']
-        else:
-            self.result = None
-
-    def _kallisto_quant(self) -> None:
-        """Run the quantification algorithm."""
-        LOGGER.debug("Running Kallisto quant")
-        quant_cmd = "kallisto quant -i " + str(self.tmp_dir) + \
-            "/transcripts.idx -o " + str(self.tmp_dir) + \
-            "/output -l 100 -s 300 --single " + str(self.path)
-        result = sp.run(quant_cmd, shell=True, capture_output=True, text=True)
-        LOGGER.debug(result.stderr)
-        if result.returncode == 0:
-            pass
-        else:
-            raise KallistoProblem("Failed to run Kallisto quant")
-
-    def _process_count_info(self) -> None:
-        """Process organisms count information."""
-        # Reading tsv file created by kallisto quant
-        try:
-            _file = Path(self.tmp_dir) / "output" / "abundance.tsv"
-            abundance_df = pd.read_csv(_file, sep='\t')
-            dimension = abundance_df.shape
-            rows = dimension[0]
-            total_tpm: float = 0.0
-            for i in range(rows):
-                row_id = abundance_df['target_id'][i]
-                contents = list(map(str, row_id.split("|")))
-                organism_name = contents[3]
-                organism_tax_id = int(contents[4])
-                # Update organism tpm count
-                if (organism_name, organism_tax_id) in self.organism_count:
-                    self.organism_count[(organism_name, organism_tax_id)] += \
-                        float(abundance_df['tpm'][i])
-                else:
-                    self.organism_count[(organism_name, organism_tax_id)] = \
-                        float(abundance_df['tpm'][i])
-                total_tpm += float(abundance_df['tpm'][i])
-
-            # Calculating Percentage
-            if total_tpm != 0:
-                for (_name, _id), _ in self.organism_count.items():
-                    self.organism_count[(_name, _id)] = round(
-                        (self.organism_count[(_name, _id)]/total_tpm)*100, 2
-                        )
-        except (FileNotFoundError, OSError) as exc:
-            self.result = None
-            raise KallistoProblem(
-                "Could not open abundance.tsv created by Kallisto quant"
-                ) from exc
-
-    def _convert_dic_to_df(self) -> pd.DataFrame:
-        """Convert dictionary into dataframe and write json file.
+    def evaluate(self) -> ResultsSource:
+        """Infer read source.
 
         Returns:
-            Dataframe of count info percentage for all organisms.
+            Source results object.
         """
-        organism_df = pd.DataFrame(self.organism_count.items())
-        organism_df[['Organism', 'Taxon ID']] = pd.DataFrame(
-            organism_df[0].tolist()
+        source = ResultsSource()
+        index = self.create_kallisto_index()
+        source.file_1 = self.get_source(
+            fastq=self.paths[0],
+            index=index,
+        )
+        if self.paths[1] is not None:
+            source.file_2 = self.get_source(
+                fastq=self.paths[0],
+                index=index,
             )
-        organism_df = organism_df.sort_values(
-            by=1, ascending=False
-            ).reset_index(drop=True).drop([0], axis=1)
-        organism_df = organism_df.rename(columns={1: 'Match Percentage'})
-        name = Path(self.out_dir) / f"ReadSource_{Path(self.path).name}.json"
-        LOGGER.debug(f"Creating {name}")
-        organism_df.to_json(
-            name, orient='split', index=False, indent=True
+        return source
+
+    def create_kallisto_index(self) -> Path:
+        """Build Kallisto index from FASTA file of target sequences.
+
+        Returns:
+            Path to Kallisto index.
+
+        Raises:
+            KallistoProblem: Kallisto index could not be created.
+        """
+        LOGGER.debug(f"Creating kallisto index for: {self.transcripts_file}")
+
+        index = self.tmp_dir / "kallisto.idx"
+
+        cmd = [
+            "kallisto",
+            "index",
+            "--index", f"{str(index)}",
+            "--make-unique",
+            f"{str(self.transcripts_file)}",
+        ]
+
+        result = sp.run(
+            cmd,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            LOGGER.error(result.stderr)
+            raise KallistoProblem("Failed to run Kallisto index")
+
+        LOGGER.debug(f"Kallisto index created: {index}")
+        return index
+
+    def get_source(
+        self,
+        fastq: Path,
+        index: Path,
+    ) -> Source:
+        """Determine source of a single sequencing library file.
+
+        Args:
+            fastq: Path to FASTQ file.
+            index: Path to Kallisto index.
+
+        Returns:
+            Source of library file.
+        """
+        source: Source = Source()
+
+        # run quantification
+        kallisto_dir = self.run_kallisto_quantification(
+            fastq=fastq,
+            index=index,
+        )
+
+        # extract counts
+        tpm_pct = self.get_source_expression(
+            kallisto_dir=kallisto_dir,
+        )
+
+        # convert counts to data frame
+        sources_df = convert_dict_to_df(
+            dic=tpm_pct,
+            col_headers=('Source', 'Count Percentage'),
+            sort=True,
+            sort_by=1,
+            sort_ascending=False,
+        )
+
+        # write data frame (in JSON) to file
+        name = (
+            Path(self.out_dir) / f"library_source_{fastq.name}.json"
+        )
+        LOGGER.debug(f"Writing results to file: {name}")
+        sources_df.to_json(
+            name,
+            orient='split',
+            index=False,
+            indent=True,
+        )
+
+        # validate results
+        if validate_top_score(
+            vector=sources_df['Count Percentage'].to_list(),
+            min_value=self.min_match_pct,
+            min_ratio=self.min_freq_ratio,
+            rev_sorted=True,
+            accept_zero=True,
+        ):
+            LOGGER.warning(sources_df.iloc[0]['Source'])
+            source.short_name, source.taxon_id = sources_df.iloc[0]['Source']
+
+        return source
+
+    def run_kallisto_quantification(
+        self,
+        fastq: Path,
+        index: Path,
+    ) -> Path:
+        """Run Kallisto quantification on individual sequencing library file.
+
+        Args:
+            fastq: Path to FASTQ file.
+            index: Path to Kallisto index.
+
+        Returns:
+            Path to output directory.
+
+        Raises:
+            KallistoProblem: Kallisto quantification failed.
+        """
+        LOGGER.debug(f"Running Kallisto quantification for: {fastq}")
+
+        with tempfile.TemporaryDirectory(
+            prefix="kallisto_",
+            dir=self.tmp_dir,
+        ) as tmp_dir:
+            results_dir = Path(tmp_dir)
+
+        cmd = [
+            "kallisto",
+            "quant",
+            "--single",
+            "--fragment-length", str(100),
+            "--sd", str(300),
+            "--index", f"{str(index)}",
+            "--output-dir", f"{str(results_dir)}",
+            f"{str(fastq)}",
+        ]
+
+        result = sp.run(
+            cmd,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            LOGGER.error(result.stderr)
+            raise KallistoProblem("Failed to run Kallisto index")
+
+        LOGGER.debug(f"Kallisto quantification available at: {results_dir}")
+        return results_dir
+
+    @staticmethod
+    def get_source_expression(
+        kallisto_dir: Path,
+    ) -> Dict[Tuple[str, int], float]:
+        """Return percentages of total expression per read source.
+
+        Args:
+            kallisto_dir: Directory containing Kallisto quantification results.
+
+        Returns:
+            Dictionary with percentages of total expression per read source.
+                Keys are tuples of source short names and taxon identifiers.
+
+        Raises:
+            FileProblem: Kallisto quantification results could not be
+                processed.
+        """
+        tpm: DefaultDict[Tuple[str, int], float] = defaultdict(
+            lambda: 0.0
+        )
+        total_tpm: float = 0.0
+
+        # read Kallisto quantification output table
+        _file = kallisto_dir / "abundance.tsv"
+        try:
+            counts_df = pd.read_csv(
+                _file,
+                sep='\t',
             )
-        return organism_df
+            for row in range(counts_df.shape[0]):
+                fields = list(
+                    map(str, counts_df['target_id'][row].split("|"))
+                )
+                short_name = str(fields[3])
+                tax_id = int(fields[4])
+                value = float(counts_df['tpm'][row])
+                tpm[(short_name, tax_id)] += value
+                total_tpm += value
+
+            # calculating TPM percentages
+            if total_tpm != 0:
+                for val in tpm.values():
+                    val = round((val / total_tpm) * 100, 2)
+
+        except OSError as exc:
+            raise FileProblem(
+                "Could not process file: {_file}"
+            ) from exc
+
+        tpm_dict = dict(tpm)
+        return tpm_dict

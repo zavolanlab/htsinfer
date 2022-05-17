@@ -25,6 +25,7 @@ from htsinfer.get_read_layout import GetReadLayout
 from htsinfer.models import (
     CleanupRegimes,
     Results,
+    ResultsSource,
     RunStates,
 )
 from htsinfer.subset_fastq import SubsetFastq
@@ -192,11 +193,7 @@ class HtsInfer:
 
                 # determine library source
                 LOGGER.info("Determining library source...")
-                try:
-                    self.get_library_source()
-                except MetadataWarning as exc:
-                    self.state = RunStates.WARNING
-                    LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
+                self.results.library_source = self.get_library_source()
 
                 # determine read orientation
                 LOGGER.info("Determining read orientation...")
@@ -325,19 +322,22 @@ class HtsInfer:
         get_lib_type.evaluate()
         self.results.library_type = get_lib_type.results
 
-    def get_library_source(self):
-        """Determine library source."""
-        get_organism = GetLibSource(
-            fasta=self.fasta,
-            path_1=self.path_1_processed,
-            path_2=self.path_2_processed,
-            min_match=self.min_match,
-            factor=self.factor,
-            tmp_dir=self.tmp_dir,
+    def get_library_source(self) -> ResultsSource:
+        """Determine library source.
+
+        Returns:
+            Library source results.
+        """
+        get_lib_source = GetLibSource(
+            paths=(self.path_1_processed, self.path_2_processed),
+            transcripts_file=self.transcripts_file_processed,
             out_dir=self.out_dir,
+            tmp_dir=self.tmp_dir,
+            min_match_pct=self.lib_source_min_match_pct,
+            min_freq_ratio=self.lib_source_min_freq_ratio,
         )
-        get_organism.evaluate()
-        self.results.library_source = get_organism.results
+        results = get_lib_source.evaluate()
+        return results
 
     def get_read_orientation(self):
         """Determine read orientation."""
@@ -346,7 +346,7 @@ class HtsInfer:
             library_type=self.results.library_type,
             transcripts_file=self.transcripts_file_processed,
             threads_star=self.threads,
-            organism=self.organism,
+            source="hsapiens",
             tmp_dir=self.tmp_dir,
             min_mapped_reads=self.read_orientation_min_mapped_reads,
             min_fraction=self.read_orientation_min_fraction,

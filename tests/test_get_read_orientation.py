@@ -61,7 +61,7 @@ class TestGetOrientation:
             library_type=ResultsType(),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmp_dir,
-            organism="hsapiens",
+            source="hsapiens",
             threads_star=1,
             min_mapped_reads=20,
             min_fraction=0.75,
@@ -72,7 +72,7 @@ class TestGetOrientation:
         assert test_instance.library_type == ResultsType()
         assert test_instance.transcripts_file == FILE_TRANSCRIPTS
         assert test_instance.tmp_dir == tmp_dir
-        assert test_instance.organism == "hsapiens"
+        assert test_instance.source == "hsapiens"
         assert test_instance.threads_star == 1
         assert test_instance.min_mapped_reads == 20
         assert test_instance.min_fraction == 0.75
