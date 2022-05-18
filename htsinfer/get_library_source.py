@@ -256,6 +256,8 @@ class GetLibSource:
             FileProblem: Kallisto quantification results could not be
                 processed.
         """
+        # pylint: disable=E1101,E1137
+
         # read Kallisto quantification output table
         _file = kallisto_dir / "abundance.tsv"
         try:
