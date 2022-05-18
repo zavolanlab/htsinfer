@@ -3,7 +3,9 @@
 from htsinfer.get_read_orientation import GetOrientation
 from htsinfer.models import (
     ResultsOrientation,
+    ResultsSource,
     ResultsType,
+    Source,
     StatesOrientation,
     StatesOrientationRelationship,
     StatesTypeRelationship,
@@ -35,6 +37,7 @@ class TestGetOrientation:
         test_instance = GetOrientation(
             paths=(FILE_MATE_1, None),
             library_type=ResultsType(),
+            library_source=ResultsSource(),
             transcripts_file=FILE_TRANSCRIPTS,
         )
         assert test_instance.paths[0] == FILE_MATE_1
@@ -46,6 +49,7 @@ class TestGetOrientation:
         test_instance = GetOrientation(
             paths=(FILE_MATE_1, FILE_MATE_2),
             library_type=ResultsType(),
+            library_source=ResultsSource(),
             transcripts_file=FILE_TRANSCRIPTS,
         )
         assert test_instance.paths[0] == FILE_MATE_1
@@ -59,9 +63,9 @@ class TestGetOrientation:
         test_instance = GetOrientation(
             paths=(FILE_MATE_1, FILE_MATE_2),
             library_type=ResultsType(),
+            library_source=ResultsSource(),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmp_dir,
-            source="hsapiens",
             threads_star=1,
             min_mapped_reads=20,
             min_fraction=0.75,
@@ -70,9 +74,9 @@ class TestGetOrientation:
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
         assert test_instance.library_type == ResultsType()
+        assert test_instance.library_source == ResultsSource()
         assert test_instance.transcripts_file == FILE_TRANSCRIPTS
         assert test_instance.tmp_dir == tmp_dir
-        assert test_instance.source == "hsapiens"
         assert test_instance.threads_star == 1
         assert test_instance.min_mapped_reads == 20
         assert test_instance.min_fraction == 0.75
@@ -84,6 +88,7 @@ class TestGetOrientation:
         test_instance = GetOrientation(
             paths=(FILE_UNMAPPED_SINGLE, None),
             library_type=ResultsType(),
+            library_source=ResultsSource(),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
         )
@@ -99,6 +104,10 @@ class TestGetOrientation:
         test_instance = GetOrientation(
             paths=(FILE_ORIENTATION_SF, None),
             library_type=ResultsType(),
+            library_source=ResultsSource(
+                file_1=Source(short_name="hsapiens", taxon_id=9606),
+                file_2=Source(),
+            ),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
         )
@@ -114,6 +123,10 @@ class TestGetOrientation:
         test_instance = GetOrientation(
             paths=(FILE_ORIENTATION_SR, None),
             library_type=ResultsType(),
+            library_source=ResultsSource(
+                file_1=Source(short_name="hsapiens", taxon_id=9606),
+                file_2=Source(),
+            ),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
         )
@@ -129,6 +142,10 @@ class TestGetOrientation:
         test_instance = GetOrientation(
             paths=(FILE_ORIENTATION_U, None),
             library_type=ResultsType(),
+            library_source=ResultsSource(
+                file_1=Source(short_name="hsapiens", taxon_id=9606),
+                file_2=Source(),
+            ),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
         )
@@ -148,6 +165,7 @@ class TestGetOrientation:
             library_type=ResultsType(
                 relationship=StatesTypeRelationship.split_mates,
             ),
+            library_source=ResultsSource(),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
         )
@@ -164,6 +182,10 @@ class TestGetOrientation:
             paths=(FILE_ORIENTATION_ISF_1, FILE_ORIENTATION_ISF_2),
             library_type=ResultsType(
                 relationship=StatesTypeRelationship.split_mates,
+            ),
+            library_source=ResultsSource(
+                file_1=Source(short_name="hsapiens", taxon_id=9606),
+                file_2=Source(short_name="hsapiens", taxon_id=9606),
             ),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
@@ -182,6 +204,10 @@ class TestGetOrientation:
             library_type=ResultsType(
                 relationship=StatesTypeRelationship.split_mates,
             ),
+            library_source=ResultsSource(
+                file_1=Source(short_name="hsapiens", taxon_id=9606),
+                file_2=Source(short_name="hsapiens", taxon_id=9606),
+            ),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
         )
@@ -198,6 +224,10 @@ class TestGetOrientation:
             paths=(FILE_ORIENTATION_IU_1, FILE_ORIENTATION_IU_2),
             library_type=ResultsType(
                 relationship=StatesTypeRelationship.split_mates,
+            ),
+            library_source=ResultsSource(
+                file_1=Source(short_name="hsapiens", taxon_id=9606),
+                file_2=Source(short_name="hsapiens", taxon_id=9606),
             ),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,

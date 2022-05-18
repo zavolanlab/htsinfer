@@ -17,6 +17,7 @@ from htsinfer.exceptions import (
 )
 from htsinfer.models import (
     ResultsOrientation,
+    ResultsSource,
     ResultsType,
     StatesOrientation,
     StatesOrientationRelationship,
@@ -33,7 +34,10 @@ class GetOrientation:
     Args:
         paths: Tuple of one or two paths for single-end and paired end library
             files.
-        library_type: Library type and mate relationship.
+        library_type: ResultsType object with library type and mate
+            relationship.
+        library_source: ResultsSource object with source information on each
+            library file.
         transcripts_file: File path to an uncompressed transcripts file in
             FASTA format.
         tmp_dir: Path to directory where temporary output is written to.
@@ -49,7 +53,10 @@ class GetOrientation:
     Attributes:
         paths: Tuple of one or two paths for single-end and paired end library
             files.
-        library_type: Library type and mate relationship.
+        library_type: ResultsType object with library type and mate
+            relationship.
+        library_source: ResultsSource object with source information on each
+            library file.
         transcripts_file: File path to an uncompressed transcripts file in
             FASTA format.
         tmp_dir: Path to directory where temporary output is written to.
@@ -66,20 +73,20 @@ class GetOrientation:
         self,
         paths: Tuple[Path, Optional[Path]],
         library_type: ResultsType,
+        library_source: ResultsSource,
         transcripts_file: Path,
         tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
         threads_star: int = 1,
-        source: str = "hsapiens",
         min_mapped_reads: int = 20,
         min_fraction: float = 0.75,
     ):
         """Class contructor."""
         self.paths = paths
         self.library_type = library_type
+        self.library_source = library_source
         self.transcripts_file = transcripts_file
         self.tmp_dir = tmp_dir
         self.threads_star = threads_star
-        self.source = source
         self.min_mapped_reads = min_mapped_reads
         self.min_fraction = min_fraction
 
@@ -111,7 +118,14 @@ class GetOrientation:
         return orientation
 
     def subset_transcripts_by_organism(self) -> Path:
-        """Filter FASTA file of transcripts by current organism.
+        """Filter FASTA file of transcripts by current sources.
+
+        The filtered file contains records from the indicated sources.
+            Typically, this is one source. However, for if two input files
+            were supplied that are originating from different sources (i.e.,
+            not from a valid paired-ended library), it may be from two
+            different sources. If no source is supplied (because it could
+            not be inferred), no filtering is done.
 
         Returns:
             Path to filtered FASTA file.
@@ -120,18 +134,23 @@ class GetOrientation:
             FileProblem: Could not open input/output FASTA file for
                 reading/writing.
         """
-        LOGGER.debug(f"Subsetting transcripts for: {self.source}")
+        LOGGER.debug(f"Subsetting transcripts for: {self.library_source}")
 
-        outfile = self.tmp_dir / f"{self.source}.fasta"
+        outfile = self.tmp_dir / f"{self.library_source}.fasta"
 
         def yield_filtered_seqs():
-            """Generator yielding sequence records for specified organism.
+            """Generator yielding sequence records for specified sources.
 
             Yields:
-                Next FASTA sequence record of the specified organism.
+                Next FASTA sequence record of the specified sources.
 
             Raises: Could not process input FASTA file.
             """
+            sources = []
+            if self.library_source.file_1.short_name is not None:
+                sources.append(self.library_source.file_1.short_name)
+            if self.library_source.file_2.short_name is not None:
+                sources.append(self.library_source.file_2.short_name)
             try:
                 for record in SeqIO.parse(
                     handle=self.transcripts_file,
@@ -141,7 +160,7 @@ class GetOrientation:
                         org_name = record.description.split("|")[3]
                     except ValueError:
                         continue
-                    if org_name == self.source:
+                    if org_name in sources or len(sources) == 0:
                         yield record
 
             except OSError as exc:
