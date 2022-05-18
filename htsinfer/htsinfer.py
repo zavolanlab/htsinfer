@@ -348,9 +348,9 @@ class HtsInfer:
         get_read_orientation = GetOrientation(
             paths=(self.path_1_processed, self.path_2_processed),
             library_type=self.results.library_type,
+            library_source=self.results.library_source,
             transcripts_file=self.transcripts_file_processed,
             threads_star=self.threads,
-            source="hsapiens",
             tmp_dir=self.tmp_dir,
             min_mapped_reads=self.read_orientation_min_mapped_reads,
             min_fraction=self.read_orientation_min_fraction,
