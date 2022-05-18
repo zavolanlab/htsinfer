@@ -134,7 +134,7 @@ class TestMain:
         )
         with pytest.raises(SystemExit) as exc:
             assert main() is None
-        assert exc.value.code == 2
+        assert exc.value.code == 0
 
     def test_with_too_many_args(self, monkeypatch):
         """Call with too many positional args."""

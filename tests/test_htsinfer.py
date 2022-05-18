@@ -53,8 +53,7 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         test_instance.evaluate()
-        assert test_instance.results.library_type is not None
-        assert test_instance.state is RunStates.ERROR
+        assert test_instance.state is RunStates.OKAY
 
     def test_evaluate_lib_type_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in library type determination."""
@@ -65,20 +64,6 @@ class TestHtsInfer:
         )
         monkeypatch.setattr(
             'htsinfer.htsinfer.HtsInfer.get_library_type',
-            RaiseMetadataWarning,
-        )
-        test_instance.evaluate()
-        assert test_instance.state is RunStates.ERROR
-
-    def test_evaluate_lib_source_metadata_warning(self, monkeypatch, tmpdir):
-        """Metadata warning in library source determination."""
-        test_instance = HtsInfer(
-            path_1=FILE_MATE_1,
-            out_dir=tmpdir,
-            tmp_dir=tmpdir,
-        )
-        monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_library_source',
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
@@ -96,7 +81,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.ERROR
+        assert test_instance.state is RunStates.WARNING
 
     def test_evaluate_read_layout_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in read layout determination."""
@@ -110,7 +95,7 @@ class TestHtsInfer:
             RaiseMetadataWarning,
         )
         test_instance.evaluate()
-        assert test_instance.state is RunStates.ERROR
+        assert test_instance.state is RunStates.WARNING
 
     def test_evaluate_file_problem(self, tmpdir):
         """File problem due to empty file."""
@@ -322,36 +307,13 @@ class TestHtsInfer:
         test_instance.print()
         captured = capsys.readouterr()
         assert captured.out == (
-            '{'
-            '"library_stats": {'
-            '"file_1": '
-            '{'
-            '"read_length": {"min": null, "max": null}'
-            '}, '
-            '"file_2": '
-            '{'
-            '"read_length": {"min": null, "max": null}'
-            '}'
-            '}, '
-            '"library_type": {'
-            '"file_1": null, "file_2": null, "relationship": null'
-            '}, '
-            '"library_source": {'
-            '"file_1": null, "file_2": null'
-            '}, '
-            '"read_orientation": {'
-            '"file_1": null, "file_2": null, "relationship": null'
-            '}, '
-            '"read_layout": {'
-            '"file_1": '
-            '{'
-            '"adapt_3": null'
-            '}, '
-            '"file_2": '
-            '{'
-            '"adapt_3": null'
-            '}'
-            '}'
-            '}'
+            '{"library_stats": {"file_1": {"read_length": {"min": null, '
+            '"max": null}}, "file_2": {"read_length": {"min": null, "max": '
+            'null}}}, "library_type": {"file_1": null, "file_2": null, '
+            '"relationship": null}, "library_source": {"file_1": '
+            '{"short_name": null, "taxon_id": null}, "file_2": {"short_name": '
+            'null, "taxon_id": null}}, "read_orientation": {"file_1": null, '
+            '"file_2": null, "relationship": null}, "read_layout": {"file_1": '
+            '{"adapt_3": null}, "file_2": {"adapt_3": null}}}'
         ) + linesep
         assert captured.err == ""
