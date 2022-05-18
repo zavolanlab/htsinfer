@@ -126,7 +126,7 @@ jobs:
         run: htsinfer --help
 
       - name: integration test: single-ended library
-        run: htsinfer --cleanup-regime=KEEP_NONE --records=3 tests/files/adapter_single.fastq
+        run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_single.fastq
 
       - name: integration test: paired-ended library
-        run: htsinfer --cleanup-regime=KEEP_NONE tests/files/adapter_{1,2}.fastq
+        run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_{1,2}.fastq

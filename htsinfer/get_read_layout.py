@@ -242,12 +242,12 @@ class GetAdapter3():
         )
 
         # write data frame (in JSON) to file
-        name = (
+        filename = (
             Path(self.out_dir) / f"read_layout_{Path(self.path).name}.json"
         )
-        LOGGER.debug(f"Writing results to file: {name}")
+        LOGGER.debug(f"Writing results to file: {filename}")
         adapters_df.to_json(
-            name,
+            filename,
             orient='split',
             index=False,
             indent=True,

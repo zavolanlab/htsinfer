@@ -194,6 +194,10 @@ class HtsInfer:
                 # determine library source
                 LOGGER.info("Determining library source...")
                 self.results.library_source = self.get_library_source()
+                LOGGER.info(
+                    "Library source determined: "
+                    f"{self.results.library_source.json()}"
+                )
 
                 # determine read orientation
                 LOGGER.info("Determining read orientation...")

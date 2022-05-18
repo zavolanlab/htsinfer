@@ -1,13 +1,13 @@
 """Infer library source from sample data."""
 
-from collections import defaultdict
 import logging
 from pathlib import Path
 import subprocess as sp
 import tempfile
-from typing import (DefaultDict, Dict, Optional, Tuple)
+from typing import (Optional, Tuple)
 
 import pandas as pd  # type: ignore
+from pandas import DataFrame  # type: ignore
 
 from htsinfer.exceptions import (
     FileProblem,
@@ -18,7 +18,6 @@ from htsinfer.models import (
     Source,
 )
 from htsinfer.utils import (
-    convert_dict_to_df,
     validate_top_score,
 )
 
@@ -149,6 +148,7 @@ class GetLibSource:
         Returns:
             Source of library file.
         """
+        LOGGER.debug(f"Determining source for library: {fastq}")
         source: Source = Source()
 
         # run quantification
@@ -157,27 +157,18 @@ class GetLibSource:
             index=index,
         )
 
-        # extract counts
-        tpm_pct = self.get_source_expression(
+        # process expression levels
+        tpm_df = self.get_source_expression(
             kallisto_dir=kallisto_dir,
         )
 
-        # convert counts to data frame
-        sources_df = convert_dict_to_df(
-            dic=tpm_pct,
-            col_headers=('Source', 'Count Percentage'),
-            sort=True,
-            sort_by=1,
-            sort_ascending=False,
-        )
-
         # write data frame (in JSON) to file
-        name = (
+        filename = (
             Path(self.out_dir) / f"library_source_{fastq.name}.json"
         )
-        LOGGER.debug(f"Writing results to file: {name}")
-        sources_df.to_json(
-            name,
+        LOGGER.debug(f"Writing results to file: {filename}")
+        tpm_df.to_json(
+            filename,
             orient='split',
             index=False,
             indent=True,
@@ -185,14 +176,15 @@ class GetLibSource:
 
         # validate results
         if validate_top_score(
-            vector=sources_df['Count Percentage'].to_list(),
+            vector=tpm_df['tpm'].to_list(),
             min_value=self.min_match_pct,
             min_ratio=self.min_freq_ratio,
             rev_sorted=True,
             accept_zero=True,
         ):
-            source.short_name, source.taxon_id = sources_df.iloc[0]['Source']
+            source.short_name, source.taxon_id = tpm_df.iloc[0]['source_ids']
 
+        LOGGER.debug(f"Source: {source}")
         return source
 
     def run_kallisto_quantification(
@@ -237,8 +229,9 @@ class GetLibSource:
             text=True,
         )
         if result.returncode != 0:
-            LOGGER.error(result.stderr)
-            raise KallistoProblem("Failed to run Kallisto quantification")
+            if "zero reads pseudoaligned" not in str(result.stderr):
+                LOGGER.error(result.stderr)
+                raise KallistoProblem("Failed to run Kallisto quantification")
 
         LOGGER.debug(f"Kallisto quantification available at: {results_dir}")
         return results_dir
@@ -246,25 +239,23 @@ class GetLibSource:
     @staticmethod
     def get_source_expression(
         kallisto_dir: Path,
-    ) -> Dict[Tuple[str, int], float]:
+    ) -> DataFrame:
         """Return percentages of total expression per read source.
 
         Args:
             kallisto_dir: Directory containing Kallisto quantification results.
 
         Returns:
-            Dictionary with percentages of total expression per read source.
-                Keys are tuples of source short names and taxon identifiers.
+            Data frame with columns `source_ids` (a tuple of source short name
+                and taxon identifier, e.g., `("hsapiens", 9606)`) and `tpm`,
+                signifying the percentages of total expression per read source.
+                The data frame is sorted by total expression in descending
+                order.
 
         Raises:
             FileProblem: Kallisto quantification results could not be
                 processed.
         """
-        tpm: DefaultDict[Tuple[str, int], float] = defaultdict(
-            lambda: 0.0
-        )
-        total_tpm: float = 0.0
-
         # read Kallisto quantification output table
         _file = kallisto_dir / "abundance.tsv"
         try:
@@ -272,26 +263,31 @@ class GetLibSource:
                 _file,
                 sep='\t',
             )
-            for row in range(dat.shape[0]):
-                id_val = dat['target_id'][row]  # pylint: disable=E1136
-                tpm_val = float(dat['tpm'][row])  # pylint: disable=E1136
-                fields = list(
-                    map(str, id_val.split("|"))
-                )
-                short_name = str(fields[3])
-                tax_id = int(fields[4])
-                tpm[(short_name, tax_id)] += tpm_val
-                total_tpm += tpm_val
-
-            # calculating TPM percentages
-            if total_tpm != 0:
-                for val in tpm.values():
-                    val = round((val / total_tpm) * 100, 2)
-
         except OSError as exc:
             raise FileProblem(
                 "Could not process file: {_file}"
             ) from exc
 
-        tpm_dict = dict(tpm)
-        return tpm_dict
+        # handle case where no alignments are found
+        dat.tpm.fillna(0, inplace=True)
+
+        # aggregate expression by source identifiers
+        dat[[
+            'gene_symbol',
+            'gene_id',
+            'transcript_id',
+            'short_name',
+            'taxon_id'
+        ]] = dat.target_id.str.split('|', 4, expand=True)
+        dat['source_ids'] = list(zip(dat.short_name, dat.taxon_id))
+        total_tpm = dat.tpm.sum()
+        dat_agg = dat.groupby(['source_ids'])[['tpm']].agg('sum')
+        dat_agg['source_ids'] = dat_agg.index
+        dat_agg.reset_index(drop=True, inplace=True)
+
+        # calculate percentages
+        if total_tpm != 0:
+            dat_agg.tpm = dat_agg.tpm / total_tpm * 100
+
+        # return as dictionary
+        return dat_agg.sort_values(["tpm"], ascending=False)
