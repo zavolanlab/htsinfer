@@ -11,6 +11,11 @@ from htsinfer.exceptions import (
 )
 from htsinfer.htsinfer import HtsInfer
 from htsinfer.models import (
+    ResultsLayout,
+    ResultsOrientation,
+    ResultsSource,
+    ResultsStats,
+    ResultsType,
     RunStates,
     StatesType,
 )
@@ -45,15 +50,34 @@ class TestHtsInfer:
         assert test_instance.path_2 == FILE_MATE_1
         assert test_instance.state is RunStates.OKAY
 
-    def test_evaluate(self, tmpdir):
+    def test_evaluate(self, tmpdir, monkeypatch):
         """No warnings."""
         test_instance = HtsInfer(
             path_1=FILE_MATE_1,
             out_dir=tmpdir,
             tmp_dir=tmpdir,
         )
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_type.GetLibType.evaluate',
+            ResultsType,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
+            ResultsLayout,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
+            ResultsOrientation,
+        )
         test_instance.evaluate()
-        assert test_instance.results.library_type is not None
         assert test_instance.state is RunStates.OKAY
 
     def test_evaluate_lib_type_metadata_warning(self, monkeypatch, tmpdir):
@@ -64,22 +88,24 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_library_type',
+            'htsinfer.get_library_type.GetLibType.evaluate',
             RaiseMetadataWarning,
-        )
-        test_instance.evaluate()
-        assert test_instance.state is RunStates.WARNING
-
-    def test_evaluate_lib_source_metadata_warning(self, monkeypatch, tmpdir):
-        """Metadata warning in library source determination."""
-        test_instance = HtsInfer(
-            path_1=FILE_MATE_1,
-            out_dir=tmpdir,
-            tmp_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_library_source',
-            RaiseMetadataWarning,
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
+            ResultsLayout,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
+            ResultsOrientation,
         )
         test_instance.evaluate()
         assert test_instance.state is RunStates.WARNING
@@ -92,8 +118,24 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_read_orientation',
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
             RaiseMetadataWarning,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_type.GetLibType.evaluate',
+            ResultsType,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
+            ResultsLayout,
         )
         test_instance.evaluate()
         assert test_instance.state is RunStates.WARNING
@@ -106,8 +148,24 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_read_layout',
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
             RaiseMetadataWarning,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_type.GetLibType.evaluate',
+            ResultsType,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
+            ResultsOrientation,
         )
         test_instance.evaluate()
         assert test_instance.state is RunStates.WARNING
@@ -322,34 +380,13 @@ class TestHtsInfer:
         test_instance.print()
         captured = capsys.readouterr()
         assert captured.out == (
-            '{'
-            '"library_stats": {'
-            '"file_1": '
-            '{'
-            '"read_length": {"min": null, "max": null}'
-            '}, '
-            '"file_2": '
-            '{'
-            '"read_length": {"min": null, "max": null}'
-            '}'
-            '}, '
-            '"library_type": {'
-            '"file_1": null, "file_2": null, "relationship": null'
-            '}, '
-            '"library_source": {}, '
-            '"read_orientation": {'
-            '"file_1": null, "file_2": null, "relationship": null'
-            '}, '
-            '"read_layout": {'
-            '"file_1": '
-            '{'
-            '"adapt_3": null'
-            '}, '
-            '"file_2": '
-            '{'
-            '"adapt_3": null'
-            '}'
-            '}'
-            '}'
+            '{"library_stats": {"file_1": {"read_length": {"min": null, '
+            '"max": null}}, "file_2": {"read_length": {"min": null, "max": '
+            'null}}}, "library_type": {"file_1": null, "file_2": null, '
+            '"relationship": null}, "library_source": {"file_1": '
+            '{"short_name": null, "taxon_id": null}, "file_2": {"short_name": '
+            'null, "taxon_id": null}}, "read_orientation": {"file_1": null, '
+            '"file_2": null, "relationship": null}, "read_layout": {"file_1": '
+            '{"adapt_3": null}, "file_2": {"adapt_3": null}}}'
         ) + linesep
         assert captured.err == ""

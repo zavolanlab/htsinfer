@@ -35,18 +35,15 @@ class GetOrientation:
             files.
         library_type: Library type and mate relationship.
         transcripts_file: File path to an uncompressed transcripts file in
-            FASTA format. Expected to contain `|`-separated sequence identifier
-            lines that contain an organism short name and a taxon identifier in
-            the fourth and fifth columns, respectively. Example sequence
-            identifier: `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
+            FASTA format.
         tmp_dir: Path to directory where temporary output is written to.
         threads_star: Number of threads to run STAR with.
-        organism: Source organism of the sequencing library.
+        source: Source (organism, tissue, etc.) of the sequencing library.
         min_mapped_reads: Minimum number of mapped reads for deeming the
             read orientation result reliable.
-        read_orientation_min_fraction: Minimum fraction of mapped reads
-            required to be consistent with a given read orientation state in
-            order for that orientation to be reported. Must be above 0.5.
+        min_fraction: Minimum fraction of mapped reads required to be
+            consistent with a given read orientation state in order for that
+            orientation to be reported. Must be above 0.5.
         mate_relationship: Type/mate relationship between the provided files.
 
     Attributes:
@@ -54,18 +51,15 @@ class GetOrientation:
             files.
         library_type: Library type and mate relationship.
         transcripts_file: File path to an uncompressed transcripts file in
-            FASTA format. Expected to contain `|`-separated sequence identifier
-            lines that contain an organism short name and a taxon identifier in
-            the fourth and fifth columns, respectively. Example sequence
-            identifier: `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
+            FASTA format.
         tmp_dir: Path to directory where temporary output is written to.
         threads_star: Number of threads to run STAR with.
-        organism: Source organism of the sequencing library.
+        source: Source (organism, tissue, etc.) of the sequencing library.
         min_mapped_reads: Minimum number of mapped reads for deeming the
             read orientation result reliable.
-        read_orientation_min_fraction: Minimum fraction of mapped reads
-            required to be consistent with a given read orientation state in
-            order for that orientation to be reported. Must be above 0.5.
+        min_fraction: Minimum fraction of mapped reads required to be
+            consistent with a given read orientation state in order for that
+            orientation to be reported. Must be above 0.5.
         mate_relationship: Type/mate relationship between the provided files.
     """
     def __init__(
@@ -75,7 +69,7 @@ class GetOrientation:
         transcripts_file: Path,
         tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
         threads_star: int = 1,
-        organism: str = "hsapiens",
+        source: str = "hsapiens",
         min_mapped_reads: int = 20,
         min_fraction: float = 0.75,
     ):
@@ -85,7 +79,7 @@ class GetOrientation:
         self.transcripts_file = transcripts_file
         self.tmp_dir = tmp_dir
         self.threads_star = threads_star
-        self.organism = organism
+        self.source = source
         self.min_mapped_reads = min_mapped_reads
         self.min_fraction = min_fraction
 
@@ -126,9 +120,9 @@ class GetOrientation:
             FileProblem: Could not open input/output FASTA file for
                 reading/writing.
         """
-        LOGGER.debug(f"Subsetting transcripts for: {self.organism}")
+        LOGGER.debug(f"Subsetting transcripts for: {self.source}")
 
-        outfile = self.tmp_dir / f"{self.organism}.fasta"
+        outfile = self.tmp_dir / f"{self.source}.fasta"
 
         def yield_filtered_seqs():
             """Generator yielding sequence records for specified organism.
@@ -147,7 +141,7 @@ class GetOrientation:
                         org_name = record.description.split("|")[3]
                     except ValueError:
                         continue
-                    if org_name == self.organism:
+                    if org_name == self.source:
                         yield record
 
             except OSError as exc:

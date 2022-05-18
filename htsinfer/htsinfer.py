@@ -17,6 +17,7 @@ from htsinfer.exceptions import (
     MetadataWarning,
     WorkEnvProblem,
 )
+from htsinfer.get_library_source import GetLibSource
 from htsinfer.get_library_stats import GetLibStats
 from htsinfer.get_library_type import GetLibType
 from htsinfer.get_read_orientation import GetOrientation
@@ -24,6 +25,7 @@ from htsinfer.get_read_layout import GetReadLayout
 from htsinfer.models import (
     CleanupRegimes,
     Results,
+    ResultsSource,
     RunStates,
 )
 from htsinfer.subset_fastq import SubsetFastq
@@ -44,8 +46,6 @@ class HtsInfer:
         records: Number of input file records to process; set to `0` to
             process all records.
         threads: Number of threads to run STAR with.
-        organism: Source organism of the sequencing library, if provided:
-            will not be inferred by the application.
         transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
@@ -55,6 +55,12 @@ class HtsInfer:
         read_layout_min_freq_ratio: Minimum frequency ratio between the first
             and second most frequent adapter in order for the former to be
             considered as the library's 3'-end adapter.
+        lib_source_min_match_pct: Minimum percentage of reads that are
+            consistent with a given source in order for it to be considered as
+            the to be considered the library's source.
+        lib_source_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent source in order for the former to be
+            considered the library's source.
         read_orientation_min_mapped_reads: Minimum number of mapped reads for
             deeming the read orientation result reliable.
         read_orientation_min_fraction: Minimum fraction of mapped reads
@@ -71,8 +77,6 @@ class HtsInfer:
             `CleanupRegimes`.
         records: Number of input file records to process.
         threads: Number of threads to run STAR with.
-        organism: Source organism of the sequencing library, if provided:
-            will not be inferred by the application.
         transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
@@ -82,6 +86,12 @@ class HtsInfer:
         read_layout_min_freq_ratio: Minimum frequency ratio between the first
             and second most frequent adapter in order for the former to be
             considered as the library's 3'-end adapter.
+        lib_source_min_match_pct: Minimum percentage of reads that are
+            consistent with a given source in order for it to be considered as
+            the to be considered the library's source.
+        lib_source_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent source in order for the former to be
+            considered the library's source.
         read_orientation_min_mapped_reads: Minimum number of mapped reads for
             deeming the read orientation result reliable.
         read_orientation_min_fraction: Minimum fraction of mapped reads
@@ -102,7 +112,6 @@ class HtsInfer:
         cleanup_regime: CleanupRegimes = CleanupRegimes.DEFAULT,
         records: int = 0,
         threads: int = 1,
-        organism: str = "hsapiens",
         transcripts_file: Path = (
             Path(__file__).parent.parent.absolute() /
             "data/transcripts.fasta.gz"
@@ -113,6 +122,8 @@ class HtsInfer:
         ),
         read_layout_min_match_pct: float = 2,
         read_layout_min_freq_ratio: float = 2,
+        lib_source_min_match_pct: float = 2,
+        lib_source_min_freq_ratio: float = 2,
         read_orientation_min_mapped_reads: int = 20,
         read_orientation_min_fraction: float = 0.75,
     ):
@@ -127,11 +138,12 @@ class HtsInfer:
         self.cleanup_regime = cleanup_regime
         self.records = records
         self.threads = threads
-        self.organism = organism
         self.transcripts_file = transcripts_file
         self.read_layout_adapter_file = read_layout_adapter_file
         self.read_layout_min_match_pct = read_layout_min_match_pct
         self.read_layout_min_freq_ratio = read_layout_min_freq_ratio
+        self.lib_source_min_match_pct = lib_source_min_match_pct
+        self.lib_source_min_freq_ratio = lib_source_min_freq_ratio
         self.read_orientation_min_fraction = read_orientation_min_fraction
         self.read_orientation_min_mapped_reads = (
             read_orientation_min_mapped_reads
@@ -181,11 +193,11 @@ class HtsInfer:
 
                 # determine library source
                 LOGGER.info("Determining library source...")
-                try:
-                    self.get_library_source()
-                except MetadataWarning as exc:
-                    self.state = RunStates.WARNING
-                    LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
+                self.results.library_source = self.get_library_source()
+                LOGGER.info(
+                    "Library source determined: "
+                    f"{self.results.library_source.json()}"
+                )
 
                 # determine read orientation
                 LOGGER.info("Determining read orientation...")
@@ -314,9 +326,22 @@ class HtsInfer:
         get_lib_type.evaluate()
         self.results.library_type = get_lib_type.results
 
-    def get_library_source(self):
-        """Determine library source."""
-        # TODO: implement  # pylint: disable=fixme
+    def get_library_source(self) -> ResultsSource:
+        """Determine library source.
+
+        Returns:
+            Library source results.
+        """
+        get_lib_source = GetLibSource(
+            paths=(self.path_1_processed, self.path_2_processed),
+            transcripts_file=self.transcripts_file_processed,
+            out_dir=self.out_dir,
+            tmp_dir=self.tmp_dir,
+            min_match_pct=self.lib_source_min_match_pct,
+            min_freq_ratio=self.lib_source_min_freq_ratio,
+        )
+        results = get_lib_source.evaluate()
+        return results
 
     def get_read_orientation(self):
         """Determine read orientation."""
@@ -325,7 +350,7 @@ class HtsInfer:
             library_type=self.results.library_type,
             transcripts_file=self.transcripts_file_processed,
             threads_star=self.threads,
-            organism=self.organism,
+            source="hsapiens",
             tmp_dir=self.tmp_dir,
             min_mapped_reads=self.read_orientation_min_mapped_reads,
             min_fraction=self.read_orientation_min_fraction,

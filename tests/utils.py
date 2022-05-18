@@ -3,8 +3,10 @@
 from pathlib import Path
 
 from htsinfer.exceptions import (FileProblem, MetadataWarning)
+from htsinfer.models import Source
 
-# test parameters
+# test files
+PACKAGE_DIR = Path(__file__).resolve().parents[1] / "htsinfer"
 TEST_FILES_DIR = Path(__file__).resolve().parent / "files"
 FILE_ADAPTER = TEST_FILES_DIR / "adapter_fragments.txt"
 FILE_ADAPTER_INVALID_CHARS = (
@@ -49,16 +51,18 @@ FILE_UNKNOWN_SEQ_ID = TEST_FILES_DIR / "unknown_seq_id.fastq"
 FILE_UNMAPPED_PAIRED_1 = TEST_FILES_DIR / "unmapped_paired_mate_1.fastq"
 FILE_UNMAPPED_PAIRED_2 = TEST_FILES_DIR / "unmapped_paired_mate_2.fastq"
 FILE_UNMAPPED_SINGLE = TEST_FILES_DIR / "unmapped_single.fastq"
-PACKAGE_DIR = Path(__file__).resolve().parents[1] / "htsinfer"
-SEQ_ID_DUMMY = ""
-SEQ_ID_MATE_1 = "@SRR11971718:6:73:941:1973#0/1"
-SEQ_ID_MATE_2 = "@SRR11971718:6:73:941:1973#0/2"
-SEQ_ID_SINGLE = "@SRR11971718:6:73:941:1973#0"
+
+# test parameters
 DICT_DF = {
     'key_3': 1,
     'key_1': 2,
     'key_2': 3,
 }
+SOURCE_HUMAN = Source(short_name="hsapiens", taxon_id=9606)
+SEQ_ID_DUMMY = ""
+SEQ_ID_MATE_1 = "@SRR11971718:6:73:941:1973#0/1"
+SEQ_ID_MATE_2 = "@SRR11971718:6:73:941:1973#0/2"
+SEQ_ID_SINGLE = "@SRR11971718:6:73:941:1973#0"
 
 
 # helper classes

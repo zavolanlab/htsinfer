@@ -30,46 +30,6 @@ class LogLevels(Enum):
     CRITICAL = logging.CRITICAL
 
 
-class StatesOrientation(Enum):
-    """Enumerator of read orientation types for individual library files. Cf.
-    https://salmon.readthedocs.io/en/latest/library_type.html
-
-    Attributes:
-        not_available: Orientation type information is not available for a
-            given file, either because no file was provided, the file could not
-            be parsed, an orientation type has not yet been assigned.
-        stranded_forward: Reads are stranded and come from the forward strand.
-        stranded_reverse: Reads are stranded and come from the reverse strand.
-        unstranded: Reads are unstranded.
-    """
-    not_available = None
-    stranded_forward = "SF"
-    stranded_reverse = "SR"
-    unstranded = "U"
-
-
-class StatesOrientationRelationship(Enum):
-    """Enumerator of read orientation type relationships for paired-ended
-    libraries. Cf. https://salmon.readthedocs.io/en/latest/library_type.html
-
-    Attributes:
-        inward_stranded_forward: Mates are oriented toward each other, the
-            library is stranded, and first mates come from the forward strand.
-        inward_stranded_reverse: Mates are oriented toward each other, the
-            library is stranded, and first mates come from the reverse strand.
-        inward_unstranded: Mates are oriented toward each other and the library
-            is unstranded.
-        not_available: Orientation type relationship information is not
-            available, likely because only a single file was provided or
-            because the orientation type relationship has not been or could not
-            be evaluated.
-    """
-    inward_stranded_forward = "ISF"
-    inward_stranded_reverse = "ISR"
-    inward_unstranded = "IU"
-    not_available = None
-
-
 class RunStates(IntEnum):
     """Enumerator of run states and exit codes."""
     OKAY = 0
@@ -162,8 +122,8 @@ class StatesType(Enum):
     Attributes:
         file_problem: There was a problem with opening or parsing the file.
         first_mate: All of the sequence identifiers of the processed file
-            indicate that the library represents the first mate of a paired-end
-            library.
+            counts indicate that the library represents the first mate of a
+            paired-end library.
         mixed_mates: All of the sequence identifiers of the processed file
             include mate information. However, the file includes at least one
             record for either mate, indicating that the library represents a
@@ -229,8 +189,74 @@ class ResultsType(BaseModel):
     )
 
 
+class Source(BaseModel):
+    """Library source of an individual sequencing file.
+
+    Args:
+        short_name: Library source short name, e.g., "hsapiens".
+        taxon_id: Library source taxon identifer, e.g., `9606`.
+
+    Attributes:
+        short_name: Library source short name, e.g., "hsapiens".
+        taxon_id: Library source taxon identifer, e.g., `9606`.
+    """
+    short_name: Optional[str] = None
+    taxon_id: Optional[int] = None
+
+
 class ResultsSource(BaseModel):
-    """TODO: implement"""
+    """Container class for aggregating library source.
+
+    Args:
+        file_1: Library source of the first file.
+        file_2: Library source of the second file.
+
+    Attributes:
+        file_1: Library source of the first file.
+        file_2: Library source of the second file.
+    """
+    file_1: Source = Source()
+    file_2: Source = Source()
+
+
+class StatesOrientation(Enum):
+    """Enumerator of read orientation types for individual library files. Cf.
+    https://salmon.readthedocs.io/en/latest/library_type.html
+
+    Attributes:
+        not_available: Orientation type information is not available for a
+            given file, either because no file was provided, the file could not
+            be parsed, an orientation type has not yet been assigned.
+        stranded_forward: Reads are stranded and come from the forward strand.
+        stranded_reverse: Reads are stranded and come from the reverse strand.
+        unstranded: Reads are unstranded.
+    """
+    not_available = None
+    stranded_forward = "SF"
+    stranded_reverse = "SR"
+    unstranded = "U"
+
+
+class StatesOrientationRelationship(Enum):
+    """Enumerator of read orientation type relationships for paired-ended
+    libraries. Cf. https://salmon.readthedocs.io/en/latest/library_type.html
+
+    Attributes:
+        inward_stranded_forward: Mates are oriented toward each other, the
+            library is stranded, and first mates come from the forward strand.
+        inward_stranded_reverse: Mates are oriented toward each other, the
+            library is stranded, and first mates come from the reverse strand.
+        inward_unstranded: Mates are oriented toward each other and the library
+            is unstranded.
+        not_available: Orientation type relationship information is not
+            available, likely because only a single file was provided or
+            because the orientation type relationship has not been or could not
+            be evaluated.
+    """
+    inward_stranded_forward = "ISF"
+    inward_stranded_reverse = "ISR"
+    inward_unstranded = "IU"
+    not_available = None
 
 
 class ResultsOrientation(BaseModel):

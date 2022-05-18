@@ -109,4 +109,8 @@ dmypy.json
 # End of https://www.gitignore.io/api/python
 
 # Custom additions
+.vscode
+results
+.DS_Store
+tests/.DS_Store
 results_htsinfer

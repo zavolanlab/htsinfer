@@ -116,23 +116,6 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        "--transcripts",
-        metavar="FASTA",
-        type=str,
-        default=(
-            Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"
-        ),
-        help=(
-            "FASTA file containing transcripts to be used for mapping files "
-            "`--file-1` and `--file-2` against for inferring organism and "
-            "read orientation. Requires that sequence identifier lines are "
-            "separated by the pipe (`|`) character and that the 4th and 5th "
-            "columns contain a short organism name and taxon identifier, "
-            "respectively. Example sequence identifier: "
-            "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
-        )
-    )
-    parser.add_argument(
         "--threads",
         metavar="INT",
         type=int,
@@ -142,13 +125,20 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        "--organism",
-        metavar="STR",
+        "--transcripts",
+        metavar="FASTA",
         type=str,
-        default="hsapiens",
+        default=(
+            Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"
+        ),
         help=(
-            "source organism of the sequencing library, if provided: "
-            "will not be inferred by the application"
+            "FASTA file containing transcripts to be used for mapping files "
+            "`--file-1` and `--file-2` for inferring library source and read "
+            "orientation. Requires that sequence identifier lines are "
+            "separated by the pipe (`|`) character and that the 4th and 5th "
+            "columns contain a short source name and taxon identifier, "
+            "respectively. Example sequence identifier: "
+            "`rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`"
         )
     )
     parser.add_argument(
@@ -184,6 +174,27 @@ def parse_args() -> argparse.Namespace:
             "minimum frequency ratio between the first and second most "
             "frequent adapter in order for the former to be considered as the "
             "library's 3'-end adapter"
+        )
+    )
+    parser.add_argument(
+        "--library-source-min-match-percentage",
+        metavar="FLOAT",
+        type=float,
+        default=5,
+        help=(
+            "minimum percentage of reads that are consistent with a given "
+            "source in order for it to be considered the library's source"
+        )
+    )
+    parser.add_argument(
+        "--library-source-min-frequency-ratio",
+        metavar="FLOAT",
+        type=float,
+        default=2,
+        help=(
+            "minimum frequency ratio between the first and second "
+            "most frequent source in order for the former to be considered "
+            "the library's source"
         )
     )
     parser.add_argument(
@@ -268,11 +279,12 @@ def main() -> None:
             cleanup_regime=CleanupRegimes[args.cleanup_regime],
             records=args.records,
             threads=args.threads,
-            organism=args.organism,
             transcripts_file=args.transcripts,
             read_layout_adapter_file=args.read_layout_adapters,
             read_layout_min_match_pct=args.read_layout_min_match_percentage,
             read_layout_min_freq_ratio=args.read_layout_min_frequency_ratio,
+            lib_source_min_match_pct=args.library_source_min_match_percentage,
+            lib_source_min_freq_ratio=args.library_source_min_frequency_ratio,
             read_orientation_min_mapped_reads=(
                 args.read_orientation_min_mapped_reads
             ),
