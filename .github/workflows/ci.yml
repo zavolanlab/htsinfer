@@ -122,11 +122,11 @@ jobs:
           conda info -a
           conda list
 
-      - name: integration test: help screen
+      - name: integration test - help screen
         run: htsinfer --help
 
-      - name: integration test: single-ended library
+      - name: integration test - single-ended library
         run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_single.fastq
 
-      - name: integration test: paired-ended library
+      - name: integration test - paired-ended library
         run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_{1,2}.fastq
