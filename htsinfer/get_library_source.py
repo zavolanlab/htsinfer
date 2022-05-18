@@ -269,19 +269,20 @@ class GetLibSource:
         # read Kallisto quantification output table
         _file = kallisto_dir / "abundance.tsv"
         try:
-            counts_df = pd.read_csv(
+            dat = pd.read_csv(
                 _file,
                 sep='\t',
             )
-            for row in range(counts_df.shape[0]):
+            for row in range(dat.shape[0]):
+                id_val = dat['target_id'][row]  # pylint: disable=E1136
+                tpm_val = float(dat['tpm'][row])  # pylint: disable=E1136
                 fields = list(
-                    map(str, counts_df['target_id'][row].split("|"))
+                    map(str, id_val.split("|"))
                 )
                 short_name = str(fields[3])
                 tax_id = int(fields[4])
-                value = float(counts_df['tpm'][row])
-                tpm[(short_name, tax_id)] += value
-                total_tpm += value
+                tpm[(short_name, tax_id)] += tpm_val
+                total_tpm += tpm_val
 
             # calculating TPM percentages
             if total_tpm != 0:
