@@ -12,6 +12,13 @@ from htsinfer.cli import (
     parse_args,
     setup_logging,
 )
+from htsinfer.models import (
+    ResultsLayout,
+    ResultsOrientation,
+    ResultsSource,
+    ResultsStats,
+    ResultsType,
+)
 from tests.utils import (
     FILE_MATE_1,
     PACKAGE_DIR,
@@ -131,6 +138,26 @@ class TestMain:
                 '--output-directory', str(tmpdir),
                 '--temporary-directory', str(tmpdir),
             ]
+        )
+        monkeypatch.setattr(
+            'htsinfer.htsinfer.HtsInfer.get_library_source',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.htsinfer.HtsInfer.get_library_stats',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.htsinfer.HtsInfer.get_library_type',
+            ResultsType,
+        )
+        monkeypatch.setattr(
+            'htsinfer.htsinfer.HtsInfer.get_read_layout',
+            ResultsLayout,
+        )
+        monkeypatch.setattr(
+            'htsinfer.htsinfer.HtsInfer.get_read_orientation',
+            ResultsOrientation,
         )
         with pytest.raises(SystemExit) as exc:
             assert main() is None

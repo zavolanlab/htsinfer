@@ -11,6 +11,11 @@ from htsinfer.exceptions import (
 )
 from htsinfer.htsinfer import HtsInfer
 from htsinfer.models import (
+    ResultsLayout,
+    ResultsOrientation,
+    ResultsSource,
+    ResultsStats,
+    ResultsType,
     RunStates,
     StatesType,
 )
@@ -45,12 +50,32 @@ class TestHtsInfer:
         assert test_instance.path_2 == FILE_MATE_1
         assert test_instance.state is RunStates.OKAY
 
-    def test_evaluate(self, tmpdir):
+    def test_evaluate(self, tmpdir, monkeypatch):
         """No warnings."""
         test_instance = HtsInfer(
             path_1=FILE_MATE_1,
             out_dir=tmpdir,
             tmp_dir=tmpdir,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_type.GetLibType.evaluate',
+            ResultsType,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
+            ResultsLayout,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
+            ResultsOrientation,
         )
         test_instance.evaluate()
         assert test_instance.state is RunStates.OKAY
@@ -63,8 +88,24 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_library_type',
+            'htsinfer.get_library_type.GetLibType.evaluate',
             RaiseMetadataWarning,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
+            ResultsLayout,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
+            ResultsOrientation,
         )
         test_instance.evaluate()
         assert test_instance.state is RunStates.WARNING
@@ -77,8 +118,24 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_read_orientation',
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
             RaiseMetadataWarning,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_type.GetLibType.evaluate',
+            ResultsType,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
+            ResultsLayout,
         )
         test_instance.evaluate()
         assert test_instance.state is RunStates.WARNING
@@ -91,8 +148,24 @@ class TestHtsInfer:
             tmp_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.htsinfer.HtsInfer.get_read_layout',
+            'htsinfer.get_read_layout.GetReadLayout.evaluate',
             RaiseMetadataWarning,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.evaluate',
+            ResultsSource,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_stats.GetLibStats.evaluate',
+            ResultsStats,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_library_type.GetLibType.evaluate',
+            ResultsType,
+        )
+        monkeypatch.setattr(
+            'htsinfer.get_read_orientation.GetOrientation.evaluate',
+            ResultsOrientation,
         )
         test_instance.evaluate()
         assert test_instance.state is RunStates.WARNING
