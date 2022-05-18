@@ -191,7 +191,6 @@ class GetLibSource:
             rev_sorted=True,
             accept_zero=True,
         ):
-            LOGGER.warning(sources_df.iloc[0]['Source'])
             source.short_name, source.taxon_id = sources_df.iloc[0]['Source']
 
         return source
@@ -239,7 +238,7 @@ class GetLibSource:
         )
         if result.returncode != 0:
             LOGGER.error(result.stderr)
-            raise KallistoProblem("Failed to run Kallisto index")
+            raise KallistoProblem("Failed to run Kallisto quantification")
 
         LOGGER.debug(f"Kallisto quantification available at: {results_dir}")
         return results_dir
