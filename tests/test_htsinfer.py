@@ -379,14 +379,48 @@ class TestHtsInfer:
         test_instance = HtsInfer(path_1=FILE_MATE_1)
         test_instance.print()
         captured = capsys.readouterr()
-        assert captured.out == (
-            '{"library_stats": {"file_1": {"read_length": {"min": null, '
-            '"max": null}}, "file_2": {"read_length": {"min": null, "max": '
-            'null}}}, "library_type": {"file_1": null, "file_2": null, '
-            '"relationship": null}, "library_source": {"file_1": '
-            '{"short_name": null, "taxon_id": null}, "file_2": {"short_name": '
-            'null, "taxon_id": null}}, "read_orientation": {"file_1": null, '
-            '"file_2": null, "relationship": null}, "read_layout": {"file_1": '
-            '{"adapt_3": null}, "file_2": {"adapt_3": null}}}'
-        ) + linesep
+        assert captured.out == ('''{
+   "library_source": {
+      "file_1": {
+         "short_name": null,
+         "taxon_id": null
+      },
+      "file_2": {
+         "short_name": null,
+         "taxon_id": null
+      }
+   },
+   "library_stats": {
+      "file_1": {
+         "read_length": {
+            "max": null,
+            "min": null
+         }
+      },
+      "file_2": {
+         "read_length": {
+            "max": null,
+            "min": null
+         }
+      }
+   },
+   "library_type": {
+      "file_1": null,
+      "file_2": null,
+      "relationship": null
+   },
+   "read_layout": {
+      "file_1": {
+         "adapt_3": null
+      },
+      "file_2": {
+         "adapt_3": null
+      }
+   },
+   "read_orientation": {
+      "file_1": null,
+      "file_2": null,
+      "relationship": null
+   }
+}''') + linesep
         assert captured.err == ""

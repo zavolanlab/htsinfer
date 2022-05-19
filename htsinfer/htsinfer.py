@@ -410,4 +410,9 @@ class HtsInfer:
 
     def print(self):
         """Print results to STDOUT."""
-        sys.stdout.write(self.results.json() + linesep)
+        sys.stdout.write(
+            self.results.json(
+                indent=3,
+                sort_keys=True,
+            ) + linesep
+        )
