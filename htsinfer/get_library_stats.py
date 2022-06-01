@@ -57,7 +57,7 @@ class GetLibStats:
         LOGGER.info(f"Obtaining statistics for file: {self.paths[0]}")
         if self.paths[1] is not None:
             stats.file_2.read_length.min, stats.file_2.read_length.max = (
-                self.fastq_get_min_max_read_length(fastq=self.paths[0])
+                self.fastq_get_min_max_read_length(fastq=self.paths[1])
             )
 
         return stats

@@ -96,7 +96,7 @@ class GetLibSource:
         )
         if self.paths[1] is not None:
             source.file_2 = self.get_source(
-                fastq=self.paths[0],
+                fastq=self.paths[1],
                 index=index,
             )
         return source
