@@ -585,6 +585,7 @@ class GetOrientation:
         if reads >= self.min_mapped_reads:
             if fraction_most_common_state > self.min_fraction:
                 orientation.relationship = most_common_state
+                assert orientation.relationship is not None
                 if orientation.relationship.value[-2:] == "SF":
                     orientation.file_1 = StatesOrientation("SF")
                     orientation.file_2 = StatesOrientation("SR")

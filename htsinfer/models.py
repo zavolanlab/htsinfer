@@ -182,9 +182,9 @@ class ResultsType(BaseModel):
         file_2: Library type of the second file.
         relationship: Type/mate relationship between the provided files.
     """
-    file_1: StatesType = StatesType.not_available
-    file_2: StatesType = StatesType.not_available
-    relationship: StatesTypeRelationship = (
+    file_1: Optional[StatesType] = StatesType.not_available
+    file_2: Optional[StatesType] = StatesType.not_available
+    relationship: Optional[StatesTypeRelationship] = (
         StatesTypeRelationship.not_available
     )
 
@@ -270,9 +270,9 @@ class ResultsOrientation(BaseModel):
         file_1: Read orientation of first file.
         file_2: Read orientation of second file.
     """
-    file_1: StatesOrientation = StatesOrientation.not_available
-    file_2: StatesOrientation = StatesOrientation.not_available
-    relationship: StatesOrientationRelationship = (
+    file_1: Optional[StatesOrientation] = StatesOrientation.not_available
+    file_2: Optional[StatesOrientation] = StatesOrientation.not_available
+    relationship: Optional[StatesOrientationRelationship] = (
         StatesOrientationRelationship.not_available
     )
 
