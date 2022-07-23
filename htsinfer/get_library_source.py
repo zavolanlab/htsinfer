@@ -182,8 +182,8 @@ class GetLibSource:
             rev_sorted=True,
             accept_zero=True,
         ):
-            source.short_name, source.taxon_id = tpm_df.iloc[0]['source_ids']
-            source.taxon_id = int(source.taxon_id)
+            source.short_name, taxon_id = tpm_df.iloc[0]['source_ids']
+            source.taxon_id = int(taxon_id)
 
         LOGGER.debug(f"Source: {source}")
         return source
