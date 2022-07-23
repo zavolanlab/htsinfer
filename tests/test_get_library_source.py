@@ -183,7 +183,8 @@ class TestGetLibSource:
             out_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.create_kallisto_index',
+            'htsinfer.get_library_source.\
+                GetLibSource.create_kallisto_index',
             KallistoProblem
             )
         with pytest.raises(KallistoProblem):
@@ -198,7 +199,8 @@ class TestGetLibSource:
             out_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.run_kallisto_quantification',
+            'htsinfer.get_library_source.\
+                GetLibSource.run_kallisto_quantification',
             lambda *args, **kwargs: KallistoProblem,
             )
         with pytest.raises(TypeError):
@@ -213,7 +215,8 @@ class TestGetLibSource:
             out_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.run_kallisto_quantification',
+            'htsinfer.get_library_source.\
+                GetLibSource.run_kallisto_quantification',
             lambda *args, **kwargs: tmpdir,
             )
         with pytest.raises(FileProblem):
@@ -232,7 +235,8 @@ class TestGetLibSource:
             out_dir=tmpdir,
         )
         monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.run_kallisto_quantification',
+            'htsinfer.get_library_source.\
+                GetLibSource.run_kallisto_quantification',
             lambda *args, **kwargs: TEST_FILES_DIR,
             )
         with pytest.raises(FileProblem):
