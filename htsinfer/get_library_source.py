@@ -183,6 +183,7 @@ class GetLibSource:
             accept_zero=True,
         ):
             source.short_name, source.taxon_id = tpm_df.iloc[0]['source_ids']
+            source.taxon_id = int(source.taxon_id)
 
         LOGGER.debug(f"Source: {source}")
         return source
@@ -270,26 +271,32 @@ class GetLibSource:
                 "Could not process file: {_file}"
             ) from exc
 
-        # handle case where no alignments are found
-        dat.tpm.fillna(0, inplace=True)
-
         # aggregate expression by source identifiers
-        dat[[
-            'gene_symbol',
-            'gene_id',
-            'transcript_id',
-            'short_name',
-            'taxon_id'
-        ]] = dat.target_id.str.split('|', 4, expand=True)
-        dat['source_ids'] = list(zip(dat.short_name, dat.taxon_id))
-        total_tpm = dat.tpm.sum()
-        dat_agg = dat.groupby(['source_ids'])[['tpm']].agg('sum')
-        dat_agg['source_ids'] = dat_agg.index
-        dat_agg.reset_index(drop=True, inplace=True)
+        try:
+            # handle case where no alignments are found
+            dat.tpm.fillna(0, inplace=True)
 
-        # calculate percentages
-        if total_tpm != 0:
-            dat_agg.tpm = dat_agg.tpm / total_tpm * 100
+            dat[[
+                'gene_symbol',
+                'gene_id',
+                'transcript_id',
+                'short_name',
+                'taxon_id'
+            ]] = dat.target_id.str.split('|', 4, expand=True)
+            dat['source_ids'] = list(zip(dat.short_name, dat.taxon_id))
+            total_tpm = dat.tpm.sum()
+            dat_agg = dat.groupby(['source_ids'])[['tpm']].agg('sum')
+            dat_agg['source_ids'] = dat_agg.index
+            dat_agg.reset_index(drop=True, inplace=True)
 
-        # return as dictionary
-        return dat_agg.sort_values(["tpm"], ascending=False)
+            # calculate percentages
+            if total_tpm != 0:
+                dat_agg.tpm = dat_agg.tpm / total_tpm * 100
+
+            # return as dictionary
+            return dat_agg.sort_values(["tpm"], ascending=False)
+
+        except (AttributeError, ValueError, OSError) as exc:
+            raise FileProblem(
+                "Could not process file: {_file}"
+            ) from exc
