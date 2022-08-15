@@ -162,16 +162,16 @@ class TestGetLibSource:
             file_2=Source()
         )
 
-    def test_evualte_file_problem_transcripts(self, tmpdir):
+    def test_evaluate_file_problem_transcripts(self, tmpdir):
         """Pass dummy file as transcripts.fasta file
-        to simulate a file problem."""
+        to simulate value error."""
         test_instance = GetLibSource(
             paths=(FILE_2000_RECORDS, None),
             transcripts_file=FILE_DUMMY,
             tmp_dir=tmpdir,
             out_dir=tmpdir,
         )
-        with pytest.raises(FileProblem):
+        with pytest.raises(ValueError):
             test_instance.evaluate()
 
     def test_evaluate_kallisto_index_problem(self, monkeypatch, tmpdir):
@@ -226,9 +226,7 @@ class TestGetLibSource:
     def test_evaluate_get_source_expression_abundace_file_problem(
         self, monkeypatch, tmpdir
     ):
-        """Pass empty abundance.tsv file (raising AttributeError)
-        to simulate a file problem.
-        """
+        """Pass empty abundance.tsv file to simulate value error."""
         test_instance = GetLibSource(
             paths=(FILE_MATE_1, None),
             transcripts_file=FILE_TRANSCRIPTS,
@@ -241,7 +239,7 @@ class TestGetLibSource:
             sub_method_name,
             lambda *args, **kwargs: TEST_FILES_DIR,
             )
-        with pytest.raises(FileProblem):
+        with pytest.raises(ValueError):
             test_instance.evaluate()
 
     def test_evaluate_min_match_pct(self, tmpdir):
