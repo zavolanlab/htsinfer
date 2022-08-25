@@ -446,7 +446,7 @@ class GetOrientation:
                                 StatesOrientation.stranded_forward
                             )
 
-        except OSError as exc:
+        except (OSError, ValueError) as exc:
             raise FileProblem(
                 f"Failed to open SAM file: '{sam}'"
             ) from exc
@@ -559,7 +559,7 @@ class GetOrientation:
         except StopIteration:
             pass
 
-        except OSError as exc:
+        except (OSError, ValueError) as exc:
             raise FileProblem(
                 f"Failed to open SAM file: '{sam}'"
             ) from exc
