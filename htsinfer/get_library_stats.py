@@ -2,8 +2,7 @@
 
 import logging
 from pathlib import Path
-import tempfile
-from typing import (Optional, Tuple)
+from typing import Tuple
 
 from Bio import SeqIO  # type: ignore
 
@@ -12,6 +11,7 @@ from htsinfer.exceptions import (
 )
 from htsinfer.models import (
     ResultsStats,
+    Config,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -33,12 +33,12 @@ class GetLibStats:
     """
     def __init__(
         self,
-        paths: Tuple[Path, Optional[Path]],
-        tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
+        config: Config,
     ):
         """Class contructor."""
-        self.paths = paths
-        self.tmp_dir = tmp_dir
+        self.paths = (config.args.path_1_processed,
+                      config.args.path_2_processed)
+        self.tmp_dir = config.args.tmp_dir / 'tmp_htsinfer'
 
     def evaluate(self) -> ResultsStats:
         """Infer read statistics.

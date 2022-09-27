@@ -5,8 +5,7 @@ import logging
 import math
 from pathlib import Path
 import subprocess as sp
-import tempfile
-from typing import (Any, DefaultDict, Dict, Tuple, List, Optional)
+from typing import (Any, DefaultDict, Dict, List)
 
 from Bio import SeqIO  # type: ignore
 import pysam  # type: ignore
@@ -17,11 +16,10 @@ from htsinfer.exceptions import (
 )
 from htsinfer.models import (
     ResultsOrientation,
-    ResultsSource,
-    ResultsType,
     StatesOrientation,
     StatesOrientationRelationship,
     StatesTypeRelationship,
+    Config,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -71,24 +69,18 @@ class GetOrientation:
     """
     def __init__(
         self,
-        paths: Tuple[Path, Optional[Path]],
-        library_type: ResultsType,
-        library_source: ResultsSource,
-        transcripts_file: Path,
-        tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
-        threads_star: int = 1,
-        min_mapped_reads: int = 20,
-        min_fraction: float = 0.75,
+        config: Config,
     ):
         """Class contructor."""
-        self.paths = paths
-        self.library_type = library_type
-        self.library_source = library_source
-        self.transcripts_file = transcripts_file
-        self.tmp_dir = tmp_dir
-        self.threads_star = threads_star
-        self.min_mapped_reads = min_mapped_reads
-        self.min_fraction = min_fraction
+        self.paths = (config.args.path_1_processed,
+                      config.args.path_2_processed)
+        self.library_type = config.results.library_type
+        self.library_source = config.results.library_source
+        self.transcripts_file = config.args.transcripts_file_processed
+        self.tmp_dir = config.args.tmp_dir
+        self.threads_star = config.args.threads
+        self.min_mapped_reads = config.args.read_orientation_min_mapped_reads
+        self.min_fraction = config.args.read_orientation_min_fraction
 
     def evaluate(self) -> ResultsOrientation:
         """Infer read orientation.
@@ -516,7 +508,7 @@ class GetOrientation:
                         continue
 
                     # check which alignment is first mate
-                    record_2 = _file.__next__()
+                    record_2 = next(_file)
                     if (
                         record_1.flag & (1 << 6) and
                         record_2.flag & (1 << 7)

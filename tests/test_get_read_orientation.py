@@ -26,6 +26,7 @@ from tests.utils import (
     FILE_UNMAPPED_PAIRED_1,
     FILE_UNMAPPED_PAIRED_2,
     FILE_UNMAPPED_SINGLE,
+    CONFIG,
 )
 
 
@@ -34,24 +35,20 @@ class TestGetOrientation:
 
     def test_init_required(self):
         """Create instance with required parameters."""
-        test_instance = GetOrientation(
-            paths=(FILE_MATE_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.library_type == ResultsType()
         assert test_instance.transcripts_file == FILE_TRANSCRIPTS
 
     def test_init_required_paired(self):
         """Create instance with required parameters for paired-end library."""
-        test_instance = GetOrientation(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
         assert test_instance.library_type == ResultsType()
@@ -59,24 +56,17 @@ class TestGetOrientation:
 
     def test_init_all(self, tmpdir):
         """Create instance with all available parameters."""
-        tmp_dir = tmpdir
-        test_instance = GetOrientation(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmp_dir,
-            threads_star=1,
-            min_mapped_reads=20,
-            min_fraction=0.75,
-
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
         assert test_instance.library_type == ResultsType()
         assert test_instance.library_source == ResultsSource()
         assert test_instance.transcripts_file == FILE_TRANSCRIPTS
-        assert test_instance.tmp_dir == tmp_dir
+        assert test_instance.tmp_dir == tmpdir
         assert test_instance.threads_star == 1
         assert test_instance.min_mapped_reads == 20
         assert test_instance.min_fraction == 0.75
@@ -85,13 +75,9 @@ class TestGetOrientation:
         """Get read orientation for a single-end library with no mappable
         reads.
         """
-        test_instance = GetOrientation(
-            paths=(FILE_UNMAPPED_SINGLE, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_UNMAPPED_SINGLE
+        CONFIG.args.path_2_processed = None
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.not_available,
@@ -101,16 +87,12 @@ class TestGetOrientation:
 
     def test_evaluate_single_sf(self, tmpdir):
         """Get read orientation for a single-end stranded forward library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_SF, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_SF
+        CONFIG.results.library_source = ResultsSource(
                 file_1=Source(short_name="hsapiens", taxon_id=9606),
                 file_2=Source(),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+            )
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_forward,
@@ -120,16 +102,8 @@ class TestGetOrientation:
 
     def test_evaluate_single_sr(self, tmpdir):
         """Get read orientation for a single-end stranded reverse library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_SR, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_SR
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_reverse,
@@ -139,16 +113,8 @@ class TestGetOrientation:
 
     def test_evaluate_single_u(self, tmpdir):
         """Get read orientation for a single-end unstranded library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_U, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_U
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.unstranded,
@@ -160,15 +126,13 @@ class TestGetOrientation:
         """Get read orientation for a paired-end library with no mappable
         reads.
         """
-        test_instance = GetOrientation(
-            paths=(FILE_UNMAPPED_PAIRED_1, FILE_UNMAPPED_PAIRED_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
+        CONFIG.args.path_1_processed = FILE_UNMAPPED_PAIRED_1
+        CONFIG.args.path_2_processed = FILE_UNMAPPED_PAIRED_2
+        CONFIG.results.library_source = ResultsSource()
+        CONFIG.results.library_type = ResultsType(
+            relationship=StatesTypeRelationship.split_mates,
         )
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.not_available,
@@ -178,18 +142,18 @@ class TestGetOrientation:
 
     def test_evaluate_paired_isf(self, tmpdir):
         """Get read orientation for a paired-end stranded forward library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_ISF_1, FILE_ORIENTATION_ISF_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(short_name="hsapiens", taxon_id=9606),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_ISF_1
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_ISF_2
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(short_name="hsapiens", taxon_id=9606),
+            file_2=Source(short_name="hsapiens", taxon_id=9606),
         )
+        CONFIG.results.library_type = ResultsType(
+            relationship=StatesTypeRelationship.split_mates,
+        )
+        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_forward,
@@ -199,18 +163,9 @@ class TestGetOrientation:
 
     def test_evaluate_paired_isr(self, tmpdir):
         """Get read orientation for a paired-end stranded reverse library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_ISR_1, FILE_ORIENTATION_ISR_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(short_name="hsapiens", taxon_id=9606),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_ISR_1
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_ISR_2
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_reverse,
@@ -220,18 +175,9 @@ class TestGetOrientation:
 
     def test_evaluate_paired_iu(self, tmpdir):
         """Get read orientation for a paired-end unstranded library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, FILE_ORIENTATION_IU_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(short_name="hsapiens", taxon_id=9606),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_IU_1
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_IU_2
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.unstranded,

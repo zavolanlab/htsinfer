@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 import subprocess as sp
 import tempfile
-from typing import (Optional, Tuple)
 
 import pandas as pd  # type: ignore
 from pandas import DataFrame  # type: ignore
@@ -16,6 +15,7 @@ from htsinfer.exceptions import (
 from htsinfer.models import (
     ResultsSource,
     Source,
+    Config,
 )
 from htsinfer.utils import (
     validate_top_score,
@@ -65,22 +65,16 @@ class GetLibSource:
     """
     def __init__(
         self,
-        paths: Tuple[Path, Optional[Path]],
-        transcripts_file: Path,
-        out_dir: Path = Path(
-            __file__
-        ).parents[2].absolute() / 'results_htsinfer',
-        tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
-        min_match_pct: float = 2,
-        min_freq_ratio: float = 2,
+        config: Config,
     ):
         """Class contructor."""
-        self.paths = paths
-        self.transcripts_file = transcripts_file
-        self.out_dir = out_dir
-        self.tmp_dir = tmp_dir
-        self.min_match_pct = min_match_pct
-        self.min_freq_ratio = min_freq_ratio
+        self.paths = (config.args.path_1_processed,
+                      config.args.path_2_processed)
+        self.transcripts_file = config.args.transcripts_file_processed
+        self.out_dir = config.args.out_dir
+        self.tmp_dir = config.args.tmp_dir
+        self.min_match_pct = config.args.lib_source_min_match_pct
+        self.min_freq_ratio = config.args.lib_source_min_freq_ratio
 
     def evaluate(self) -> ResultsSource:
         """Infer read source.

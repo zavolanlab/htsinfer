@@ -15,6 +15,9 @@ from htsinfer import (
 from htsinfer.models import (
     CleanupRegimes,
     LogLevels,
+    Args,
+    Results,
+    Config,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -265,13 +268,7 @@ def main() -> None:
         # handle CLI args
         args = parse_args()
 
-        # set up logging
-        setup_logging(verbosity=args.verbosity)
-        LOGGER.info("Started HTSinfer...")
-        LOGGER.debug(f"CLI arguments: {args}")
-
-        # determine library metadata
-        hts_infer = HtsInfer(
+        arguments = Args(
             path_1=args.paths[0],
             path_2=args.paths[1],
             out_dir=args.output_directory,
@@ -291,6 +288,23 @@ def main() -> None:
             read_orientation_min_fraction=(
                 args.read_orientation_min_fraction
             ),
+        )
+
+        results = Results()
+
+        config = Config(
+            args=arguments,
+            results=results,
+        )
+
+        # set up logging
+        setup_logging(verbosity=args.verbosity)
+        LOGGER.info("Started HTSinfer...")
+        LOGGER.debug(f"CLI arguments: {args}")
+
+        # determine library metadata
+        hts_infer = HtsInfer(
+            config=config,
         )
         hts_infer.evaluate()
         hts_infer.print()

@@ -7,6 +7,8 @@ from enum import (
 import logging
 import re
 from typing import Optional
+from pathlib import Path
+import tempfile
 
 # pylint: disable=no-name-in-module,invalid-name
 from pydantic import BaseModel
@@ -325,3 +327,117 @@ class Results(BaseModel):
     library_source: ResultsSource = ResultsSource()
     read_orientation: ResultsOrientation = ResultsOrientation()
     read_layout: ResultsLayout = ResultsLayout()
+
+
+class Args(BaseModel):
+    """Configuration model for CLI arguments.
+
+    Args:
+        path_1: Path to single-end library or first mate file.
+        path_2: Path to second mate file.
+        out_dir: Path to directory where output is written to.
+        tmp_dir: Path to directory where temporary output is written to.
+        cleanup_regime: Which data to keep after run concludes; one of
+            `CleanupRegimes`.
+        records: Number of input file records to process; set to `0` to
+            process all records.
+        threads: Number of threads to run STAR with.
+        transcripts_file: File path to transcripts FASTA file.
+        read_layout_adapter_file: Path to text file containing 3' adapter
+            sequences to scan for (one sequence per line).
+        read_layout_min_match_pct: Minimum percentage of reads that contain a
+            given adapter in order for it to be considered as the library's
+            3'-end adapter.
+        read_layout_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent adapter in order for the former to be
+            considered as the library's 3'-end adapter.
+        lib_source_min_match_pct: Minimum percentage of reads that are
+            consistent with a given source in order for it to be considered as
+            the to be considered the library's source.
+        lib_source_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent source in order for the former to be
+            considered the library's source.
+        read_orientation_min_mapped_reads: Minimum number of mapped reads for
+            deeming the read orientation result reliable.
+        read_orientation_min_fraction: Minimum fraction of mapped reads
+            required to be consistent with a given read orientation state in
+            order for that orientation to be reported. Must be above 0.5.
+
+    Attributes:
+        path_1: Path to single-end library or first mate file.
+        path_2: Path to second mate file.
+        out_dir: Path to directory where output is written to.
+        run_id: Random string identifier for HTSinfer run.
+        tmp_dir: Path to directory where temporary output is written to.
+        cleanup_regime: Which data to keep after run concludes; one of
+            `CleanupRegimes`.
+        records: Number of input file records to process.
+        threads: Number of threads to run STAR with.
+        transcripts_file: File path to transcripts FASTA file.
+        read_layout_adapter_file: Path to text file containing 3' adapter
+            sequences to scan for (one sequence per line).
+        read_layout_min_match_pct: Minimum percentage of reads that contain a
+            given adapter in order for it to be considered as the library's
+            3'-end adapter.
+        read_layout_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent adapter in order for the former to be
+            considered as the library's 3'-end adapter.
+        lib_source_min_match_pct: Minimum percentage of reads that are
+            consistent with a given source in order for it to be considered as
+            the to be considered the library's source.
+        lib_source_min_freq_ratio: Minimum frequency ratio between the first
+            and second most frequent source in order for the former to be
+            considered the library's source.
+        read_orientation_min_mapped_reads: Minimum number of mapped reads for
+            deeming the read orientation result reliable.
+        read_orientation_min_fraction: Minimum fraction of mapped reads
+            required to be consistent with a given read orientation state in
+            order for that orientation to be reported. Must be above 0.5.
+        path_1_processed: Path to processed `path_1` file.
+        path_2_processed: Path to processed `path_2` file.
+        transcripts_file_processed: Path to processed `transcripts_file` file.
+        state: State of the run; one of `RunStates`.
+        results: Results container for storing determined library metadata.
+    """
+    path_1: Path
+    path_2: Optional[Path] = None
+    out_dir: Optional[Path] = Path.cwd() / 'results_htsinfer'
+    tmp_dir: Optional[Path] = \
+        Path(tempfile.gettempdir()) / 'tmp_htsinfer'
+    cleanup_regime: Optional[CleanupRegimes] = \
+        CleanupRegimes.DEFAULT
+    records: Optional[int] = 0
+    threads: Optional[int] = 1
+    transcripts_file: Optional[Path] = (
+        Path(__file__).parent.parent.absolute() /
+        "data/transcripts.fasta.gz"
+    )
+    read_layout_adapter_file: Optional[Path] = (
+        Path(__file__).parent.parent.absolute() /
+        "data/adapter_fragments.txt"
+    )
+    read_layout_min_match_pct: Optional[float] = 2
+    read_layout_min_freq_ratio: Optional[float] = 2
+    lib_source_min_match_pct: Optional[float] = 2
+    lib_source_min_freq_ratio: Optional[float] = 2
+    read_orientation_min_mapped_reads: Optional[int] = 20
+    read_orientation_min_fraction: Optional[float] = 0.75
+    path_1_processed: Optional[Path]
+    path_2_processed: Optional[Path]
+    transcripts_file_processed: Optional[Path]
+
+
+class Config(BaseModel):
+    """Configuration model for CLI arguments and inference results.
+
+    Args:
+        args: Container class for CLI arguments.
+        results: Container class for aggregating results from the different inference
+            functionalities.
+    Attributes:
+        args: Container class for CLI arguments.
+        results: Container class for aggregating results from the different inference
+            functionalities.
+    """
+    args: Args
+    results: Optional[Results]

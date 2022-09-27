@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from htsinfer.exceptions import (FileProblem, MetadataWarning)
-from htsinfer.models import Source
+from htsinfer.models import (Source, Config, Args, Results)
 
 # test files
 PACKAGE_DIR = Path(__file__).resolve().parents[1] / "htsinfer"
@@ -63,6 +63,20 @@ SEQ_ID_DUMMY = ""
 SEQ_ID_MATE_1 = "@SRR11971718:6:73:941:1973#0/1"
 SEQ_ID_MATE_2 = "@SRR11971718:6:73:941:1973#0/2"
 SEQ_ID_SINGLE = "@SRR11971718:6:73:941:1973#0"
+
+ARGS = Args(
+    path_1=FILE_MATE_1,
+    path_2=FILE_MATE_2,
+    transcripts_file=FILE_TRANSCRIPTS,
+    read_layout_adapter_file=FILE_ADAPTER,
+    path_1_processed=FILE_MATE_1,
+    path_2_processed=FILE_MATE_2,
+)
+
+CONFIG = Config(
+    args=ARGS,
+    results=Results(),
+)
 
 
 # helper classes

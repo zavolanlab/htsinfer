@@ -9,6 +9,7 @@ from tests.utils import (
     FILE_MATE_1,
     FILE_MATE_2,
     FILE_TRANSCRIPTS,
+    CONFIG,
     SOURCE_HUMAN,
 )
 
@@ -18,28 +19,29 @@ class TestGetOrientation:
 
     def test_init_required(self):
         """Create instance with required parameters."""
+        CONFIG.args.path_2_processed = None
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
+            config=CONFIG,
         )
         assert test_instance.paths[0] == FILE_MATE_1
 
     def test_init_required_paired(self):
         """Create instance with required parameters for paired-end library."""
+        CONFIG.args.path_2_processed = FILE_MATE_2
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            transcripts_file=FILE_TRANSCRIPTS,
+            config=CONFIG,
         )
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
 
     def test_evaluate_single(self, monkeypatch, tmpdir):
         """Get library statistics for a single-end library."""
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
+            config=CONFIG,
         )
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.get_source',
@@ -53,11 +55,11 @@ class TestGetOrientation:
 
     def test_evaluate_paired(self, monkeypatch, tmpdir):
         """Get library statistics for a paired-end library."""
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.path_2_processed = FILE_MATE_2
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
+            config=CONFIG,
         )
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.get_source',

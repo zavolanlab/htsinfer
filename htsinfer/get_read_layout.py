@@ -8,7 +8,7 @@ import ahocorasick as ahc  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 
 from htsinfer.exceptions import FileProblem
-from htsinfer.models import ResultsLayout
+from htsinfer.models import ResultsLayout, Config
 from htsinfer.utils import (
     convert_dict_to_df,
     validate_top_score,
@@ -71,23 +71,15 @@ class GetReadLayout:
     """
     def __init__(
         self,
-        path_1: Path,
-        path_2: Optional[Path] = None,
-        adapter_file: Path = (
-            Path(__file__).parent.parent.absolute() /
-            "data/adapter_fragments.txt"
-        ),
-        out_dir: Path = Path.cwd() / 'results_htsinfer',
-        min_match_pct: float = 2,
-        min_freq_ratio: float = 2,
+        config: Config,
     ):
         """Class contructor."""
-        self.path_1: Path = path_1
-        self.path_2: Optional[Path] = path_2
-        self.adapter_file: Path = adapter_file
-        self.out_dir: Path = out_dir
-        self.min_match_pct: float = min_match_pct
-        self.min_freq_ratio: float = min_freq_ratio
+        self.path_1: Path = config.args.path_1_processed
+        self.path_2: Optional[Path] = config.args.path_2_processed
+        self.adapter_file: Path = config.args.read_layout_adapter_file
+        self.out_dir: Path = config.args.out_dir
+        self.min_match_pct: float = config.args.read_layout_min_match_pct
+        self.min_freq_ratio: float = config.args.read_layout_min_freq_ratio
         self.results: ResultsLayout = ResultsLayout()
 
     def evaluate(self) -> None:
