@@ -263,10 +263,12 @@ class TestHtsInfer:
         test_instance = HtsInfer(config=CONFIG)
         test_instance.get_library_stats()
         assert (
-            test_instance.config.results.library_stats.file_1.read_length.min == 150
+            test_instance.config.results.library_stats.file_1.read_length.min
+            == 150
         )
         assert (
-            test_instance.config.results.library_stats.file_1.read_length.max == 150
+            test_instance.config.results.library_stats.file_1.read_length.max
+            == 150
         )
 
     def test_get_library_type_default(self):
@@ -281,6 +283,9 @@ class TestHtsInfer:
 
     def test_clean_up_keep_none(self, tmpdir):
         """Remove all data."""
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.transcripts_file = FILE_TRANSCRIPTS
         test_instance = HtsInfer(config=CONFIG)
         test_instance.prepare_env()
         test_instance.state = RunStates.OKAY
@@ -290,7 +295,16 @@ class TestHtsInfer:
 
     def test_clean_up_keep_results(self, tmpdir):
         """Remove temporary data."""
-        test_instance = HtsInfer(config=CONFIG)
+        arguments = Args(path_1=FILE_MATE_1,
+                         out_dir=tmpdir,
+                         tmpdir=tmpdir,
+                         )
+        results = Results()
+        configs = Config(
+            args=arguments,
+            results=results,
+        )
+        test_instance = HtsInfer(config=configs)
         test_instance.prepare_env()
         test_instance.state = RunStates.WARNING
         test_instance.clean_up()
@@ -299,7 +313,16 @@ class TestHtsInfer:
 
     def test_clean_up_keep_all(self, tmpdir):
         """Remove no data."""
-        test_instance = HtsInfer(config=CONFIG)
+        arguments = Args(path_1=FILE_MATE_1,
+                         out_dir=tmpdir,
+                         tmpdir=tmpdir,
+                         )
+        results = Results()
+        configs = Config(
+            args=arguments,
+            results=results,
+        )
+        test_instance = HtsInfer(config=configs)
         test_instance.prepare_env()
         test_instance.state = RunStates.ERROR
         test_instance.clean_up()

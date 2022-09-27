@@ -37,7 +37,7 @@ class TestGetOrientation:
         """Create instance with required parameters."""
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = None
-        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.library_type == ResultsType()
@@ -47,7 +47,7 @@ class TestGetOrientation:
         """Create instance with required parameters for paired-end library."""
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = FILE_MATE_2
-        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
@@ -58,7 +58,7 @@ class TestGetOrientation:
         """Create instance with all available parameters."""
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = FILE_MATE_2
-        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         CONFIG.args.tmp_dir = tmpdir
         test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
@@ -151,7 +151,7 @@ class TestGetOrientation:
         CONFIG.results.library_type = ResultsType(
             relationship=StatesTypeRelationship.split_mates,
         )
-        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         CONFIG.args.tmp_dir = tmpdir
         test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()

@@ -39,7 +39,7 @@ class TestGetOrientation:
         CONFIG.args.path_2_processed = None
         CONFIG.args.tmp_dir = tmpdir
         CONFIG.args.out_dir = tmpdir
-        CONFIG.args.transcripts_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetLibSource(
             config=CONFIG,
         )
