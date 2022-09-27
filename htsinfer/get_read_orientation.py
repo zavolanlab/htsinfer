@@ -76,7 +76,7 @@ class GetOrientation:
                       config.args.path_2_processed)
         self.library_type = config.results.library_type
         self.library_source = config.results.library_source
-        self.transcripts_file = config.args.transcripts_file_processed
+        self.transcripts_file = config.args.t_file_processed
         self.tmp_dir = config.args.tmp_dir
         self.threads_star = config.args.threads
         self.min_mapped_reads = config.args.read_orientation_min_mapped_reads

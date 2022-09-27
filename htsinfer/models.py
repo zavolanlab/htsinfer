@@ -395,7 +395,7 @@ class Args(BaseModel):
             order for that orientation to be reported. Must be above 0.5.
         path_1_processed: Path to processed `path_1` file.
         path_2_processed: Path to processed `path_2` file.
-        transcripts_file_processed: Path to processed `transcripts_file` file.
+        t_file_processed: Path to processed `transcripts_file` file.
         state: State of the run; one of `RunStates`.
         results: Results container for storing determined library metadata.
     """
@@ -424,7 +424,7 @@ class Args(BaseModel):
     read_orientation_min_fraction: Optional[float] = 0.75
     path_1_processed: Optional[Path]
     path_2_processed: Optional[Path]
-    transcripts_file_processed: Optional[Path]
+    t_file_processed: Optional[Path]
 
 
 class Config(BaseModel):
@@ -432,12 +432,12 @@ class Config(BaseModel):
 
     Args:
         args: Container class for CLI arguments.
-        results: Container class for aggregating results from the different inference
-            functionalities.
+        results: Container class for aggregating results
+                from the different inference functionalities.
     Attributes:
         args: Container class for CLI arguments.
-        results: Container class for aggregating results from the different inference
-            functionalities.
+        results: Container class for aggregating results
+                from the different inference functionalities.
     """
     args: Args
     results: Optional[Results]

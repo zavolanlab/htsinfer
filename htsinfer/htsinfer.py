@@ -55,7 +55,7 @@ class HtsInfer:
             Path(config.args.tmp_dir) / f"tmp_{self.run_id}"
         self.config.args.path_1_processed = self.config.args.path_1
         self.config.args.path_2_processed = self.config.args.path_2
-        self.config.args.transcripts_file_processed = (
+        self.config.args.t_file_processed = (
             config.args.tmp_dir / config.args.transcripts_file.stem
             if config.args.transcripts_file.suffix == ".gz"
             else config.args.tmp_dir / config.args.transcripts_file.name
@@ -149,7 +149,8 @@ class HtsInfer:
             self.config.args.out_dir.mkdir(parents=True)
         except OSError as exc:
             raise WorkEnvProblem(
-                f"Creation of results directory failed: {self.config.args.out_dir}"
+                f"Creation of results directory failed: "
+                f"{self.config.args.out_dir}"
             ) from exc
         LOGGER.info(f"Created results directory: {self.config.args.out_dir}")
 
@@ -158,7 +159,8 @@ class HtsInfer:
             self.config.args.tmp_dir.mkdir(parents=True)
         except OSError as exc:
             raise WorkEnvProblem(
-                f"Creation of temporary directory failed: {self.config.args.tmp_dir}"
+                f"Creation of temporary directory failed: "
+                f"{self.config.args.tmp_dir}"
             ) from exc
         LOGGER.info(f"Created temporary directory: {self.config.args.tmp_dir}")
         LOGGER.debug("Created work environment")
@@ -183,7 +185,8 @@ class HtsInfer:
         )
         input_files_1.process()
         self.config.args.path_1_processed = input_files_1.out_path
-        LOGGER.info(f"Processed read file 1: {self.config.args.path_1_processed}")
+        LOGGER.info(f"Processed read file 1: "
+                    f"{self.config.args.path_1_processed}")
 
         # process second file, if available
         if self.config.args.path_2 is not None:
@@ -195,22 +198,24 @@ class HtsInfer:
             )
             input_files_2.process()
             self.config.args.path_2_processed = input_files_2.out_path
-            LOGGER.info(f"Processed read file 2: {self.config.args.path_2_processed}")
+            LOGGER.info(f"Processed read file 2: "
+                        f"{self.config.args.path_2_processed}")
 
         # process transcripts file
-        LOGGER.debug(f"Processing transcripts file: {self.config.args.transcripts_file}")
+        LOGGER.debug(f"Processing transcripts file: "
+                     f"{self.config.args.transcripts_file}")
         if self.config.args.transcripts_file.suffix == ".gz":
             _open = partial(gzip.open)
         else:
             _open = open
         try:
             with _open(self.config.args.transcripts_file, 'rb') as f_in:
-                with open(self.config.args.transcripts_file_processed, 'wb') as f_out:
+                with open(self.config.args.t_file_processed, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
         except Exception as exc:
             raise FileProblem(exc) from exc
         LOGGER.info(
-            f"Processed transcripts file: {self.config.args.transcripts_file_processed}"
+            f"Processed transcripts file: {self.config.args.t_file_processed}"
         )
 
     def get_library_stats(self):
@@ -276,9 +281,11 @@ class HtsInfer:
                 shutil.rmtree(self.config.args.out_dir)
             except OSError as exc:
                 raise WorkEnvProblem(
-                    f"Removal of results directory failed: {self.config.args.out_dir}"
+                    f"Removal of results directory failed: "
+                    f"{self.config.args.out_dir}"
                 ) from exc
-            LOGGER.info(f"Removed results directory: {self.config.args.out_dir}")
+            LOGGER.info(f"Removed results directory: "
+                        f"{self.config.args.out_dir}")
 
         # remove temporary directory
         if self.config.args.cleanup_regime in (
@@ -289,9 +296,11 @@ class HtsInfer:
                 shutil.rmtree(self.config.args.tmp_dir)
             except OSError as exc:
                 raise WorkEnvProblem(
-                    f"Removal of temporary directory failed: {self.config.args.tmp_dir}"
+                    f"Removal of temporary directory failed: "
+                    f"{self.config.args.tmp_dir}"
                 ) from exc
-            LOGGER.info(f"Removed temporary directory: {self.config.args.tmp_dir}")
+            LOGGER.info(f"Removed temporary directory: "
+                        f"{self.config.args.tmp_dir}")
 
     def print(self):
         """Print results to STDOUT."""

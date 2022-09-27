@@ -70,7 +70,7 @@ class GetLibSource:
         """Class contructor."""
         self.paths = (config.args.path_1_processed,
                       config.args.path_2_processed)
-        self.transcripts_file = config.args.transcripts_file_processed
+        self.transcripts_file = config.args.t_file_processed
         self.out_dir = config.args.out_dir
         self.tmp_dir = config.args.tmp_dir
         self.min_match_pct = config.args.lib_source_min_match_pct
