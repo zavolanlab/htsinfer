@@ -401,30 +401,33 @@ class Args(BaseModel):
     """
     path_1: Path
     path_2: Optional[Path] = None
-    out_dir: Optional[Path] = Path.cwd() / 'results_htsinfer'
-    tmp_dir: Optional[Path] = \
+    out_dir: Path = Path.cwd() / 'results_htsinfer'
+    tmp_dir: Path = \
         Path(tempfile.gettempdir()) / 'tmp_htsinfer'
-    cleanup_regime: Optional[CleanupRegimes] = \
+    cleanup_regime: CleanupRegimes = \
         CleanupRegimes.DEFAULT
-    records: Optional[int] = 0
-    threads: Optional[int] = 1
-    transcripts_file: Optional[Path] = (
+    records: int = 0
+    threads: int = 1
+    transcripts_file: Path = (
         Path(__file__).parent.parent.absolute() /
         "data/transcripts.fasta.gz"
     )
-    read_layout_adapter_file: Optional[Path] = (
+    read_layout_adapter_file: Path = (
         Path(__file__).parent.parent.absolute() /
         "data/adapter_fragments.txt"
     )
-    read_layout_min_match_pct: Optional[float] = 2
-    read_layout_min_freq_ratio: Optional[float] = 2
-    lib_source_min_match_pct: Optional[float] = 2
-    lib_source_min_freq_ratio: Optional[float] = 2
-    read_orientation_min_mapped_reads: Optional[int] = 20
-    read_orientation_min_fraction: Optional[float] = 0.75
-    path_1_processed: Optional[Path]
+    read_layout_min_match_pct: float = 2
+    read_layout_min_freq_ratio: float = 2
+    lib_source_min_match_pct: float = 2
+    lib_source_min_freq_ratio: float = 2
+    read_orientation_min_mapped_reads: int = 20
+    read_orientation_min_fraction: float = 0.75
+    path_1_processed: Path = Path()
     path_2_processed: Optional[Path]
-    t_file_processed: Optional[Path]
+    t_file_processed: Path = (
+        Path(__file__).parent.parent.absolute() /
+        "data/transcripts.fasta.gz"
+    )
 
 
 class Config(BaseModel):
@@ -440,4 +443,4 @@ class Config(BaseModel):
                 from the different inference functionalities.
     """
     args: Args
-    results: Optional[Results]
+    results: Results

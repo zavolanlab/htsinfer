@@ -9,7 +9,6 @@ from random import choices
 import shutil
 import string
 import sys
-from typing import Optional
 
 from htsinfer.exceptions import (
     FileProblem,
@@ -43,7 +42,7 @@ class HtsInfer:
     """
     def __init__(
         self,
-        config: Optional[Config],
+        config: Config,
     ):
         """Class constructor."""
         self.config = config
