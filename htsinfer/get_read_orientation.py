@@ -30,23 +30,8 @@ class GetOrientation:
     single- or paired-end seguencing library.
 
     Args:
-        paths: Tuple of one or two paths for single-end and paired end library
-            files.
-        library_type: ResultsType object with library type and mate
-            relationship.
-        library_source: ResultsSource object with source information on each
-            library file.
-        transcripts_file: File path to an uncompressed transcripts file in
-            FASTA format.
-        tmp_dir: Path to directory where temporary output is written to.
-        threads_star: Number of threads to run STAR with.
-        source: Source (organism, tissue, etc.) of the sequencing library.
-        min_mapped_reads: Minimum number of mapped reads for deeming the
-            read orientation result reliable.
-        min_fraction: Minimum fraction of mapped reads required to be
-            consistent with a given read orientation state in order for that
-            orientation to be reported. Must be above 0.5.
-        mate_relationship: Type/mate relationship between the provided files.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attributes:
         paths: Tuple of one or two paths for single-end and paired end library
@@ -59,13 +44,11 @@ class GetOrientation:
             FASTA format.
         tmp_dir: Path to directory where temporary output is written to.
         threads_star: Number of threads to run STAR with.
-        source: Source (organism, tissue, etc.) of the sequencing library.
         min_mapped_reads: Minimum number of mapped reads for deeming the
             read orientation result reliable.
         min_fraction: Minimum fraction of mapped reads required to be
             consistent with a given read orientation state in order for that
             orientation to be reported. Must be above 0.5.
-        mate_relationship: Type/mate relationship between the provided files.
     """
     def __init__(
         self,
@@ -88,7 +71,6 @@ class GetOrientation:
         Returns:
             Orientation results object.
         """
-        orientation = ResultsOrientation()
 
         # get transcripts for current organims
         transcripts = self.subset_transcripts_by_organism()
@@ -105,9 +87,8 @@ class GetOrientation:
 
         # process alignments
         star_dirs = [e for e in star_cmds if e is not None]
-        orientation = self.process_alignments(star_dirs=star_dirs)
 
-        return orientation
+        return self.process_alignments(star_dirs=star_dirs)
 
     def subset_transcripts_by_organism(self) -> Path:
         """Filter FASTA file of transcripts by current sources.

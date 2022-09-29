@@ -29,8 +29,8 @@ class GetLibType:
     FASTQ sequencing libraries.
 
     Args:
-        path_1: Path to single-end library or first mate file.
-        path_2: Path to second mate file.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attributes:
         path_1: Path to single-end library or first mate file.

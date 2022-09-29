@@ -30,21 +30,8 @@ class GetLibSource:
     seguencing library.
 
     Args:
-        paths: Tuple of one or two paths for single-end and paired end library
-            files.
-        transcripts_file: File path to an uncompressed transcripts file in
-            FASTA format. Expected to contain `|`-separated sequence identifier
-            lines that contain an organism short name and a taxon identifier in
-            the fourth and fifth columns, respectively. Example sequence
-            identifier: `rpl-13|ACYPI006272|ACYPI006272-RA|apisum|7029`
-        out_dir: Path to directory where output is written to.
-        tmp_dir: Path to directory where temporary output is written to.
-        min_match_pct: Minimum percentage of reads that are consistent with a
-            given source in order for it to be considered as the to be
-            considered the library's source.
-        min_freq_ratio: Minimum frequency ratio between the first and second
-            most frequent source in order for the former to be considered the
-            library's source.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attrubutes:
         paths: Tuple of one or two paths for single-end and paired end library

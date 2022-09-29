@@ -21,17 +21,8 @@ class GetReadLayout:
     """Determine the adapter sequence present in the FASTQ sequencing libraries.
 
     Args:
-        path_1: Path to single-end library or first mate file.
-        path_2: Path to second mate file.
-        adapter_file: Path to text file containing 3' adapter sequences (one
-            sequence per line) to scan for.
-        out_dir: Path to directory where output is written to.
-        min_match_pct: Minimum percentage of reads that contain a given adapter
-            sequence in order for it to be considered as the library's 3'-end
-            adapter.
-        min_freq_ratio: Minimum frequency ratio between the first and second
-            most frequent adapter in order for the former to be considered as
-            the library's 3'-end adapter.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attributes:
         path_1: Path to single-end library or first mate file.

@@ -22,9 +22,8 @@ class GetLibStats:
     library.
 
     Args:
-        paths: Tuple of one or two paths for single-end and paired end library
-            files.
-        tmp_dir: Path to directory where temporary output is written to.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attributes:
         paths: Tuple of one or two paths for single-end and paired end library

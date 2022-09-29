@@ -35,10 +35,12 @@ class HtsInfer:
     """Determine sequencing library metadata.
 
     Args:
-        args: Container class for all arguments used in inference.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attributes:
-        args: Container class for all arguments used in inference.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
     """
     def __init__(
         self,
