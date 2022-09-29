@@ -41,6 +41,8 @@ class HtsInfer:
     Attributes:
         config: Container class for all arguments used in inference
                 and results produced by the class.
+        run_id: Random string identifier for HTSinfer run.
+        state: State of the run; one of `RunStates`.
     """
     def __init__(
         self,
