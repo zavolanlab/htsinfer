@@ -4,6 +4,7 @@
 import argparse
 import logging
 from pathlib import Path
+from typing import Dict
 import signal
 import sys
 import tempfile
@@ -16,7 +17,6 @@ from htsinfer.models import (
     CleanupRegimes,
     LogLevels,
     Args,
-    Results,
     Config,
 )
 
@@ -83,6 +83,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output-directory",
+        dest="out_dir",
         default=Path.cwd() / 'results_htsinfer',
         type=lambda p: Path(p).absolute(),
         metavar="PATH",
@@ -90,6 +91,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--temporary-directory",
+        dest="tmp_dir",
         default=Path(tempfile.gettempdir()) / 'tmp_htsinfer',
         type=lambda p: Path(p).absolute(),
         metavar="PATH",
@@ -97,8 +99,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--cleanup-regime",
+        dest="cleanup_regime",
         choices=[e.name for e in CleanupRegimes],
-        default=CleanupRegimes.DEFAULT.name,
+        default=CleanupRegimes.DEFAULT.value,
         type=str,
         help=(
             "determine which data to keep after each run; in default mode, "
@@ -109,6 +112,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--records",
+        dest="records",
         default=0,
         type=int,
         metavar="INT",
@@ -120,6 +124,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--threads",
+        dest="threads",
         metavar="INT",
         type=int,
         default=1,
@@ -129,10 +134,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--transcripts",
+        dest="transcripts_file",
         metavar="FASTA",
         type=str,
         default=(
-            Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"
+            Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"  # pylint: disable=E1101
         ),
         help=(
             "FASTA file containing transcripts to be used for mapping files "
@@ -146,6 +152,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--read-layout-adapters",
+        dest="read_layout_adapter_file",
         metavar="PATH",
         type=str,
         default=(
@@ -159,6 +166,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--read-layout-min-match-percentage",
+        dest="read_layout_min_match_pct",
         metavar="FLOAT",
         type=float,
         default=2,
@@ -170,6 +178,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--read-layout-min-frequency-ratio",
+        dest="read_layout_min_freq_ratio",
         metavar="FLOAT",
         type=float,
         default=2,
@@ -181,6 +190,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--library-source-min-match-percentage",
+        dest="lib_source_min_match_pct",
         metavar="FLOAT",
         type=float,
         default=5,
@@ -191,6 +201,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--library-source-min-frequency-ratio",
+        dest="lib_source_min_freq_ratio",
         metavar="FLOAT",
         type=float,
         default=2,
@@ -202,6 +213,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--read-orientation-min-mapped-reads",
+        dest="read_orientation_min_mapped_reads",
         metavar="INT",
         type=int,
         default=20,
@@ -212,6 +224,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--read-orientation-min-fraction",
+        dest="read_orientation_min_fraction",
         metavar="FLOAT",
         type=float,
         default=0.75,
@@ -267,34 +280,13 @@ def main() -> None:
     try:
         # handle CLI args
         args = parse_args()
+        paths = args.paths
 
-        arguments = Args(
-            path_1=args.paths[0],
-            path_2=args.paths[1],
-            out_dir=args.output_directory,
-            tmp_dir=args.temporary_directory,
-            cleanup_regime=CleanupRegimes[args.cleanup_regime],
-            records=args.records,
-            threads=args.threads,
-            transcripts_file=args.transcripts,
-            read_layout_adapter_file=args.read_layout_adapters,
-            read_layout_min_match_pct=args.read_layout_min_match_percentage,
-            read_layout_min_freq_ratio=args.read_layout_min_frequency_ratio,
-            lib_source_min_match_pct=args.library_source_min_match_percentage,
-            lib_source_min_freq_ratio=args.library_source_min_frequency_ratio,
-            read_orientation_min_mapped_reads=(
-                args.read_orientation_min_mapped_reads
-            ),
-            read_orientation_min_fraction=(
-                args.read_orientation_min_fraction
-            ),
-        )
-
-        results = Results()
+        args_dict: Dict = vars(args)
+        del args_dict["paths"]
 
         config = Config(
-            args=arguments,
-            results=results,
+            args=Args(path_1=paths[0], path_2=paths[1], **args_dict),
         )
 
         # set up logging

@@ -399,7 +399,7 @@ class Args(BaseModel):
         state: State of the run; one of `RunStates`.
         results: Results container for storing determined library metadata.
     """
-    path_1: Path
+    path_1: Path = Path()
     path_2: Optional[Path] = None
     out_dir: Path = Path.cwd() / 'results_htsinfer'
     tmp_dir: Path = \
@@ -408,14 +408,8 @@ class Args(BaseModel):
         CleanupRegimes.DEFAULT
     records: int = 0
     threads: int = 1
-    transcripts_file: Path = (
-        Path(__file__).parent.parent.absolute() /
-        "data/transcripts.fasta.gz"
-    )
-    read_layout_adapter_file: Path = (
-        Path(__file__).parent.parent.absolute() /
-        "data/adapter_fragments.txt"
-    )
+    transcripts_file: Path = Path()
+    read_layout_adapter_file: Path = Path()
     read_layout_min_match_pct: float = 2
     read_layout_min_freq_ratio: float = 2
     lib_source_min_match_pct: float = 2
@@ -424,10 +418,7 @@ class Args(BaseModel):
     read_orientation_min_fraction: float = 0.75
     path_1_processed: Path = Path()
     path_2_processed: Optional[Path]
-    t_file_processed: Path = (
-        Path(__file__).parent.parent.absolute() /
-        "data/transcripts.fasta.gz"
-    )
+    t_file_processed: Path = Path()
 
 
 class Config(BaseModel):
@@ -442,5 +433,5 @@ class Config(BaseModel):
         results: Container class for aggregating results
                 from the different inference functionalities.
     """
-    args: Args
-    results: Results
+    args: Args = Args()
+    results: Results = Results()
