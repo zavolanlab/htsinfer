@@ -101,7 +101,7 @@ def parse_args() -> argparse.Namespace:
         "--cleanup-regime",
         dest="cleanup_regime",
         choices=[e.name for e in CleanupRegimes],
-        default=CleanupRegimes.DEFAULT.value,
+        default=CleanupRegimes.DEFAULT.name,
         type=str,
         help=(
             "determine which data to keep after each run; in default mode, "
