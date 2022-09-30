@@ -225,6 +225,8 @@ class GetOrientation:
         LOGGER.debug(f"Creating STAR index for: {fasta}")
 
         index_dir: Path = Path(self.tmp_dir) / "index"
+
+        # solves the macOS issue with STAR
         index_dir.mkdir(parents=True, exist_ok=True)
 
         cmd = [
@@ -290,7 +292,10 @@ class GetOrientation:
             cmd.extend(read_files)
             cmd.append("--outFileNamePrefix")
             cmd.append(out_dir)
+
+            # solves the macOS issue with STAR
             Path(out_dir).mkdir(parents=True, exist_ok=True)
+
             return cmd
 
         out_dir_base: Path = Path(self.tmp_dir) / "alignments"

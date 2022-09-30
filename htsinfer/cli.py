@@ -138,7 +138,8 @@ def parse_args() -> argparse.Namespace:
         metavar="FASTA",
         type=str,
         default=(
-            Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"  # pylint: disable=E1101
+            Path(__file__).parents[1].absolute()  # pylint: disable=E1101
+            / "data/transcripts.fasta.gz"
         ),
         help=(
             "FASTA file containing transcripts to be used for mapping files "
@@ -281,9 +282,9 @@ def main() -> None:
         # handle CLI args
         args = parse_args()
         paths = args.paths
-
         args_dict: Dict = vars(args)
         del args_dict["paths"]
+        args_dict["cleanup_regime"] = CleanupRegimes[args.cleanup_regime]
 
         config = Config(
             args=Args(path_1=paths[0], path_2=paths[1], **args_dict),
