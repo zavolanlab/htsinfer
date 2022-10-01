@@ -2,7 +2,11 @@
 
 import pytest
 
-from htsinfer.exceptions import FileProblem, KallistoProblem
+from htsinfer.exceptions import (
+    FileProblem,
+    KallistoProblem,
+    TranscriptsFastaProblem
+)
 from htsinfer.get_library_source import GetLibSource
 from htsinfer.models import (
     ResultsSource,
@@ -12,6 +16,7 @@ from tests.utils import (
     FILE_2000_RECORDS,
     FILE_DUMMY,
     FILE_EMPTY,
+    FILE_INVALID_PATH,
     FILE_MATE_1,
     FILE_MATE_2,
     FILE_SOURCE_FRUIT_FLY,
@@ -171,7 +176,7 @@ class TestGetLibSource:
             tmp_dir=tmpdir,
             out_dir=tmpdir,
         )
-        with pytest.raises(ValueError):
+        with pytest.raises(TranscriptsFastaProblem):
             test_instance.evaluate()
 
     def test_evaluate_kallisto_index_problem(self, monkeypatch, tmpdir):
@@ -239,7 +244,7 @@ class TestGetLibSource:
             sub_method_name,
             lambda *args, **kwargs: TEST_FILES_DIR,
             )
-        with pytest.raises(ValueError):
+        with pytest.raises(TranscriptsFastaProblem):
             test_instance.evaluate()
 
     def test_evaluate_min_match_pct(self, tmpdir):
@@ -273,3 +278,15 @@ class TestGetLibSource:
             file_1=Source(),
             file_2=Source()
         )
+
+    def test_create_kallisto_index_problem(self, tmpdir):
+        """Pass invalid file as transcripts.fasta file
+        to simulate KallistoProblem."""
+        test_instance = GetLibSource(
+            paths=(FILE_MATE_1, FILE_MATE_2),
+            transcripts_file=FILE_INVALID_PATH,
+            tmp_dir=tmpdir,
+            out_dir=tmpdir,
+        )
+        with pytest.raises(KallistoProblem):
+            test_instance.create_kallisto_index()

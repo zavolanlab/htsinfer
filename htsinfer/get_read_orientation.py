@@ -516,7 +516,7 @@ class GetOrientation:
                         continue
 
                     # check which alignment is first mate
-                    record_2 = _file.__next__()
+                    record_2 = _file.__next__()  # pylint disable=C2801
                     if (
                         record_1.flag & (1 << 6) and
                         record_2.flag & (1 << 7)
