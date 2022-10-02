@@ -17,6 +17,7 @@ from tests.utils import (
     FILE_2000_RECORDS,
     FILE_DUMMY,
     FILE_EMPTY_ALIGNED_SAM,
+    FILE_INVALID_TRANSCRIPTS,
     FILE_MATE_1,
     FILE_MATE_2,
     FILE_ORIENTATION_ISF_1,
@@ -32,6 +33,8 @@ from tests.utils import (
     FILE_UNMAPPED_PAIRED_1,
     FILE_UNMAPPED_PAIRED_2,
     FILE_UNMAPPED_SINGLE,
+    RaiseOSError,
+    SubprocessError,
     SOURCE_HUMAN,
     SOURCE_FRUIT_FLY,
 )
@@ -279,6 +282,23 @@ class TestGetOrientation:
         with pytest.raises(FileProblem):
             test_instance.subset_transcripts_by_organism()
 
+    def test_subset_transcripts_by_organism_invalid_fasta(self, tmpdir):
+        """Pass invalid transcripts.fasta file to simulate index error."""
+        library_source = ResultsSource(
+                file_1=SOURCE_HUMAN,
+                file_2=SOURCE_FRUIT_FLY
+            )
+        test_instance = GetOrientation(
+            paths=(FILE_ORIENTATION_IU_1, None),
+            library_type=ResultsType(),
+            library_source=library_source,
+            transcripts_file=FILE_INVALID_TRANSCRIPTS,
+            tmp_dir=tmpdir
+        )
+        results = test_instance.subset_transcripts_by_organism()
+        filtered_organisms_transcripts = tmpdir / f"{library_source}.fasta"
+        assert results == filtered_organisms_transcripts
+
     def test_get_fasta_size(self, tmpdir):
         """Get nucleotide statistics for filtererd transcripts
         with different organisms."""
@@ -442,3 +462,77 @@ class TestGetOrientation:
         )
         with pytest.raises(FileProblem):
             test_instance.process_paired(FILE_EMPTY_ALIGNED_SAM)
+
+    def test_create_star_index_star_problem(self, tmpdir):
+        """Pass invalid transcripts path to simulate star problem."""
+        test_instance = GetOrientation(
+            paths=(FILE_ORIENTATION_IU_1, None),
+            library_type=ResultsType(),
+            library_source=ResultsSource(),
+            transcripts_file=FILE_TRANSCRIPTS,
+            tmp_dir=tmpdir,
+        )
+        transcripts_path = tmpdir / 'invalid'
+        with pytest.raises(StarProblem):
+            test_instance.create_star_index(transcripts_path)
+
+    def test_evaluate_paired_not_mates_unmapped(self, tmpdir):
+        """Get read orientation for a paired-end library with no mappable
+        reads.
+        """
+        test_instance = GetOrientation(
+            paths=(FILE_UNMAPPED_PAIRED_1, FILE_UNMAPPED_PAIRED_2),
+            library_type=ResultsType(
+                relationship=StatesTypeRelationship.not_mates,
+            ),
+            library_source=ResultsSource(),
+            transcripts_file=FILE_TRANSCRIPTS,
+            tmp_dir=tmpdir,
+        )
+        results = test_instance.evaluate()
+        assert results == ResultsOrientation(
+            file_1=StatesOrientation.not_available,
+            file_2=StatesOrientation.not_available,
+            relationship=StatesOrientationRelationship.not_available,
+        )
+
+    def test_subset_transcripts_by_organism_cannot_write_file(
+        self, monkeypatch, tmpdir
+    ):
+        """Force raising of ``OSError`` to simulate file problem."""
+        test_instance = GetOrientation(
+            paths=(FILE_ORIENTATION_IU_1, None),
+            library_type=ResultsType(),
+            library_source=ResultsSource(),
+            transcripts_file=FILE_INVALID_TRANSCRIPTS,
+            tmp_dir=tmpdir
+        )
+        monkeypatch.setattr(
+            'Bio.SeqIO.write',
+            RaiseOSError,
+        )
+        with pytest.raises(FileProblem):
+            test_instance.subset_transcripts_by_organism()
+
+    def test_generate_star_alignments_star_problem(self, monkeypatch, tmpdir):
+        """Force raising of ``SubprocessError`` to simulate star probelm."""
+        test_instance = GetOrientation(
+            paths=(FILE_ORIENTATION_IU_1, None),
+            library_type=ResultsType(),
+            library_source=ResultsSource(),
+            transcripts_file=FILE_TRANSCRIPTS,
+            tmp_dir=tmpdir,
+        )
+        file1_alignment_path = tmpdir / 'alignments/file_1'
+        dummy_cmd = [
+            'STAR', '--alignIntrnMax', '1',
+            '--alignEndsType', 'Local', '--runThreadN', '1',
+            "--genomeDir",
+            ]
+        cmds = {file1_alignment_path: dummy_cmd}
+        monkeypatch.setattr(
+            'subprocess.run',
+            lambda *args, **kwargs: SubprocessError(),
+        )
+        with pytest.raises(StarProblem):
+            test_instance.generate_star_alignments(cmds)

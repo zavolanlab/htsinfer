@@ -63,7 +63,7 @@ class GetLibSource:
             most frequent source in order for the former to be considered the
             library's source.
     """
-    def __init__(
+    def __init__(  # pylint: disable=E1101
         self,
         paths: Tuple[Path, Optional[Path]],
         transcripts_file: Path,

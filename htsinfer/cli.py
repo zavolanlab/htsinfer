@@ -128,7 +128,7 @@ def parse_args() -> argparse.Namespace:
         "--transcripts",
         metavar="FASTA",
         type=str,
-        default=(
+        default=(  # pylint: disable=E1101
             Path(__file__).parents[1].absolute() / "data/transcripts.fasta.gz"
         ),
         help=(

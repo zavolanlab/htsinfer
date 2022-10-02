@@ -158,7 +158,7 @@ class GetOrientation:
                 ):
                     try:
                         org_name = record.description.split("|")[3]
-                    except ValueError:
+                    except (ValueError, IndexError):
                         continue
                     if org_name in sources or len(sources) == 0:
                         yield record
@@ -369,6 +369,7 @@ class GetOrientation:
                     cmd,
                     capture_output=True,
                     text=True,
+                    check=True,
                 )
                 if result.returncode != 0:
                     LOGGER.error(result.stderr)
@@ -418,6 +419,9 @@ class GetOrientation:
 
         Returns:
             Read orientation state of library.
+
+        Raises:
+            Sam file could not be processed.
         """
         LOGGER.debug(f"Processing SAM file: '{sam}'")
 
@@ -516,6 +520,7 @@ class GetOrientation:
                         continue
 
                     # check which alignment is first mate
+                    # pylint: disable=C2801,bad-option-value
                     record_2 = _file.__next__()
                     if (
                         record_1.flag & (1 << 6) and
