@@ -2,7 +2,11 @@
 
 import pytest
 
-from htsinfer.exceptions import FileProblem, StarProblem
+from htsinfer.exceptions import (
+    FileProblem,
+    SamFileProblem,
+    StarProblem,
+)
 from htsinfer.get_read_orientation import GetOrientation
 from htsinfer.models import (
     ResultsOrientation,
@@ -447,7 +451,7 @@ class TestGetOrientation:
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
         )
-        with pytest.raises(FileProblem):
+        with pytest.raises(SamFileProblem):
             test_instance.process_single(FILE_EMPTY_ALIGNED_SAM)
 
     def test_process_paired_dummy_sam_file(self, tmpdir):

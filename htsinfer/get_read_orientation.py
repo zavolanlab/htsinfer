@@ -13,6 +13,7 @@ import pysam  # type: ignore
 
 from htsinfer.exceptions import (
     FileProblem,
+    SamFileProblem,
     StarProblem,
 )
 from htsinfer.models import (
@@ -450,9 +451,14 @@ class GetOrientation:
                                 StatesOrientation.stranded_forward
                             )
 
-        except (OSError, ValueError) as exc:
+        except OSError as exc:
             raise FileProblem(
                 f"Failed to open SAM file: '{sam}'"
+            ) from exc
+
+        except ValueError as exc:
+            raise SamFileProblem(
+                f"Not a valid SAM file: '{sam}'"
             ) from exc
 
         LOGGER.debug("Deciding read orientation...")
@@ -520,8 +526,7 @@ class GetOrientation:
                         continue
 
                     # check which alignment is first mate
-                    # pylint: disable=C2801,bad-option-value
-                    record_2 = _file.__next__()
+                    record_2 = _file.__next__()  # pylint: disable=C2801
                     if (
                         record_1.flag & (1 << 6) and
                         record_2.flag & (1 << 7)
