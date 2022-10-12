@@ -12,6 +12,7 @@ from pandas import DataFrame  # type: ignore
 from htsinfer.exceptions import (
     FileProblem,
     KallistoProblem,
+    TranscriptsFastaProblem,
 )
 from htsinfer.models import (
     ResultsSource,
@@ -182,7 +183,8 @@ class GetLibSource:
             rev_sorted=True,
             accept_zero=True,
         ):
-            source.short_name, source.taxon_id = tpm_df.iloc[0]['source_ids']
+            source.short_name, taxon_id = tpm_df.iloc[0]['source_ids']
+            source.taxon_id = int(taxon_id)
 
         LOGGER.debug(f"Source: {source}")
         return source
@@ -269,6 +271,11 @@ class GetLibSource:
             raise FileProblem(
                 "Could not process file: {_file}"
             ) from exc
+
+        if dat.empty:
+            raise TranscriptsFastaProblem(
+                "Empty abundance.tsv file created by kallisto quantification."
+            )
 
         # handle case where no alignments are found
         dat.tpm.fillna(0, inplace=True)

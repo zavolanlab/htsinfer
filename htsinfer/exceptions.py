@@ -36,3 +36,7 @@ class UnknownFastqIdentifier(Exception):
 class WorkEnvProblem(Exception):
     """Exception raised when the work environment could not be set up or
     cleaned."""
+
+
+class TranscriptsFastaProblem(Exception):
+    """Exception raised when an invalid transcripts fasta file is passed."""

@@ -29,6 +29,7 @@ FILE_INCONSISTENT_IDS_SINGLE_MATE = (
 FILE_INCONSISTENT_IDS_SINGLE_OLD_NEW = (
     TEST_FILES_DIR / "inconsistent_single_old_new.fastq"
 )
+FILE_INVALID_PATH = TEST_FILES_DIR / 'invalid'
 FILE_INVALID_SEQ_1 = TEST_FILES_DIR / "invalid_seq_1.fastq"
 FILE_INVALID_SEQ_2 = TEST_FILES_DIR / "invalid_seq_2.fastq"
 FILE_INVALID_TRANSCRIPTS = TEST_FILES_DIR / "invalid_transcripts.fasta"
