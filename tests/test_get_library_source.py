@@ -251,7 +251,7 @@ class TestGetLibSource:
         """Pass file with minimum match percentage to
         test validate_top_score."""
         test_instance = GetLibSource(
-            paths=(FILE_SOURCE_FRUIT_FLY, None),
+            paths=(FILE_MATE_1, None),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
             out_dir=tmpdir,
@@ -267,11 +267,11 @@ class TestGetLibSource:
         """Pass file with minimum frequency ratio to
         test validate_top_score."""
         test_instance = GetLibSource(
-            paths=(FILE_2000_RECORDS, None),
+            paths=(FILE_MATE_1, None),
             transcripts_file=FILE_TRANSCRIPTS,
             tmp_dir=tmpdir,
             out_dir=tmpdir,
-            min_freq_ratio=5,
+            min_freq_ratio=15,
         )
         results = test_instance.evaluate()
         assert results == ResultsSource(

@@ -19,6 +19,10 @@ class MetadataWarning(Exception):
     """Exception raised when metadata could not be determined."""
 
 
+class SamFileProblem(Exception):
+    """Exception raised when an invalid sam file is encountered."""
+
+
 class StarProblem(Exception):
     """Exception raised when running STAR index and quant commands."""
 

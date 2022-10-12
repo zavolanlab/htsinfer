@@ -17,6 +17,7 @@ FILE_ADAPTER_SEQ_TOO_LONG = (
 )
 FILE_DUMMY = Path(".")
 FILE_EMPTY = TEST_FILES_DIR / "empty.fastq"
+FILE_EMPTY_ALIGNED_SAM = TEST_FILES_DIR / "empty_aligned.out.sam"
 FILE_FASTA = TEST_FILES_DIR / "single.fasta"
 FILE_GZIPPED = TEST_FILES_DIR / "mixed_mates_compressed.fastq.gz"
 FILE_INCONSISTENT_IDS_MIXED_UNKNOWN = (
@@ -31,6 +32,7 @@ FILE_INCONSISTENT_IDS_SINGLE_OLD_NEW = (
 FILE_INVALID_PATH = TEST_FILES_DIR / 'invalid'
 FILE_INVALID_SEQ_1 = TEST_FILES_DIR / "invalid_seq_1.fastq"
 FILE_INVALID_SEQ_2 = TEST_FILES_DIR / "invalid_seq_2.fastq"
+FILE_INVALID_TRANSCRIPTS = TEST_FILES_DIR / "invalid_transcripts.fasta"
 FILE_MATE_1 = TEST_FILES_DIR / "first_mate.fastq"
 FILE_MATE_2 = TEST_FILES_DIR / "second_mate.fastq"
 FILE_ORIENTATION_ISF_1 = TEST_FILES_DIR / "orientation_isf_mate_1.fastq"
@@ -91,3 +93,10 @@ class RaiseValueError:
     """Raise ``ValueError``."""
     def __init__(self, *args, **kwargs):
         raise ValueError
+
+
+class SubprocessError:
+    """Helper class to handle ```CalledProcessError``."""
+    def __init__(self, *args, **kwargs):
+        self.returncode = -1
+        self.stderr = "Command 'exit 1' returned non-zero exit status -1."
