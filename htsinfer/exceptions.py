@@ -19,6 +19,10 @@ class MetadataWarning(Exception):
     """Exception raised when metadata could not be determined."""
 
 
+class SamFileProblem(Exception):
+    """Exception raised when an invalid sam file is encountered."""
+
+
 class StarProblem(Exception):
     """Exception raised when running STAR index and quant commands."""
 
@@ -32,3 +36,7 @@ class UnknownFastqIdentifier(Exception):
 class WorkEnvProblem(Exception):
     """Exception raised when the work environment could not be set up or
     cleaned."""
+
+
+class TranscriptsFastaProblem(Exception):
+    """Exception raised when an invalid transcripts fasta file is passed."""
