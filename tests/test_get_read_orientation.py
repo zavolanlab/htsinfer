@@ -232,6 +232,7 @@ class TestGetOrientation:
         CONFIG.args.t_file_processed = FILE_DUMMY
         CONFIG.args.tmp_dir = tmpdir
         test_instance = GetOrientation(config=CONFIG)
+
         with pytest.raises(FileProblem):
             test_instance.subset_transcripts_by_organism()
 

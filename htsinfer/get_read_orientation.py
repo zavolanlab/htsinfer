@@ -398,6 +398,7 @@ class GetOrientation:
             sam: Path to SAM file.
         Returns:
             Read orientation state of library.
+
         Raises:
             Sam file could not be processed.
         """
