@@ -21,6 +21,7 @@ from tests.utils import (
     FILE_2000_RECORDS,
     FILE_DUMMY,
     FILE_EMPTY_ALIGNED_SAM,
+    FILE_BAD_ALIGNED_SAM,
     FILE_INVALID_TRANSCRIPTS,
     FILE_MATE_1,
     FILE_MATE_2,
@@ -386,6 +387,14 @@ class TestGetOrientation:
         test_instance = GetOrientation(config=CONFIG)
         with pytest.raises(FileProblem):
             test_instance.process_paired(FILE_EMPTY_ALIGNED_SAM)
+
+    def test_process_paired_wrong_sam_file(self, tmpdir):
+        """Pass bad_aligned.out.sam file to ensure correct
+        paired file behaviour."""
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
+        assert test_instance.process_paired(FILE_BAD_ALIGNED_SAM) \
+               == ResultsOrientation()
 
     def test_create_star_index_star_problem(self, tmpdir):
         """Pass invalid transcripts path to simulate star problem."""

@@ -57,6 +57,7 @@ class TestGetReadLayout:
 
     def test_evaluate_one_file(self, tmpdir):
         """Get read layout for a single file."""
+        CONFIG.args.tmp_dir = tmpdir
         CONFIG.args.path_1_processed = FILE_SRA_SAMPLE_2
         CONFIG.args.path_2_processed = None
         test_instance = GetReadLayout(config=CONFIG)

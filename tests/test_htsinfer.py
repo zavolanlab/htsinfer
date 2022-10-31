@@ -15,6 +15,7 @@ from htsinfer.models import (
     ResultsOrientation,
     ResultsSource,
     ResultsStats,
+    CleanupRegimes,
     ResultsType,
     RunStates,
     StatesType,
@@ -87,6 +88,7 @@ class TestHtsInfer:
 
     def test_evaluate_lib_type_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in library type determination."""
+        CONFIG.args.tmp_dir = tmpdir
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_library_type.GetLibType.evaluate',
@@ -113,6 +115,7 @@ class TestHtsInfer:
 
     def test_evaluate_read_orient_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in read orientation determination."""
+        CONFIG.args.tmp_dir = tmpdir
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_read_orientation.GetOrientation.evaluate',
@@ -139,6 +142,7 @@ class TestHtsInfer:
 
     def test_evaluate_read_layout_metadata_warning(self, monkeypatch, tmpdir):
         """Metadata warning in read layout determination."""
+        CONFIG.args.tmp_dir = tmpdir
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_read_layout.GetReadLayout.evaluate',
@@ -165,6 +169,7 @@ class TestHtsInfer:
 
     def test_evaluate_file_problem(self, tmpdir):
         """File problem due to empty file."""
+        CONFIG.args.tmp_dir = tmpdir
         CONFIG.args.path_1 = FILE_EMPTY
         test_instance = HtsInfer(config=CONFIG)
         test_instance.evaluate()
@@ -172,13 +177,16 @@ class TestHtsInfer:
 
     def test_evaluate_work_env_problem(self, tmpdir):
         """Cannot create work environment."""
+        CONFIG.args.tmp_dir = tmpdir
         test_instance = HtsInfer(config=CONFIG)
-        test_instance.out_dir = Path(".")
+        test_instance.config.args.out_dir = Path(".")
         test_instance.evaluate()
         assert test_instance.state is RunStates.ERROR
 
     def test_prepare_env_default(self, tmpdir):
         """Test default behavior."""
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
         CONFIG.args.path_1 = FILE_MATE_1
         test_instance = HtsInfer(config=CONFIG)
         test_instance.prepare_env()
@@ -213,6 +221,7 @@ class TestHtsInfer:
 
     def test_process_input_param_orient_min_fraction_value_error(self, tmpdir):
         """Invalid value for read orientation min fraction parameter."""
+        CONFIG.args.tmp_dir = tmpdir
         CONFIG.args.read_orientation_min_fraction = 0.49
         test_instance = HtsInfer(config=CONFIG)
         test_instance.prepare_env()
@@ -247,6 +256,7 @@ class TestHtsInfer:
     def test_process_transcripts_file_problem_empty(self, monkeypatch, tmpdir):
         """File validation fails because transcripts file is empty."""
         CONFIG.args.transcripts_file = FILE_EMPTY
+        CONFIG.args.tmp_dir = tmpdir
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'shutil.copyfileobj',
@@ -331,9 +341,11 @@ class TestHtsInfer:
 
     def test_clean_up_out_dir_removal_fails(self, monkeypatch, tmpdir):
         """Output directory removal fails."""
+        CONFIG.args.tmp_dir = tmpdir
         test_instance = HtsInfer(config=CONFIG)
         test_instance.prepare_env()
         test_instance.state = RunStates.OKAY
+        test_instance.config.args.cleanup_regime = CleanupRegimes.DEFAULT
         monkeypatch.setattr(
             'shutil.rmtree',
             RaiseOSError,
@@ -343,9 +355,13 @@ class TestHtsInfer:
 
     def test_clean_up_tmp_dir_removal_fails(self, monkeypatch, tmpdir):
         """Temporary directory removal fails."""
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.transcripts_file = FILE_TRANSCRIPTS
         test_instance = HtsInfer(config=CONFIG)
         test_instance.prepare_env()
         test_instance.state = RunStates.WARNING
+        test_instance.config.args.cleanup_regime = CleanupRegimes.DEFAULT
         monkeypatch.setattr(
             'shutil.rmtree',
             RaiseOSError,

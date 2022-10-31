@@ -18,6 +18,7 @@ FILE_ADAPTER_SEQ_TOO_LONG = (
 FILE_DUMMY = Path(".")
 FILE_EMPTY = TEST_FILES_DIR / "empty.fastq"
 FILE_EMPTY_ALIGNED_SAM = TEST_FILES_DIR / "empty_aligned.out.sam"
+FILE_BAD_ALIGNED_SAM = TEST_FILES_DIR / "bad_pair_aligned.out.sam"
 FILE_FASTA = TEST_FILES_DIR / "single.fasta"
 FILE_GZIPPED = TEST_FILES_DIR / "mixed_mates_compressed.fastq.gz"
 FILE_INCONSISTENT_IDS_MIXED_UNKNOWN = (

@@ -520,16 +520,12 @@ class GetOrientation:
                     else:
                         continue
 
-                    # ensure that query name is present
-                    if not isinstance(mate_1.query_name, str):
-                        continue
-
                     # check orientation: forward / inward
                     if (
                         not mate_1.flag & (1 << 4) and
                         mate_1.pos < mate_2.pos  # type: ignore
                     ):
-                        states[mate_1.query_name].append(
+                        states[str(mate_1.query_name)].append(
                             StatesOrientationRelationship.
                             inward_stranded_forward
                         )
@@ -539,14 +535,10 @@ class GetOrientation:
                         mate_1.flag & (1 << 4) and
                         mate_1.pos > mate_2.pos  # type: ignore
                     ):
-                        states[mate_1.query_name].append(
+                        states[str(mate_1.query_name)].append(
                             StatesOrientationRelationship.
                             inward_stranded_reverse
                         )
-
-        except StopIteration:
-            pass
-
         except (OSError, ValueError) as exc:
             raise FileProblem(
                 f"Failed to open SAM file: '{sam}'"
