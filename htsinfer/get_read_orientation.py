@@ -5,8 +5,7 @@ import logging
 import math
 from pathlib import Path
 import subprocess as sp
-import tempfile
-from typing import (Any, DefaultDict, Dict, Tuple, List, Optional)
+from typing import (Any, DefaultDict, Dict, List)
 
 from Bio import SeqIO  # type: ignore
 import pysam  # type: ignore
@@ -18,11 +17,10 @@ from htsinfer.exceptions import (
 )
 from htsinfer.models import (
     ResultsOrientation,
-    ResultsSource,
-    ResultsType,
     StatesOrientation,
     StatesOrientationRelationship,
     StatesTypeRelationship,
+    Config,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -33,23 +31,8 @@ class GetOrientation:
     single- or paired-end seguencing library.
 
     Args:
-        paths: Tuple of one or two paths for single-end and paired end library
-            files.
-        library_type: ResultsType object with library type and mate
-            relationship.
-        library_source: ResultsSource object with source information on each
-            library file.
-        transcripts_file: File path to an uncompressed transcripts file in
-            FASTA format.
-        tmp_dir: Path to directory where temporary output is written to.
-        threads_star: Number of threads to run STAR with.
-        source: Source (organism, tissue, etc.) of the sequencing library.
-        min_mapped_reads: Minimum number of mapped reads for deeming the
-            read orientation result reliable.
-        min_fraction: Minimum fraction of mapped reads required to be
-            consistent with a given read orientation state in order for that
-            orientation to be reported. Must be above 0.5.
-        mate_relationship: Type/mate relationship between the provided files.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attributes:
         paths: Tuple of one or two paths for single-end and paired end library
@@ -62,34 +45,26 @@ class GetOrientation:
             FASTA format.
         tmp_dir: Path to directory where temporary output is written to.
         threads_star: Number of threads to run STAR with.
-        source: Source (organism, tissue, etc.) of the sequencing library.
         min_mapped_reads: Minimum number of mapped reads for deeming the
             read orientation result reliable.
         min_fraction: Minimum fraction of mapped reads required to be
             consistent with a given read orientation state in order for that
             orientation to be reported. Must be above 0.5.
-        mate_relationship: Type/mate relationship between the provided files.
     """
     def __init__(
         self,
-        paths: Tuple[Path, Optional[Path]],
-        library_type: ResultsType,
-        library_source: ResultsSource,
-        transcripts_file: Path,
-        tmp_dir: Path = Path(tempfile.gettempdir()) / 'tmp_htsinfer',
-        threads_star: int = 1,
-        min_mapped_reads: int = 20,
-        min_fraction: float = 0.75,
+        config: Config,
     ):
         """Class contructor."""
-        self.paths = paths
-        self.library_type = library_type
-        self.library_source = library_source
-        self.transcripts_file = transcripts_file
-        self.tmp_dir = tmp_dir
-        self.threads_star = threads_star
-        self.min_mapped_reads = min_mapped_reads
-        self.min_fraction = min_fraction
+        self.paths = (config.args.path_1_processed,
+                      config.args.path_2_processed)
+        self.library_type = config.results.library_type
+        self.library_source = config.results.library_source
+        self.transcripts_file = config.args.t_file_processed
+        self.tmp_dir = config.args.tmp_dir
+        self.threads_star = config.args.threads
+        self.min_mapped_reads = config.args.read_orientation_min_mapped_reads
+        self.min_fraction = config.args.read_orientation_min_fraction
 
     def evaluate(self) -> ResultsOrientation:
         """Infer read orientation.
@@ -97,7 +72,6 @@ class GetOrientation:
         Returns:
             Orientation results object.
         """
-        orientation = ResultsOrientation()
 
         # get transcripts for current organims
         transcripts = self.subset_transcripts_by_organism()
@@ -114,9 +88,8 @@ class GetOrientation:
 
         # process alignments
         star_dirs = [e for e in star_cmds if e is not None]
-        orientation = self.process_alignments(star_dirs=star_dirs)
 
-        return orientation
+        return self.process_alignments(star_dirs=star_dirs)
 
     def subset_transcripts_by_organism(self) -> Path:
         """Filter FASTA file of transcripts by current sources.
@@ -254,6 +227,9 @@ class GetOrientation:
 
         index_dir: Path = Path(self.tmp_dir) / "index"
 
+        # solves the macOS issue with STAR
+        index_dir.mkdir(parents=True, exist_ok=True)
+
         cmd = [
             "STAR",
             "--runMode", "genomeGenerate",
@@ -317,6 +293,10 @@ class GetOrientation:
             cmd.extend(read_files)
             cmd.append("--outFileNamePrefix")
             cmd.append(out_dir)
+
+            # solves the macOS issue with STAR
+            Path(out_dir).mkdir(parents=True, exist_ok=True)
+
             return cmd
 
         out_dir_base: Path = Path(self.tmp_dir) / "alignments"
@@ -414,10 +394,8 @@ class GetOrientation:
         sam: Path,
     ) -> StatesOrientation:
         """Determine read orientation of a single-ended sequencing library.
-
         Args:
             sam: Path to SAM file.
-
         Returns:
             Read orientation state of library.
 
@@ -526,7 +504,7 @@ class GetOrientation:
                         continue
 
                     # check which alignment is first mate
-                    record_2 = _file.__next__()  # pylint: disable=C2801
+                    record_2 = next(_file)
                     if (
                         record_1.flag & (1 << 6) and
                         record_2.flag & (1 << 7)
@@ -542,16 +520,12 @@ class GetOrientation:
                     else:
                         continue
 
-                    # ensure that query name is present
-                    if not isinstance(mate_1.query_name, str):
-                        continue
-
                     # check orientation: forward / inward
                     if (
                         not mate_1.flag & (1 << 4) and
                         mate_1.pos < mate_2.pos  # type: ignore
                     ):
-                        states[mate_1.query_name].append(
+                        states[str(mate_1.query_name)].append(
                             StatesOrientationRelationship.
                             inward_stranded_forward
                         )
@@ -561,14 +535,10 @@ class GetOrientation:
                         mate_1.flag & (1 << 4) and
                         mate_1.pos > mate_2.pos  # type: ignore
                     ):
-                        states[mate_1.query_name].append(
+                        states[str(mate_1.query_name)].append(
                             StatesOrientationRelationship.
                             inward_stranded_reverse
                         )
-
-        except StopIteration:
-            pass
-
         except (OSError, ValueError) as exc:
             raise FileProblem(
                 f"Failed to open SAM file: '{sam}'"

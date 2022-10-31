@@ -13,6 +13,7 @@ from tests.utils import (
     FILE_MATE_1,
     FILE_MATE_2,
     RaiseOSError,
+    CONFIG,
 )
 
 
@@ -21,20 +22,22 @@ class TestGetOrientation:
 
     def test_init_required(self):
         """Create instance with required parameters."""
-        test_instance = GetLibStats(paths=(FILE_MATE_1, None))
+        test_instance = GetLibStats(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
 
     def test_init_required_paired(self):
         """Create instance with required parameters for paired-end library."""
-        test_instance = GetLibStats(paths=(FILE_MATE_1, FILE_MATE_2))
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        test_instance = GetLibStats(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
 
     def test_evaluate_single(self, tmpdir):
         """Get library statistics for a single-end library."""
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.path_2_processed = None
         test_instance = GetLibStats(
-            paths=(FILE_MATE_1, None),
-            tmp_dir=tmpdir,
+            config=CONFIG,
         )
         results = test_instance.evaluate()
         assert results == ResultsStats(
@@ -44,9 +47,10 @@ class TestGetOrientation:
 
     def test_evaluate_paired(self, tmpdir):
         """Get library statistics for a paired-end library."""
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.path_2_processed = FILE_MATE_2
         test_instance = GetLibStats(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            tmp_dir=tmpdir,
+            config=CONFIG,
         )
         results = test_instance.evaluate()
         assert results == ResultsStats(

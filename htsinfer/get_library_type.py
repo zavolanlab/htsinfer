@@ -18,6 +18,7 @@ from htsinfer.models import (
     StatesType,
     StatesTypeRelationship,
     SeqIdFormats,
+    Config,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -28,8 +29,8 @@ class GetLibType:
     FASTQ sequencing libraries.
 
     Args:
-        path_1: Path to single-end library or first mate file.
-        path_2: Path to second mate file.
+        config: Container class for all arguments used in inference
+                and results produced by the class.
 
     Attributes:
         path_1: Path to single-end library or first mate file.
@@ -56,12 +57,11 @@ plit_mates: 'split_mates'>)
     """
     def __init__(
         self,
-        path_1: Path,
-        path_2: Optional[Path] = None,
+        config: Config,
     ):
         """Class constructor."""
-        self.path_1: Path = path_1
-        self.path_2: Optional[Path] = path_2
+        self.path_1: Path = config.args.path_1_processed
+        self.path_2: Optional[Path] = config.args.path_2_processed
         self.results: ResultsType = ResultsType()
 
     def evaluate(self) -> None:

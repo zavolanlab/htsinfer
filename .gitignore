@@ -110,6 +110,7 @@ dmypy.json
 
 # Custom additions
 .vscode
+.idea
 results
 .DS_Store
 tests/.DS_Store

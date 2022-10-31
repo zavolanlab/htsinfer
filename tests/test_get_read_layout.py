@@ -26,6 +26,7 @@ from tests.utils import (
     FILE_SRA_SAMPLE_1,
     FILE_SRA_SAMPLE_2,
     RaiseOSError,
+    CONFIG,
 )
 
 
@@ -34,37 +35,32 @@ class TestGetReadLayout:
 
     def test_init_required(self, tmpdir):
         """Create instance with required parameters."""
-        test_instance = GetReadLayout(
-            path_1=FILE_MATE_1,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.path_2_processed = None
+        test_instance = GetReadLayout(config=CONFIG)
         assert test_instance.path_1 == FILE_MATE_1
 
     def test_init_all(self, tmpdir):
         """Create instance with all available parameters."""
-        tmp_dir = tmpdir
-        test_instance = GetReadLayout(
-            path_1=FILE_MATE_1,
-            path_2=FILE_MATE_2,
-            adapter_file=FILE_ADAPTER,
-            out_dir=tmp_dir,
-            min_match_pct=5,
-            min_freq_ratio=2,
-        )
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.read_layout_adapter_file = FILE_ADAPTER
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.read_layout_min_match_pct = 5
+        CONFIG.args.read_layout_min_freq_ratio = 2
+        test_instance = GetReadLayout(config=CONFIG)
         assert test_instance.path_1 == FILE_MATE_1
         assert test_instance.path_2 == FILE_MATE_2
         assert test_instance.adapter_file == FILE_ADAPTER
-        assert test_instance.out_dir == tmp_dir
+        assert test_instance.out_dir == tmpdir
         assert test_instance.min_match_pct == 5
         assert test_instance.min_freq_ratio == 2
 
     def test_evaluate_one_file(self, tmpdir):
         """Get read layout for a single file."""
-        test_instance = GetReadLayout(
-            path_1=FILE_SRA_SAMPLE_2,
-            adapter_file=FILE_ADAPTER,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.path_1_processed = FILE_SRA_SAMPLE_2
+        CONFIG.args.path_2_processed = None
+        test_instance = GetReadLayout(config=CONFIG)
         test_instance.evaluate()
         assert test_instance.results == ResultsLayout(
             file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
@@ -73,14 +69,13 @@ class TestGetReadLayout:
 
     def test_evaluate_two_files(self, tmpdir):
         """Get read layout for two files."""
-        test_instance = GetReadLayout(
-            path_1=FILE_SRA_SAMPLE_1,
-            path_2=FILE_SRA_SAMPLE_2,
-            adapter_file=FILE_ADAPTER,
-            out_dir=tmpdir,
-            min_match_pct=2,
-            min_freq_ratio=1,
-        )
+        CONFIG.args.path_1_processed = FILE_SRA_SAMPLE_2
+        CONFIG.args.path_2_processed = FILE_SRA_SAMPLE_2
+        CONFIG.args.read_layout_adapter_file = FILE_ADAPTER
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.lib_source_min_match_pct = 2
+        CONFIG.args.read_layout_min_freq_ratio = 1
+        test_instance = GetReadLayout(config=CONFIG)
         test_instance.evaluate()
         assert test_instance.results == ResultsLayout(
             file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),

@@ -21,6 +21,7 @@ from tests.utils import (
     FILE_2000_RECORDS,
     FILE_DUMMY,
     FILE_EMPTY_ALIGNED_SAM,
+    FILE_BAD_ALIGNED_SAM,
     FILE_INVALID_TRANSCRIPTS,
     FILE_MATE_1,
     FILE_MATE_2,
@@ -37,6 +38,7 @@ from tests.utils import (
     FILE_UNMAPPED_PAIRED_1,
     FILE_UNMAPPED_PAIRED_2,
     FILE_UNMAPPED_SINGLE,
+    CONFIG,
     RaiseOSError,
     SubprocessError,
     SOURCE_HUMAN,
@@ -49,24 +51,20 @@ class TestGetOrientation:
 
     def test_init_required(self):
         """Create instance with required parameters."""
-        test_instance = GetOrientation(
-            paths=(FILE_MATE_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.library_type == ResultsType()
         assert test_instance.transcripts_file == FILE_TRANSCRIPTS
 
     def test_init_required_paired(self):
         """Create instance with required parameters for paired-end library."""
-        test_instance = GetOrientation(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
         assert test_instance.library_type == ResultsType()
@@ -74,24 +72,17 @@ class TestGetOrientation:
 
     def test_init_all(self, tmpdir):
         """Create instance with all available parameters."""
-        tmp_dir = tmpdir
-        test_instance = GetOrientation(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmp_dir,
-            threads_star=1,
-            min_mapped_reads=20,
-            min_fraction=0.75,
-
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
         assert test_instance.library_type == ResultsType()
         assert test_instance.library_source == ResultsSource()
         assert test_instance.transcripts_file == FILE_TRANSCRIPTS
-        assert test_instance.tmp_dir == tmp_dir
+        assert test_instance.tmp_dir == tmpdir
         assert test_instance.threads_star == 1
         assert test_instance.min_mapped_reads == 20
         assert test_instance.min_fraction == 0.75
@@ -100,13 +91,10 @@ class TestGetOrientation:
         """Get read orientation for a single-end library with no mappable
         reads.
         """
-        test_instance = GetOrientation(
-            paths=(FILE_UNMAPPED_SINGLE, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_UNMAPPED_SINGLE
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.not_available,
@@ -116,16 +104,13 @@ class TestGetOrientation:
 
     def test_evaluate_single_sf(self, tmpdir):
         """Get read orientation for a single-end stranded forward library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_SF, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_SF
+        CONFIG.results.library_source = ResultsSource(
                 file_1=Source(short_name="hsapiens", taxon_id=9606),
                 file_2=Source(),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+            )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_forward,
@@ -135,16 +120,9 @@ class TestGetOrientation:
 
     def test_evaluate_single_sr(self, tmpdir):
         """Get read orientation for a single-end stranded reverse library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_SR, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_SR
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_reverse,
@@ -154,16 +132,9 @@ class TestGetOrientation:
 
     def test_evaluate_single_u(self, tmpdir):
         """Get read orientation for a single-end unstranded library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_U, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_U
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.unstranded,
@@ -175,15 +146,14 @@ class TestGetOrientation:
         """Get read orientation for a paired-end library with no mappable
         reads.
         """
-        test_instance = GetOrientation(
-            paths=(FILE_UNMAPPED_PAIRED_1, FILE_UNMAPPED_PAIRED_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
+        CONFIG.args.path_1_processed = FILE_UNMAPPED_PAIRED_1
+        CONFIG.args.path_2_processed = FILE_UNMAPPED_PAIRED_2
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.results.library_source = ResultsSource()
+        CONFIG.results.library_type = ResultsType(
+            relationship=StatesTypeRelationship.split_mates,
         )
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.not_available,
@@ -193,18 +163,18 @@ class TestGetOrientation:
 
     def test_evaluate_paired_isf(self, tmpdir):
         """Get read orientation for a paired-end stranded forward library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_ISF_1, FILE_ORIENTATION_ISF_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(short_name="hsapiens", taxon_id=9606),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_ISF_1
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_ISF_2
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(short_name="hsapiens", taxon_id=9606),
+            file_2=Source(short_name="hsapiens", taxon_id=9606),
         )
+        CONFIG.results.library_type = ResultsType(
+            relationship=StatesTypeRelationship.split_mates,
+        )
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_forward,
@@ -214,18 +184,10 @@ class TestGetOrientation:
 
     def test_evaluate_paired_isr(self, tmpdir):
         """Get read orientation for a paired-end stranded reverse library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_ISR_1, FILE_ORIENTATION_ISR_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(short_name="hsapiens", taxon_id=9606),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_ISR_1
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_ISR_2
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.stranded_reverse,
@@ -235,18 +197,10 @@ class TestGetOrientation:
 
     def test_evaluate_paired_iu(self, tmpdir):
         """Get read orientation for a paired-end unstranded library."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, FILE_ORIENTATION_IU_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=ResultsSource(
-                file_1=Source(short_name="hsapiens", taxon_id=9606),
-                file_2=Source(short_name="hsapiens", taxon_id=9606),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_IU_1
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_IU_2
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.unstranded,
@@ -256,69 +210,61 @@ class TestGetOrientation:
 
     def test_subset_transcripts_by_organism(self, tmpdir):
         """Get filtered orgainsm transcripts for different organisms."""
-        library_source = ResultsSource(
+        CONFIG.results.library_type = ResultsType(
+                relationship=StatesTypeRelationship.split_mates,
+            )
+        CONFIG.results.library_source = ResultsSource(
                 file_1=SOURCE_HUMAN,
                 file_2=SOURCE_FRUIT_FLY
             )
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, FILE_ORIENTATION_IU_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=library_source,
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.subset_transcripts_by_organism()
-        filtered_organisms_transcripts = tmpdir / f"{library_source}.fasta"
+        filtered_organisms_transcripts = \
+            tmpdir / f"{CONFIG.results.library_source}.fasta"
         assert results == filtered_organisms_transcripts
 
     def test_subset_transcripts_by_organism_file_problem(self, tmpdir):
         """Pass dummy file as transcripts.fasta file to simulate
         file problem."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_DUMMY,
-            tmp_dir=tmpdir
-        )
+        CONFIG.args.path_2_processed = None
+        CONFIG.results.library_type = ResultsType()
+        CONFIG.results.library_source = ResultsSource()
+        CONFIG.args.t_file_processed = FILE_DUMMY
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
+
         with pytest.raises(FileProblem):
             test_instance.subset_transcripts_by_organism()
 
     def test_subset_transcripts_by_organism_invalid_fasta(self, tmpdir):
         """Pass invalid transcripts.fasta file to simulate index error."""
-        library_source = ResultsSource(
+        CONFIG.results.library_source = ResultsSource(
                 file_1=SOURCE_HUMAN,
                 file_2=SOURCE_FRUIT_FLY
-            )
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=library_source,
-            transcripts_file=FILE_INVALID_TRANSCRIPTS,
-            tmp_dir=tmpdir
         )
+        CONFIG.args.t_file_processed = FILE_INVALID_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.subset_transcripts_by_organism()
-        filtered_organisms_transcripts = tmpdir / f"{library_source}.fasta"
+        filtered_organisms_transcripts = \
+            tmpdir / f"{CONFIG.results.library_source}.fasta"
         assert results == filtered_organisms_transcripts
 
     def test_get_fasta_size(self, tmpdir):
         """Get nucleotide statistics for filtererd transcripts
         with different organisms."""
-        library_source = ResultsSource(
+        CONFIG.results.library_source = ResultsSource(
                 file_1=SOURCE_HUMAN,
                 file_2=SOURCE_FRUIT_FLY,
             )
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, FILE_ORIENTATION_IU_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=library_source,
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_IU_2
+        CONFIG.results.library_type = ResultsType(
+            relationship=StatesTypeRelationship.split_mates,
         )
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         filtered_organisms_transcripts = \
             test_instance.subset_transcripts_by_organism()
         results = test_instance.get_fasta_size(filtered_organisms_transcripts)
@@ -327,43 +273,33 @@ class TestGetOrientation:
     def test_get_fasta_size_file_problem(self, tmpdir):
         """Pass dummy file as filtered_organisms_transcripts
         to simulate file problem."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_2_processed = None
+        CONFIG.results.library_type = ResultsType()
+        CONFIG.results.library_source = ResultsSource()
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         with pytest.raises(FileProblem):
             test_instance.get_fasta_size(FILE_DUMMY)
 
     def test_get_star_index_string_size(self, tmpdir):
         """Get length of STAR SA pre-indexing string."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.get_star_index_string_size(249986)
         assert results == 7
 
     def test_evaluate_star_index_problem(self, monkeypatch, tmpdir):
         """Force raising exception to stimulate a star problem."""
-        library_source = ResultsSource(
+        CONFIG.results.library_source = ResultsSource(
                 file_1=SOURCE_HUMAN,
                 file_2=SOURCE_FRUIT_FLY,
             )
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, FILE_ORIENTATION_IU_2),
-            library_type=ResultsType(
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_IU_2
+        CONFIG.results.library_type = ResultsType(
                 relationship=StatesTypeRelationship.split_mates,
-            ),
-            library_source=library_source,
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+            )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_read_orientation.GetOrientation.create_star_index',
             lambda *args, **kwargs: StarProblem
@@ -373,18 +309,17 @@ class TestGetOrientation:
 
     def test_prepare_star_alignment_commands(self, tmpdir):
         """Get star alignment command."""
-        test_instance = GetOrientation(
-            paths=(FILE_2000_RECORDS, None),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.not_mates,
-            ),
-            library_source=ResultsSource(
+        CONFIG.args.path_1_processed = FILE_2000_RECORDS
+        CONFIG.args.path_2_processed = None
+        CONFIG.results.library_type = ResultsType(
+            relationship=StatesTypeRelationship.not_mates,
+        )
+        CONFIG.results.library_source = ResultsSource(
                 file_1=SOURCE_HUMAN,
                 file_2=Source(),
-            ),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+            )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         index_dir = tmpdir / 'index'
         file1_alignment_path = tmpdir / 'alignments/file_1'
         cmd = "STAR --alignIntronMax 1 --alignEndsType Local --runThreadN 1" \
@@ -399,19 +334,17 @@ class TestGetOrientation:
 
     def test_generate_star_alignments_problem(self, monkeypatch, tmpdir):
         """Force raising exception to simulate problem."""
-        library_source = ResultsSource(
+        CONFIG.results.library_source = ResultsSource(
                 file_1=SOURCE_HUMAN,
                 file_2=SOURCE_FRUIT_FLY,
             )
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, FILE_ORIENTATION_IU_2),
-            library_type=ResultsType(
-                relationship=StatesTypeRelationship.not_mates,
-            ),
-            library_source=library_source,
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_IU_1
+        CONFIG.args.path_2_processed = FILE_ORIENTATION_IU_2
+        CONFIG.results.library_type = ResultsType(
+            relationship=StatesTypeRelationship.not_mates,
         )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         sub_method_name = 'htsinfer.get_read_orientation.' + \
             'GetOrientation.generate_star_alignments'
         monkeypatch.setattr(
@@ -423,13 +356,11 @@ class TestGetOrientation:
 
     def test_generate_star_alignments_dummy_cmd(self, tmpdir):
         """Pass dummy cmd to force simulate star problem."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.path_2_processed = None
+        CONFIG.results.library_type = ResultsType()
+        CONFIG.results.library_source = ResultsSource()
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         index_dir = tmpdir / 'index'
         file1_alignment_path = tmpdir / 'alignments/file_1'
         dummy_cmd = [
@@ -444,38 +375,31 @@ class TestGetOrientation:
     def test_process_single_dummy_sam_file(self, tmpdir):
         """Pass dummy aligned.out.sam file to simulate file
         problem."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         with pytest.raises(SamFileProblem):
             test_instance.process_single(FILE_EMPTY_ALIGNED_SAM)
 
     def test_process_paired_dummy_sam_file(self, tmpdir):
         """Pass dummy aligned.out.sam file to simulate file
         problem."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         with pytest.raises(FileProblem):
             test_instance.process_paired(FILE_EMPTY_ALIGNED_SAM)
 
+    def test_process_paired_wrong_sam_file(self, tmpdir):
+        """Pass bad_aligned.out.sam file to ensure correct
+        paired file behaviour."""
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
+        assert test_instance.process_paired(FILE_BAD_ALIGNED_SAM) \
+               == ResultsOrientation()
+
     def test_create_star_index_star_problem(self, tmpdir):
         """Pass invalid transcripts path to simulate star problem."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         transcripts_path = tmpdir / 'invalid'
         with pytest.raises(StarProblem):
             test_instance.create_star_index(transcripts_path)
@@ -484,15 +408,13 @@ class TestGetOrientation:
         """Get read orientation for a paired-end library with no mappable
         reads.
         """
-        test_instance = GetOrientation(
-            paths=(FILE_UNMAPPED_PAIRED_1, FILE_UNMAPPED_PAIRED_2),
-            library_type=ResultsType(
+        CONFIG.args.path_1_processed = FILE_UNMAPPED_PAIRED_1
+        CONFIG.args.path_2_processed = FILE_UNMAPPED_PAIRED_2
+        CONFIG.results.library_type = ResultsType(
                 relationship=StatesTypeRelationship.not_mates,
-            ),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+            )
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsOrientation(
             file_1=StatesOrientation.not_available,
@@ -504,13 +426,13 @@ class TestGetOrientation:
         self, monkeypatch, tmpdir
     ):
         """Force raising of ``OSError`` to simulate file problem."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_INVALID_TRANSCRIPTS,
-            tmp_dir=tmpdir
-        )
+        CONFIG.args.path_1_processed = FILE_ORIENTATION_IU_1
+        CONFIG.args.path_2_processed = None
+        CONFIG.results.library_source = ResultsSource()
+        CONFIG.results.library_type = ResultsType()
+        CONFIG.args.t_file_processed = FILE_INVALID_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         monkeypatch.setattr(
             'Bio.SeqIO.write',
             RaiseOSError,
@@ -520,13 +442,9 @@ class TestGetOrientation:
 
     def test_generate_star_alignments_star_problem(self, monkeypatch, tmpdir):
         """Force raising of ``SubprocessError`` to simulate star probelm."""
-        test_instance = GetOrientation(
-            paths=(FILE_ORIENTATION_IU_1, None),
-            library_type=ResultsType(),
-            library_source=ResultsSource(),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-        )
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        test_instance = GetOrientation(config=CONFIG)
         file1_alignment_path = tmpdir / 'alignments/file_1'
         dummy_cmd = [
             'STAR', '--alignIntrnMax', '1',

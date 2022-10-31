@@ -22,6 +22,7 @@ from tests.utils import (
     FILE_SOURCE_FRUIT_FLY,
     FILE_TRANSCRIPTS,
     SOURCE_FRUIT_FLY,
+    CONFIG,
     SOURCE_HUMAN,
     TEST_FILES_DIR,
 )
@@ -32,28 +33,29 @@ class TestGetLibSource:
 
     def test_init_required(self):
         """Create instance with required parameters."""
+        CONFIG.args.path_2_processed = None
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
+            config=CONFIG,
         )
         assert test_instance.paths[0] == FILE_MATE_1
 
     def test_init_required_paired(self):
         """Create instance with required parameters for paired-end library."""
+        CONFIG.args.path_2_processed = FILE_MATE_2
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            transcripts_file=FILE_TRANSCRIPTS,
+            config=CONFIG,
         )
         assert test_instance.paths[0] == FILE_MATE_1
         assert test_instance.paths[1] == FILE_MATE_2
 
     def test_evaluate_single(self, monkeypatch, tmpdir):
         """Get library statistics for a single-end library."""
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
+            config=CONFIG,
         )
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.get_source',
@@ -67,11 +69,11 @@ class TestGetLibSource:
 
     def test_evaluate_paired(self, monkeypatch, tmpdir):
         """Get library statistics for a paired-end library."""
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        CONFIG.args.path_2_processed = FILE_MATE_2
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
+            config=CONFIG,
         )
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.get_source',
@@ -85,11 +87,13 @@ class TestGetLibSource:
 
     def test_evaluate_source_human(self, tmpdir):
         """Pass file with source human."""
+        CONFIG.args.path_1_processed = FILE_2000_RECORDS
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
         test_instance = GetLibSource(
-            paths=(FILE_2000_RECORDS, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
+            config=CONFIG,
         )
         results = test_instance.evaluate()
         assert results == ResultsSource(
@@ -99,11 +103,12 @@ class TestGetLibSource:
 
     def test_evaluate_paired_different_source(self, tmpdir):
         """Pass both files with source fruit fly and human."""
+        CONFIG.args.path_1_processed = FILE_SOURCE_FRUIT_FLY
+        CONFIG.args.path_2_processed = FILE_2000_RECORDS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
         test_instance = GetLibSource(
-            paths=(FILE_SOURCE_FRUIT_FLY, FILE_2000_RECORDS),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
+            config=CONFIG,
         )
         results = test_instance.evaluate()
         assert results == ResultsSource(
@@ -113,11 +118,12 @@ class TestGetLibSource:
 
     def test_evaluate_no_library_source(self, tmpdir):
         """Pass a file to test if no library source found."""
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
         test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
+            config=CONFIG,
         )
         results = test_instance.evaluate()
         assert results == ResultsSource(
@@ -127,12 +133,10 @@ class TestGetLibSource:
 
     def test_evaluate_paired_no_library_source(self, tmpdir):
         """Pass paired files to test if library source found."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsSource(
             file_1=Source(),
@@ -141,12 +145,11 @@ class TestGetLibSource:
 
     def test_evaluate_dummy_file(self, tmpdir):
         """Pass dummy file to test."""
-        test_instance = GetLibSource(
-            paths=(FILE_DUMMY, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_DUMMY
+        CONFIG.args.path_2_processed = None
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsSource(
             file_1=Source(),
@@ -155,12 +158,10 @@ class TestGetLibSource:
 
     def test_evaluate_empty_file(self, tmpdir):
         """Pass empty file to test."""
-        test_instance = GetLibSource(
-            paths=(FILE_EMPTY, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_EMPTY
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsSource(
             file_1=Source(),
@@ -170,23 +171,21 @@ class TestGetLibSource:
     def test_evaluate_file_problem_transcripts(self, tmpdir):
         """Pass dummy file as transcripts.fasta file
         to simulate value error."""
-        test_instance = GetLibSource(
-            paths=(FILE_2000_RECORDS, None),
-            transcripts_file=FILE_DUMMY,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_2000_RECORDS
+        CONFIG.args.t_file_processed = FILE_DUMMY
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         with pytest.raises(TranscriptsFastaProblem):
             test_instance.evaluate()
 
     def test_evaluate_kallisto_index_problem(self, monkeypatch, tmpdir):
         """Force raising exception to simulate KallistoProblem."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.create_kallisto_index',
             KallistoProblem
@@ -196,12 +195,9 @@ class TestGetLibSource:
 
     def test_evaluate_kallisto_quant_problem(self, monkeypatch, tmpdir):
         """Force raising exception to stimulate KallistoProblem."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         sub_method_name = 'htsinfer.get_library_source.' + \
             'GetLibSource.run_kallisto_quantification'
         monkeypatch.setattr(
@@ -213,12 +209,9 @@ class TestGetLibSource:
 
     def test_evaluate_get_source_expression_problem(self, monkeypatch, tmpdir):
         """Force raising exception to stimulate a file probblem."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         sub_method_name = 'htsinfer.get_library_source.' + \
             'GetLibSource.run_kallisto_quantification'
         monkeypatch.setattr(
@@ -232,12 +225,9 @@ class TestGetLibSource:
         self, monkeypatch, tmpdir
     ):
         """Pass empty abundance.tsv file to simulate value error."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         sub_method_name = 'htsinfer.get_library_source.' + \
             'GetLibSource.run_kallisto_quantification'
         monkeypatch.setattr(
@@ -250,13 +240,10 @@ class TestGetLibSource:
     def test_evaluate_min_match_pct(self, tmpdir):
         """Pass file with minimum match percentage to
         test validate_top_score."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-            min_match_pct=99,
-        )
+        CONFIG.args.lib_source_min_match_pct = 99
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsSource(
             file_1=Source(),
@@ -266,13 +253,11 @@ class TestGetLibSource:
     def test_evaluate_min_freq_ratio(self, tmpdir):
         """Pass file with minimum frequency ratio to
         test validate_top_score."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, None),
-            transcripts_file=FILE_TRANSCRIPTS,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-            min_freq_ratio=15,
-        )
+        CONFIG.args.lib_source_min_match_pct = 2
+        CONFIG.args.lib_source_min_freq_ratio = 15
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         results = test_instance.evaluate()
         assert results == ResultsSource(
             file_1=Source(),
@@ -282,11 +267,12 @@ class TestGetLibSource:
     def test_create_kallisto_index_problem(self, tmpdir):
         """Pass invalid file as transcripts.fasta file
         to simulate KallistoProblem."""
-        test_instance = GetLibSource(
-            paths=(FILE_MATE_1, FILE_MATE_2),
-            transcripts_file=FILE_INVALID_PATH,
-            tmp_dir=tmpdir,
-            out_dir=tmpdir,
-        )
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.lib_source_min_freq_ratio = 2
+        CONFIG.args.t_file_processed = FILE_INVALID_PATH
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
         with pytest.raises(KallistoProblem):
             test_instance.create_kallisto_index()
