@@ -1,6 +1,7 @@
 """Test fixtures and utilities."""
 
 from pathlib import Path
+from typing import Type
 
 from htsinfer.exceptions import (FileProblem, MetadataWarning)
 from htsinfer.models import (Source, Config, Args, Results)
@@ -86,32 +87,22 @@ CONFIG = Config(
 
 
 # helper classes
-class RaiseFileProblem:
-    """Raise ``FileProblem`` ."""
-    def __init__(self, *args, **kwargs):
-        raise FileProblem
-
-
-class RaiseMetadataWarning:
-    """Raise ``MetadataWarning``."""
-    def __init__(self, *args, **kwargs):
-        raise MetadataWarning
-
-
-class RaiseOSError:
-    """Raise ``OSError``."""
-    def __init__(self, *args, **kwargs):
-        raise OSError
-
-
-class RaiseValueError:
-    """Raise ``ValueError``."""
-    def __init__(self, *args, **kwargs):
-        raise ValueError
-
-
 class SubprocessError:
     """Helper class to handle ```CalledProcessError``."""
     def __init__(self, *args, **kwargs):
         self.returncode = -1
         self.stderr = "Command 'exit 1' returned non-zero exit status -1."
+
+
+class RaiseError:
+    """Raise exception when called."""
+
+    exception: Type[BaseException] = BaseException
+
+    def __init__(self, exc: Type[BaseException]) -> None:
+        """Class constructor."""
+        RaiseError.exception = exc
+
+    def __call__(self, *args, **kwargs) -> None:
+        """Class instance call method."""
+        raise RaiseError.exception

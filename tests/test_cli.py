@@ -22,7 +22,7 @@ from htsinfer.models import (
 from tests.utils import (
     FILE_MATE_1,
     PACKAGE_DIR,
-    RaiseValueError,
+    RaiseError,
 )
 
 
@@ -184,7 +184,7 @@ class TestMain:
         )
         monkeypatch.setattr(
             'htsinfer.cli.parse_args',
-            RaiseValueError,
+            RaiseError(exc=ValueError),
         )
         with pytest.raises(SystemExit) as exc:
             main()

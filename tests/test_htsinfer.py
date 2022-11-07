@@ -7,6 +7,7 @@ import pytest
 
 from htsinfer.exceptions import (
     FileProblem,
+    MetadataWarning,
     WorkEnvProblem,
 )
 from htsinfer.htsinfer import HtsInfer
@@ -27,9 +28,7 @@ from tests.utils import (
     FILE_EMPTY,
     FILE_MATE_1,
     FILE_TRANSCRIPTS,
-    RaiseFileProblem,
-    RaiseMetadataWarning,
-    RaiseOSError,
+    RaiseError,
     CONFIG,
 )
 
@@ -92,7 +91,7 @@ class TestHtsInfer:
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_library_type.GetLibType.evaluate',
-            RaiseMetadataWarning,
+            RaiseError(exc=MetadataWarning),
         )
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.evaluate',
@@ -119,7 +118,7 @@ class TestHtsInfer:
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_read_orientation.GetOrientation.evaluate',
-            RaiseMetadataWarning,
+            RaiseError(exc=MetadataWarning),
         )
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.evaluate',
@@ -146,7 +145,7 @@ class TestHtsInfer:
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'htsinfer.get_read_layout.GetReadLayout.evaluate',
-            RaiseMetadataWarning,
+            RaiseError(exc=MetadataWarning),
         )
         monkeypatch.setattr(
             'htsinfer.get_library_source.GetLibSource.evaluate',
@@ -260,7 +259,7 @@ class TestHtsInfer:
         test_instance = HtsInfer(config=CONFIG)
         monkeypatch.setattr(
             'shutil.copyfileobj',
-            RaiseFileProblem,
+            RaiseError(exc=FileProblem),
         )
         test_instance.prepare_env()
         with pytest.raises(FileProblem):
@@ -348,7 +347,7 @@ class TestHtsInfer:
         test_instance.config.args.cleanup_regime = CleanupRegimes.DEFAULT
         monkeypatch.setattr(
             'shutil.rmtree',
-            RaiseOSError,
+            RaiseError(exc=OSError),
         )
         with pytest.raises(WorkEnvProblem):
             test_instance.clean_up()
@@ -364,7 +363,7 @@ class TestHtsInfer:
         test_instance.config.args.cleanup_regime = CleanupRegimes.DEFAULT
         monkeypatch.setattr(
             'shutil.rmtree',
-            RaiseOSError,
+            RaiseError(exc=OSError),
         )
         with pytest.raises(WorkEnvProblem):
             test_instance.clean_up()
