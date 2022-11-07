@@ -3,7 +3,6 @@
 from pathlib import Path
 from typing import Type
 
-from htsinfer.exceptions import (FileProblem, MetadataWarning)
 from htsinfer.models import (Source, Config, Args, Results)
 
 # test files
