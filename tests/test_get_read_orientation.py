@@ -39,7 +39,7 @@ from tests.utils import (
     FILE_UNMAPPED_PAIRED_2,
     FILE_UNMAPPED_SINGLE,
     CONFIG,
-    RaiseOSError,
+    RaiseError,
     SubprocessError,
     SOURCE_HUMAN,
     SOURCE_FRUIT_FLY,
@@ -435,7 +435,7 @@ class TestGetOrientation:
         test_instance = GetOrientation(config=CONFIG)
         monkeypatch.setattr(
             'Bio.SeqIO.write',
-            RaiseOSError,
+            RaiseError(exc=OSError),
         )
         with pytest.raises(FileProblem):
             test_instance.subset_transcripts_by_organism()

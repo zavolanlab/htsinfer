@@ -12,7 +12,7 @@ from htsinfer.models import (
 from tests.utils import (
     FILE_MATE_1,
     FILE_MATE_2,
-    RaiseOSError,
+    RaiseError,
     CONFIG,
 )
 
@@ -67,7 +67,7 @@ class TestGetOrientation:
         """File problem when accessing FASTQ file."""
         monkeypatch.setattr(
             'Bio.SeqIO.parse',
-            RaiseOSError,
+            RaiseError(exc=OSError),
         )
         with pytest.raises(FileProblem):
             GetLibStats.fastq_get_min_max_read_length(fastq=FILE_MATE_1)

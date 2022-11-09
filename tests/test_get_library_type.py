@@ -29,7 +29,7 @@ from tests.utils import (
     FILE_MATE_2,
     FILE_SINGLE,
     FILE_UNKNOWN_SEQ_ID,
-    RaiseOSError,
+    RaiseError,
     SEQ_ID_DUMMY,
     SEQ_ID_MATE_1,
     SEQ_ID_MATE_2,
@@ -194,7 +194,7 @@ class TestGetFastqType:
         test_instance = GetFastqType(path=FILE_SINGLE)
         monkeypatch.setattr(
             'builtins.open',
-            RaiseOSError,
+            RaiseError(exc=OSError),
         )
         with pytest.raises(FileProblem):
             test_instance.evaluate()

@@ -25,7 +25,7 @@ from tests.utils import (
     FILE_SINGLE,
     FILE_SRA_SAMPLE_1,
     FILE_SRA_SAMPLE_2,
-    RaiseOSError,
+    RaiseError,
     CONFIG,
 )
 
@@ -141,7 +141,7 @@ class TestGetAdapter3:
         )
         monkeypatch.setattr(
             'builtins.open',
-            RaiseOSError,
+            RaiseError(exc=OSError),
         )
         with pytest.raises(FileProblem):
             test_instance.evaluate()
