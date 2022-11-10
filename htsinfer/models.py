@@ -284,11 +284,14 @@ class Layout(BaseModel):
 
     Args:
         adapt_3: Adapter sequence ligated to 3'-end of sequence.
+        polyA_frac: Fraction of reads containing polyA tails.
 
     Attributes:
         adapt_3: Adapter sequence ligated to 3'-end of sequence.
+        polyA_frac: Fraction of reads containing polyA tails.
     """
     adapt_3: Optional[str] = None
+    polyA_frac: Optional[float] = None
 
 
 class ResultsLayout(BaseModel):

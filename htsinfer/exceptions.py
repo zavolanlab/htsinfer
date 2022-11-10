@@ -40,3 +40,7 @@ class WorkEnvProblem(Exception):
 
 class TranscriptsFastaProblem(Exception):
     """Exception raised when an invalid transcripts fasta file is passed."""
+
+
+class CutadaptProblem(Exception):
+    """Exception raised when running cutadapt commands."""

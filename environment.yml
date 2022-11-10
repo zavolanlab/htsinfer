@@ -13,5 +13,6 @@ dependencies:
   - pysam>=0.16.0
   - python>=3.6, <=3.10
   - star>=2.7.6
+  - cutadapt>=3.5
   - pip:
     - -e .
