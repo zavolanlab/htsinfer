@@ -111,7 +111,8 @@ class GetReadLayout:
 
     def get_poly_a(self, file=Path()) -> float:
         """Run cutadapt and parse report"""
-        
+
+        # process file 1
         LOGGER.debug("Parsing with Cutadapt...")
         cmd: List[str] = [
                 "cutadapt", "-a", "A{100}",
@@ -124,7 +125,6 @@ class GetReadLayout:
                 text=True,
                 check=True,
             )
-            # Regex for parsing the cutadapt report
             match = re.findall("Reads with adapters:.*", result.stdout)
             fraction = re.findall(r"\(.*\)", match[0])
             result_fraction = float(fraction[0].strip("()%"))
