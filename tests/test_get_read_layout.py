@@ -2,7 +2,7 @@
 
 import pytest
 
-from htsinfer.exceptions import FileProblem
+from htsinfer.exceptions import FileProblem, CutadaptProblem
 from htsinfer.get_read_layout import (
     GetReadLayout,
     GetAdapter3,
@@ -63,8 +63,10 @@ class TestGetReadLayout:
         test_instance = GetReadLayout(config=CONFIG)
         test_instance.evaluate()
         assert test_instance.results == ResultsLayout(
-            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
-            file_2=Layout(adapt_3=None),
+            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA",
+                          polyA_frac=2.6),
+            file_2=Layout(adapt_3=None,
+                          polyA_frac=None),
         )
 
     def test_evaluate_two_files(self, tmpdir):
@@ -73,14 +75,27 @@ class TestGetReadLayout:
         CONFIG.args.path_2_processed = FILE_SRA_SAMPLE_2
         CONFIG.args.read_layout_adapter_file = FILE_ADAPTER
         CONFIG.args.out_dir = tmpdir
+        CONFIG.args.tmp_dir = tmpdir
         CONFIG.args.lib_source_min_match_pct = 2
         CONFIG.args.read_layout_min_freq_ratio = 1
         test_instance = GetReadLayout(config=CONFIG)
         test_instance.evaluate()
         assert test_instance.results == ResultsLayout(
-            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA"),
-            file_2=Layout(adapt_3="AAAAAAAAAAAAAAA"),
+            file_1=Layout(adapt_3="AAAAAAAAAAAAAAA",
+                          polyA_frac=2.6),
+            file_2=Layout(adapt_3="AAAAAAAAAAAAAAA",
+                          polyA_frac=2.6),
         )
+
+    def test_raise_cutadapt_problem(self, tmpdir):
+        """Get read layout for a single file."""
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.path_1_processed = FILE_SRA_SAMPLE_2
+        CONFIG.args.path_2_processed = None
+        test_instance = GetReadLayout(config=CONFIG)
+        test_instance.path_1 = "."
+        with pytest.raises(CutadaptProblem):
+            test_instance.get_poly_a()
 
 
 class TestGetAdapter3:

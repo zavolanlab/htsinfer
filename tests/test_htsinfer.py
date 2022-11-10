@@ -411,10 +411,12 @@ class TestHtsInfer:
    },
    "read_layout": {
       "file_1": {
-         "adapt_3": null
+         "adapt_3": null,
+         "polyA_frac": null
       },
       "file_2": {
-         "adapt_3": null
+         "adapt_3": null,
+         "polyA_frac": null
       }
    },
    "read_orientation": {
