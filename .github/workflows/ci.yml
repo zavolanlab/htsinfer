@@ -18,12 +18,14 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
+          mamba-version: "*"
+          channels: conda-forge,defaults
           environment-file: environment.yml
           activate-environment: htsinfer
           auto-activate-base: false
 
       - name: update env with dev packages
-        run: conda env update --file environment-dev.yml
+        run: mamba env update --file environment-dev.yml
 
       - name: display env info
         run: |
@@ -62,12 +64,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
+          mamba-version: "*"
+          channels: conda-forge,defaults
           environment-file: environment.yml
           activate-environment: htsinfer
           auto-activate-base: false
 
       - name: update env with dev packages
-        run: conda env update --file environment-dev.yml
+        run: mamba env update --file environment-dev.yml
 
       - name: display env info
         run: |
@@ -110,12 +114,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
+          mamba-version: "*"
+          channels: conda-forge,defaults
           environment-file: environment.yml
           activate-environment: htsinfer
           auto-activate-base: false
 
       - name: update env with dev packages
-        run: conda env update --file environment-dev.yml
+        run: mamba env update --file environment-dev.yml
 
       - name: display env info
         run: |
