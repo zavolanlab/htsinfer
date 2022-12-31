@@ -63,11 +63,11 @@ example library:
    },
    "read_layout": {
       "file_1": {
-         "adapt_3": "AATGATACGGCGACC"
+         "adapt_3": "AATGATACGGCGACC",
          "polyA_frac": 10.0
       },
       "file_2": {
-         "adapt_3": "AATGATACGGCGACC"
+         "adapt_3": "AATGATACGGCGACC",
          "polyA_frac": 10.0
       }
    },
