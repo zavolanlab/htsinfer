@@ -1,0 +1,13 @@
+sample	sra	org	orient	adapter	layout	length_min_1	length_max_1	length_2	pred_org	pred_orient	pred_adapter	pred_length_min_1	pred_length_max_1	pred_length_min_2	pred_length_max_2
+SRR13922067	SRX10301515	hsapiens		AGATCGGAAGAGCACACGTCTGAACTCCAGTCA / AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT	SE		50								
+SRR6987423	SRX3926910	athaliana		TGGAATTCTCGGGTGCCAAGG	SE	17	30								
+SRR16892632	SRX13085341	celegans		8 bp (https://www.tecan.com/doc/universal-rna-seq-with-nuquant-user-guide-pdf-m01506)	SE		75								
+SRR16892633	SRX13085341	celegans		8 bp (https://www.tecan.com/doc/universal-rna-seq-with-nuquant-user-guide-pdf-m01506)	SE		75								
+SRR16892634	SRX13085341	celegans		8 bp (https://www.tecan.com/doc/universal-rna-seq-with-nuquant-user-guide-pdf-m01506)	SE		75								
+SRR16892635	SRX13085341	celegans		8 bp (https://www.tecan.com/doc/universal-rna-seq-with-nuquant-user-guide-pdf-m01506)	SE		75								
+SRR5351980	SRX2648341	dmelanogaster		CTGTCTCTTATACACATCT	SE		51								
+SRR8506668	SRX5310522	mmusculus		CTGTCTCTTATACACATCT	PE		50								
+SRR8506669	SRX5310522	mmusculus		CTGTCTCTTATACACATCT	PE		50								
+SRR8506670	SRX5310522	mmusculus		CTGTCTCTTATACACATCT	PE		50								
+SRR12735068	SRX9208006	ptricornotum		AGATCGGAAGAGCACACGTCTGAACTCCAGTCA / AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT	PE		150								
+SRR1103279	SRX422668	tkitauei		AGATCGGAAGAGCACACGTCTGAACTCCAGTCA / AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT	SE		101								
