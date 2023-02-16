@@ -1,13 +1,15 @@
 """Infer adapter sequences present in reads."""
 
+import re
 import logging
 from pathlib import Path
+import subprocess as sp
 from typing import (Dict, List, Optional, Tuple)
 
 import ahocorasick as ahc  # type: ignore
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 
-from htsinfer.exceptions import FileProblem
+from htsinfer.exceptions import FileProblem, CutadaptProblem
 from htsinfer.models import ResultsLayout, Config
 from htsinfer.utils import (
     convert_dict_to_df,
@@ -70,6 +72,7 @@ class GetReadLayout:
         self.path_2: Optional[Path] = config.args.path_2_processed
         self.adapter_file: Path = config.args.read_layout_adapter_file
         self.out_dir: Path = config.args.out_dir
+        self.tmp_dir: Path = config.args.tmp_dir
         self.min_match_pct: float = config.args.read_layout_min_match_pct
         self.min_freq_ratio: float = config.args.read_layout_min_freq_ratio
         self.results: ResultsLayout = ResultsLayout()
@@ -79,6 +82,7 @@ class GetReadLayout:
 
         # process file 1
         LOGGER.debug(f"Processing file: '{self.path_1}'")
+        self.results.file_1.polyA_frac = self.get_poly_a(self.path_1)
         file_1_adapt_3 = GetAdapter3(
             path=self.path_1,
             adapter_file=self.adapter_file,
@@ -93,6 +97,8 @@ class GetReadLayout:
         # process file 2
         if self.path_2 is not None:
             LOGGER.debug(f"Processing file: '{self.path_2}'")
+            self.results.file_2.polyA_frac = self.get_poly_a(self.path_2)
+
             file_2_adapt_3 = GetAdapter3(
                 path=self.path_2,
                 adapter_file=self.adapter_file,
@@ -103,6 +109,33 @@ class GetReadLayout:
             file_2_adapt_3.evaluate()
             self.results.file_2.adapt_3 = file_2_adapt_3.result
             LOGGER.debug(f"3' adapter sequence: {self.results.file_2}")
+
+    def get_poly_a(self, file=Path()) -> float:
+        """Run cutadapt and parse report"""
+
+        # process file 1
+        LOGGER.debug("Parsing with Cutadapt...")
+        cmd: List[str] = [
+                "cutadapt", "-a", "A{100}",
+                "-o", str(self.tmp_dir) + "/" + "out.fastq", file,
+            ]
+        try:
+            result = sp.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            match = re.findall("Reads with adapters:.*", result.stdout)
+            fraction = re.findall(r"\(.*\)", match[0])
+            result_fraction = float(fraction[0].strip("()%"))
+        except sp.CalledProcessError as exc:
+            raise CutadaptProblem(
+                f"Failed to run cutadapt for command: {cmd}"
+            ) from exc
+        LOGGER.debug("Successfully parsed the cutadapt report")
+
+        return result_fraction
 
 
 class GetAdapter3():

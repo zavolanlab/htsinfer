@@ -63,10 +63,12 @@ example library:
    },
    "read_layout": {
       "file_1": {
-         "adapt_3": "AATGATACGGCGACC"
+         "adapt_3": "AATGATACGGCGACC",
+         "polyA_frac": 10.0
       },
       "file_2": {
-         "adapt_3": "AATGATACGGCGACC"
+         "adapt_3": "AATGATACGGCGACC",
+         "polyA_frac": 10.0
       }
    },
    "read_orientation": {
@@ -185,6 +187,10 @@ conda env create --file environment.yml
 conda env update --file environment-dev.yml  # optional: install development/testing dependencies
 ```
 
+Note that creating the environment takes non-trivial time and it is strongly
+recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
+in the previous commands.
+
 Then, activate the `htsinfer` Conda environment with:
 
 ```sh
@@ -237,3 +243,4 @@ by email: <zavolab-biozentrum@unibas.ch>
 [contact]: <https://zavolan.biozentrum.unibas.ch/>
 [docs-api-results]: <https://htsinfer.readthedocs.io/en/latest/modules/htsinfer.html#htsinfer.models.Results>
 [issue-tracker]: <https://github.com/zavolanlab/htsinfer/issues>
+[mamba]: <https://mamba.readthedocs.io/en/latest/installation.html>
