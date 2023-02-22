@@ -4,6 +4,7 @@ import json
 import subprocess
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from htsinfer.models import Results
 
 ZARP_CMD = 'TEST_PATH=tests/cluster_tests; \
@@ -26,34 +27,36 @@ HTS_CMD = 'TEST_PATH=tests/cluster_tests; \
 
 result_data = {}
 
+test_data = Path('tests/cluster_tests/mined_test_data.tsv')
+results_sra = Path('tests/cluster_tests/results_sra_downloads/')
+results_hts = Path('tests/cluster_tests/results_htsinfer/')
 
-with open('tests/cluster_tests/mined_test_data.tsv',
-          encoding="utf-8") as tsv_file:
+with open(test_data, encoding="utf-8") as tsv_file:
     source = pd.read_csv(tsv_file, sep='\t')
     subprocess.Popen(ZARP_CMD, shell=True,
                      executable='/bin/bash').communicate()
 
     for index, row in source.iterrows():
         if row['layout'] == 'SE':
-            sample_se = 'tests/cluster_tests/results_sra_downloads/' \
-                        + row['sample'] + '/' + row['sample'] + '.fastq.gz'
+            sample_se = results_sra + row['sample'] \
+                + '/' + row['sample'] + '.fastq.gz'
             subprocess.Popen(HTS_CMD + ' ' + sample_se
-                             + '> tests/cluster_tests/results_htsinfer/'
+                             + '>' + results_hts +
                              + row['sample'] + '_result.json',
                              shell=True, executable='/bin/bash').communicate()
         else:
-            sample_1 = 'tests/cluster_tests/results_sra_downloads/' \
-                       + row['sample'] + '/' + row['sample'] + '_1.fastq.gz'
-            sample_2 = 'tests/cluster_tests/results_sra_downloads/' \
-                       + row['sample'] + '/' + row['sample'] + '_2.fastq.gz'
+            sample_1 = results_sra + row['sample'] \
+                + '/' + row['sample'] + '_1.fastq.gz'
+            sample_2 = results_sra + row['sample'] \
+                + '/' + row['sample'] + '_2.fastq.gz'
             subprocess.Popen(HTS_CMD + ' ' + sample_1 + ' ' + sample_2
-                             + '> tests/cluster_tests/results_htsinfer/'
+                             + '>' + results_hts
                              + row['sample'] + '_result.json',
                              shell=True, executable='/bin/bash').communicate()
 
     for index, row in source.iterrows():
         if row['layout'] == 'SE':
-            with open('tests/cluster_tests/results_htsinfer/'
+            with open(results_hts
                       + row['sample'] + '_result.json',
                       encoding="utf-8") as json_file:
                 data_model = Results(**json.load(json_file))
@@ -68,7 +71,7 @@ with open('tests/cluster_tests/mined_test_data.tsv',
                 result = source.fillna(
                     pd.DataFrame.from_dict(result_data, orient='index'))
         else:
-            with open('tests/cluster_tests/results_htsinfer/'
+            with open(results_hts
                       + row['sample']+'_result.json',
                       encoding="utf-8") as json_file:
                 data_model = Results(**json.load(json_file))
