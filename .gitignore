@@ -115,7 +115,5 @@ results
 .DS_Store
 tests/.DS_Store
 results_htsinfer
-tests/cluster_tests/.snakemake
-tests/cluster_tests/zarp
+.snakemake
 tests/cluster_tests/results_sra_downloads
-tests/cluster_tests/mined_test_data_result.tsv
