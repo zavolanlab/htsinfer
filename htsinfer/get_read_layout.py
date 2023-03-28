@@ -20,7 +20,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GetReadLayout:
-    """Determine the adapter sequence present in the FASTQ sequencing libraries.
+    """Determine the adapter sequence present in the FASTQ sequencing
+    libraries.
 
     Args:
         config: Container class for all arguments used in inference
