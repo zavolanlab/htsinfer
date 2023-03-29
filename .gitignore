@@ -115,3 +115,5 @@ results
 .DS_Store
 tests/.DS_Store
 results_htsinfer
+.snakemake
+tests/cluster_tests/results_sra_downloads
