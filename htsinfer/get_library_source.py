@@ -268,7 +268,7 @@ class GetLibSource:
             'transcript_id',
             'short_name',
             'taxon_id'
-        ]] = dat.target_id.str.split('|', 4, expand=True)
+        ]] = dat.target_id.str.split('|', n=4, expand=True)
         dat['source_ids'] = list(zip(dat.short_name, dat.taxon_id))
         total_tpm = dat.tpm.sum()
         dat_agg = dat.groupby(['source_ids'])[['tpm']].agg('sum')
