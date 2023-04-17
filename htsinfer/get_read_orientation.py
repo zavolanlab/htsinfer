@@ -222,7 +222,7 @@ class GetOrientation:
         """
         n_ref: int = 0
 
-        for record in SeqIO.parse(
+        for i in SeqIO.parse(
             handle=fasta,
             format='fasta',
         ):
