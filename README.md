@@ -1,6 +1,6 @@
 # HTSinfer
 
-[![Open in GitHub Codespaces](https://badgen.net/badge/icon/Open%20in%20GitHub%20Codespaces?icon=github&label&color=black)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=450026340&machine=basicLinux32gb&location=WestEurope&devcontainer_path=.devcontainer%2Fdevcontainer.json)
+[![codespaces][badge-codespaces]][badge-url-codespaces]
 [![license][badge-license]][badge-url-license]
 [![docs][badge-docs]][badge-url-docs]
 [![release_gh][badge-release-gh]][badge-url-release-gh]
@@ -229,12 +229,14 @@ by email: <zavolab-biozentrum@unibas.ch>
 (c) 2020 [Zavolan lab, Biozentrum, University of Basel][contact]
 
 [badge-ci]: <https://travis-ci.com/zavolanlab/htsinfer.svg?branch=master>
+[badge-codespaces]: <https://badgen.net/badge/icon/Open%20in%20GitHub%20Codespaces?icon=github&label&color=black>
 [badge-coverage]: <https://codecov.io/gh/zavolanlab/htsinfer/branch/dev/graph/badge.svg?token=KYGJ9MUPHT>
 [badge-docs]: <https://readthedocs.org/projects/htsinfer/badge/?version=latest>
 [badge-license]: <https://img.shields.io/badge/license-Apache%202.0-blue.svg>
 [badge-release-docker]: <https://img.shields.io/docker/image-size/zavolab/htsinfer?color=C39BD3&label=docker>
 [badge-release-gh]: <https://img.shields.io/github/v/tag/zavolanlab/htsinfer?color=C39BD3>
 [badge-url-ci]: <https://travis-ci.com/zavolanlab/htsinfer>
+[badge-url-codespaces]: <https://github.com/codespaces/new?hide_repo_select=true&ref=dev&repo=265279928&machine=basicLinux32gb&location=WestEurope&devcontainer_path=.devcontainer%2Fdevcontainer.json>
 [badge-url-coverage]: <https://codecov.io/gh/zavolanlab/htsinfer>
 [badge-url-docs]: <https://htsinfer.readthedocs.io/en/latest/?badge=latest>
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
