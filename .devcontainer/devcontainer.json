@@ -29,9 +29,9 @@
         }
     },
 
-    "updateContentCommand": "mamba env create",
+    "updateContentCommand": "mamba env create --file environment.yml && mamba env update --file environment-dev.yml",
 
-    "postStartCommand": "cat .devcontainer/PS1.sh >> ~/.bashrc && echo 'conda activate TIGAlyser-dev\n' >> ~/.bashrc",
+    "postStartCommand": "cat .devcontainer/PS1.sh >> ~/.bashrc && echo 'conda activate htsinfer\n' >> ~/.bashrc",
 
     "customizations": {
         "codespaces": {
