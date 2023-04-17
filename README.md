@@ -1,5 +1,6 @@
 # HTSinfer
 
+[![Open in GitHub Codespaces](https://badgen.net/badge/icon/Open%20in%20GitHub%20Codespaces?icon=github&label&color=black)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=450026340&machine=basicLinux32gb&location=WestEurope&devcontainer_path=.devcontainer%2Fdevcontainer.json)
 [![license][badge-license]][badge-url-license]
 [![docs][badge-docs]][badge-url-docs]
 [![release_gh][badge-release-gh]][badge-url-release-gh]

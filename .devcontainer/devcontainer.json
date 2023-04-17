@@ -1,0 +1,49 @@
+{
+
+    "name": "dev",
+
+    "hostRequirements": {
+        "cpus": 2,
+        "memory": "4gb",
+        "storage": "32gb"
+    },
+
+    "build": { "dockerfile": "Dockerfile" },
+
+    "privileged": true,
+
+    "forwardPorts": [8000, 9000],
+
+    "portsAttributes": {
+        "8000": {
+            "label": "HTTP",
+            "protocol": "http",
+            "onAutoForward": "notify",
+            "elevateIfNeeded": true
+        },
+        "9000": {
+            "label": "HTTPS",
+            "protocol": "https",
+            "onAutoForward": "notify",
+            "elevateIfNeeded": true
+        }
+    },
+
+    "updateContentCommand": "mamba env create",
+
+    "postStartCommand": "cat .devcontainer/PS1.sh >> ~/.bashrc && echo 'conda activate TIGAlyser-dev\n' >> ~/.bashrc",
+
+    "customizations": {
+        "codespaces": {
+            "openFiles": []
+        },
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "njpwerner.autodocstring",
+                "ms-vsliveshare.vsliveshare"
+            ]
+        }
+    }
+
+}
