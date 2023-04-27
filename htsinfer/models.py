@@ -413,7 +413,7 @@ class Args(BaseModel):
     threads: int = 1
     transcripts_file: Path = Path()
     read_layout_adapter_file: Path = Path()
-    read_layout_min_match_pct: float = 2
+    read_layout_min_match_pct: float = 0.1
     read_layout_min_freq_ratio: float = 2
     lib_source_min_match_pct: float = 2
     lib_source_min_freq_ratio: float = 2
