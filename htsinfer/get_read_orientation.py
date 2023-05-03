@@ -77,11 +77,14 @@ class GetOrientation:
         transcripts = self.subset_transcripts_by_organism()
         ref_size = self.get_fasta_size(fasta=transcripts)
         index_string_size = self.get_star_index_string_size(ref_size=ref_size)
+        chr_bin_bits = self.get_star_chr_bin_bits(ref_size=ref_size,
+                                                  transcripts=transcripts)
 
         # generate STAR alignments
         index_dir = self.create_star_index(
             fasta=transcripts,
             index_string_size=index_string_size,
+            chr_bin_bits=chr_bin_bits,
         )
         star_cmds = self.prepare_star_alignment_commands(index_dir=index_dir)
         self.generate_star_alignments(commands=star_cmds)
@@ -206,9 +209,36 @@ class GetOrientation:
         LOGGER.debug(f"STAR SA pre-indexing string size: {index_string_size}")
         return index_string_size
 
+    @staticmethod
+    def get_star_chr_bin_bits(ref_size: int, transcripts: Path) -> int:
+        """Get size of bins for STAR genome storage.
+
+        Args:
+            ref_size: Size of genome/transcriptome reference in nucleotides.
+            transcripts: Path to filtered FASTA transcripts file.
+
+        Returns:
+            Number of bins for genome storage.
+        """
+        n_ref: int = 0
+
+        for _ in SeqIO.parse(
+            handle=transcripts,
+            format='fasta',
+        ):
+            n_ref += 1
+
+        chr_bin_bits = min(
+            18,
+            int(round(math.log2(ref_size / n_ref)))
+        )
+        LOGGER.debug("STAR size of bins for genome storage: %s", chr_bin_bits)
+        return chr_bin_bits
+
     def create_star_index(
         self,
         fasta: Path,
+        chr_bin_bits: int = 18,
         index_string_size: int = 5,
     ) -> Path:
         """Prepare STAR index.
@@ -234,6 +264,7 @@ class GetOrientation:
             "STAR",
             "--runMode", "genomeGenerate",
             "--genomeSAindexNbases", f"{str(index_string_size)}",
+            "--genomeChrBinNbits", f"{str(chr_bin_bits)}",
             "--runThreadN", f"{str(self.threads_star)}",
             "--genomeDir", f"{str(index_dir)}",
             "--genomeFastaFiles", f"{str(fasta)}",

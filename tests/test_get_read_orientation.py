@@ -84,7 +84,7 @@ class TestGetOrientation:
         assert test_instance.transcripts_file == FILE_TRANSCRIPTS
         assert test_instance.tmp_dir == tmpdir
         assert test_instance.threads_star == 1
-        assert test_instance.min_mapped_reads == 20
+        assert test_instance.min_mapped_reads == 18
         assert test_instance.min_fraction == 0.75
 
     def test_evaluate_single_unmapped(self, tmpdir):
