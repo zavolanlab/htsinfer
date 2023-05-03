@@ -182,7 +182,7 @@ class GetAdapter3():
         path: Path,
         adapter_file: Path,
         out_dir: Path = Path.cwd(),
-        min_match_pct: float = 2,
+        min_match_pct: float = 0.1,
         min_freq_ratio: float = 2,
     ):
         """Class constructor."""
