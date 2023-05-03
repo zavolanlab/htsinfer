@@ -148,7 +148,7 @@ optional arguments:
   --read-layout-min-match-percentage FLOAT
                         minimum percentage of reads that contain a given
                         adapter sequence in order for it to be considered
-                        as the library's 3'-end adapter (default: 2)
+                        as the library's 3'-end adapter (default: 0.1)
   --read-layout-min-frequency-ratio FLOAT
                         minimum frequency ratio between the first and second
                         most frequent adapter in order for the former to be

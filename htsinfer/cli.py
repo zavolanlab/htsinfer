@@ -170,7 +170,7 @@ def parse_args() -> argparse.Namespace:
         dest="read_layout_min_match_pct",
         metavar="FLOAT",
         type=float,
-        default=2,
+        default=0.1,
         help=(
             "minimum percentage of reads that contain a given adapter "
             "sequence in order for it to be considered as the library's "
