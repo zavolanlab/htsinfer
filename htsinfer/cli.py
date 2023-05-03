@@ -217,7 +217,7 @@ def parse_args() -> argparse.Namespace:
         dest="read_orientation_min_mapped_reads",
         metavar="INT",
         type=int,
-        default=18,
+        default=20,
         help=(
             "minimum number of mapped reads for deeming the read orientation "
             "result reliable"

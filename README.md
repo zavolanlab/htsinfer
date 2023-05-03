@@ -163,7 +163,7 @@ optional arguments:
                         considered the library's source.
   --read-orientation-min-mapped-reads INT
                         minimum number of mapped reads for deeming the read
-                        orientation result reliable (default: 18)
+                        orientation result reliable (default: 20)
   --read-orientation-min-fraction FLOAT
                         minimum fraction of mapped reads required to be
                         consistent with a given read orientation state in order

@@ -77,6 +77,7 @@ ARGS = Args(
     read_layout_adapter_file=FILE_ADAPTER,
     path_1_processed=FILE_MATE_1,
     path_2_processed=FILE_MATE_2,
+    read_orientation_min_mapped_reads=18,
 )
 
 CONFIG = Config(
