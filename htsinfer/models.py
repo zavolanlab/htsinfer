@@ -417,7 +417,7 @@ class Args(BaseModel):
     read_layout_min_freq_ratio: float = 2
     lib_source_min_match_pct: float = 2
     lib_source_min_freq_ratio: float = 2
-    read_orientation_min_mapped_reads: int = 20
+    read_orientation_min_mapped_reads: int = 18
     read_orientation_min_fraction: float = 0.75
     path_1_processed: Path = Path()
     path_2_processed: Optional[Path]

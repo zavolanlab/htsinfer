@@ -78,7 +78,7 @@ class GetOrientation:
         ref_size = self.get_fasta_size(fasta=transcripts)
         index_string_size = self.get_star_index_string_size(ref_size=ref_size)
         chr_bin_bits = self.get_star_chr_bin_bits(ref_size=ref_size,
-                                                  fasta=transcripts)
+                                                  transcripts=transcripts)
 
         # generate STAR alignments
         index_dir = self.create_star_index(
@@ -210,20 +210,20 @@ class GetOrientation:
         return index_string_size
 
     @staticmethod
-    def get_star_chr_bin_bits(ref_size: int, fasta: Path) -> int:
+    def get_star_chr_bin_bits(ref_size: int, transcripts: Path) -> int:
         """Get size of bins for STAR genome storage.
 
         Args:
             ref_size: Size of genome/transcriptome reference in nucleotides.
-            fasta: Path to filtered FASTA file.
+            transcripts: Path to filtered FASTA transcripts file.
 
         Returns:
             Number of bins for genome storage.
         """
         n_ref: int = 0
 
-        for i in SeqIO.parse(
-            handle=fasta,
+        for _ in SeqIO.parse(
+            handle=transcripts,
             format='fasta',
         ):
             n_ref += 1
@@ -232,14 +232,14 @@ class GetOrientation:
             18,
             int(round(math.log2(ref_size / n_ref)))
         )
-        LOGGER.debug(f"STAR size of bins for genome storage: {chr_bin_bits}")
+        LOGGER.debug("STAR size of bins for genome storage: %s", chr_bin_bits)
         return chr_bin_bits
 
     def create_star_index(
         self,
         fasta: Path,
-        index_string_size: int = 5,
         chr_bin_bits: int = 18,
+        index_string_size: int = 5,
     ) -> Path:
         """Prepare STAR index.
 
