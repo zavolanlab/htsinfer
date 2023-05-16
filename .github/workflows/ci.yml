@@ -12,7 +12,7 @@ jobs:
     steps:
 
       - name: check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: set up miniconda and env
         uses: conda-incubator/setup-miniconda@v2
@@ -57,7 +57,7 @@ jobs:
     steps:
 
       - name: check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: set up miniconda and env
         uses: conda-incubator/setup-miniconda@v2
@@ -107,7 +107,7 @@ jobs:
     steps:
 
       - name: check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: set up miniconda and env
         uses: conda-incubator/setup-miniconda@v2
@@ -136,3 +136,37 @@ jobs:
 
       - name: integration test - paired-ended library
         run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_{1,2}.fastq
+
+  publish:
+    name: build and publish app image
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+
+    steps:
+
+      - name: check out repository
+        uses: actions/checkout@v3
+
+      - name: generate tag
+        run: |
+          echo "TAG=$(date '+%Y%m%d')" >> $GITHUB_ENV
+
+      - name: build and publish image
+        id: docker
+        uses: philips-software/docker-ci-scripts@v5.1.0
+        with:
+          dockerfile: .
+          image-name: "htsinfer"
+          tags: "latest ${{ env.TAG }}"
+          push-branches: "issue_126"
+        env:
+          REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
+          REGISTRY_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"
+          DOCKER_ORGANIZATION: ${{ secrets.DOCKERHUB_ORG }}
+          GITHUB_ORGANIZATION: ${{ github.repository_owner }}
+
+      - name: Verify that image was pushed
+        run: |
+          echo "Push indicator: ${{ steps.docker.outputs.push-indicator }}"
+          echo "# Set to 'true' if image was pushed, empty string otherwise"
+          test "${{ steps.docker.outputs.push-indicator }}" == "true"
