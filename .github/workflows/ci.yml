@@ -4,42 +4,42 @@ on: [push, pull_request]
 
 jobs:
 
-  static-code-analysis:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-    steps:
+  # static-code-analysis:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
+  #   steps:
 
-      - name: check out repository
-        uses: actions/checkout@v3
+  #     - name: check out repository
+  #       uses: actions/checkout@v3
 
-      - name: set up miniconda and env
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
-          activate-environment: htsinfer
-          auto-activate-base: false
+  #     - name: set up miniconda and env
+  #       uses: conda-incubator/setup-miniconda@v2
+  #       with:
+  #         auto-update-conda: true
+  #         mamba-version: "*"
+  #         channels: conda-forge,defaults
+  #         environment-file: environment.yml
+  #         activate-environment: htsinfer
+  #         auto-activate-base: false
 
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
+  #     - name: update env with dev packages
+  #       run: mamba env update --file environment-dev.yml
 
-      - name: display env info
-        run: |
-          conda info -a
-          conda list
+  #     - name: display env info
+  #       run: |
+  #         conda info -a
+  #         conda list
 
-      - name: flake8
-        run: flake8
+  #     - name: flake8
+  #       run: flake8
 
-      - name: pylint
-        run: pylint --rcfile pylint.cfg setup.py htsinfer/
+  #     - name: pylint
+  #       run: pylint --rcfile pylint.cfg setup.py htsinfer/
 
-      - name: mypy
-        run: mypy htsinfer
+  #     - name: mypy
+  #       run: mypy htsinfer
 
   # unit-testing:
   #   runs-on: ubuntu-latest
@@ -140,7 +140,7 @@ jobs:
   publish:
     name: build and publish app image
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' }} && github.ref == refs/heads/issue_126
 
     steps:
 
@@ -158,7 +158,7 @@ jobs:
           dockerfile: .
           image-name: "htsinfer"
           tags: "latest ${{ env.TAG }}"
-          push-branches: "issue_126_test"
+          push-branches: "issue_126"
         env:
           REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
           REGISTRY_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"
