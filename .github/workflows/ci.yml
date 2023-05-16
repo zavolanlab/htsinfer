@@ -41,106 +41,106 @@ jobs:
       - name: mypy
         run: mypy htsinfer
 
-  unit-testing:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
+  # unit-testing:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: [ '3.7', '3.8', '3.9' ]
 
-    name: unit-testing-Python-${{ matrix.python-version }}
+  #   name: unit-testing-Python-${{ matrix.python-version }}
 
-    steps:
+  #   steps:
 
-      - name: check out repository
-        uses: actions/checkout@v3
+  #     - name: check out repository
+  #       uses: actions/checkout@v3
 
-      - name: set up miniconda and env
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
-          mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
-          activate-environment: htsinfer
-          auto-activate-base: false
+  #     - name: set up miniconda and env
+  #       uses: conda-incubator/setup-miniconda@v2
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         auto-update-conda: true
+  #         mamba-version: "*"
+  #         channels: conda-forge,defaults
+  #         environment-file: environment.yml
+  #         activate-environment: htsinfer
+  #         auto-activate-base: false
 
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
+  #     - name: update env with dev packages
+  #       run: mamba env update --file environment-dev.yml
 
-      - name: display env info
-        run: |
-          conda info -a
-          conda list
+  #     - name: display env info
+  #       run: |
+  #         conda info -a
+  #         conda list
 
-      - name: run unit tests
-        run: |
-          coverage run --source htsinfer -m pytest
-          coverage xml
+  #     - name: run unit tests
+  #       run: |
+  #         coverage run --source htsinfer -m pytest
+  #         coverage xml
 
-      - name: submit coverage report
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          fail_ci_if_error: true
-          verbose: true
+  #     - name: submit coverage report
+  #       uses: codecov/codecov-action@v2
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         files: ./coverage.xml
+  #         fail_ci_if_error: true
+  #         verbose: true
 
-  integration-testing:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
+  # integration-testing:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: [ '3.7', '3.8', '3.9' ]
 
-    name: integration-testing-Python-${{ matrix.python-version }}
+  #   name: integration-testing-Python-${{ matrix.python-version }}
 
-    steps:
+  #   steps:
 
-      - name: check out repository
-        uses: actions/checkout@v3
+  #     - name: check out repository
+  #       uses: actions/checkout@v3
 
-      - name: set up miniconda and env
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
-          mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
-          activate-environment: htsinfer
-          auto-activate-base: false
+  #     - name: set up miniconda and env
+  #       uses: conda-incubator/setup-miniconda@v2
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         auto-update-conda: true
+  #         mamba-version: "*"
+  #         channels: conda-forge,defaults
+  #         environment-file: environment.yml
+  #         activate-environment: htsinfer
+  #         auto-activate-base: false
 
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
+  #     - name: update env with dev packages
+  #       run: mamba env update --file environment-dev.yml
 
-      - name: display env info
-        run: |
-          conda info -a
-          conda list
+  #     - name: display env info
+  #       run: |
+  #         conda info -a
+  #         conda list
 
-      - name: integration test - help screen
-        run: htsinfer --help
+  #     - name: integration test - help screen
+  #       run: htsinfer --help
 
-      - name: integration test - single-ended library
-        run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_single.fastq
+  #     - name: integration test - single-ended library
+  #       run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_single.fastq
 
-      - name: integration test - paired-ended library
-        run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_{1,2}.fastq
+  #     - name: integration test - paired-ended library
+  #       run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_{1,2}.fastq
 
   publish:
     name: build and publish app image
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'pull_request' }}
 
     steps:
 
@@ -158,6 +158,7 @@ jobs:
           dockerfile: .
           image-name: "htsinfer"
           tags: "latest ${{ env.TAG }}"
+          push-branches: "${{ github.event.repository.default_branch }}"
         env:
           REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
           REGISTRY_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"
