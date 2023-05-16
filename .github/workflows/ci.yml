@@ -140,7 +140,7 @@ jobs:
   publish:
     name: build and publish app image
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/issue_126_test'}}
 
     steps:
 
@@ -158,7 +158,7 @@ jobs:
           dockerfile: .
           image-name: "htsinfer"
           tags: "latest ${{ env.TAG }}"
-          push-branches: "refs/heads/issue_126_test"
+          push-branches: "${{ github.event.repository.default_branch }}"
         env:
           REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
           REGISTRY_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"
