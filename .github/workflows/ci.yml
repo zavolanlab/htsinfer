@@ -4,135 +4,171 @@ on: [push, pull_request]
 
 jobs:
 
-  static-code-analysis:
+  # static-code-analysis:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
+  #   steps:
+
+  #     - name: check out repository
+  #       uses: actions/checkout@v3
+
+  #     - name: set up miniconda and env
+  #       uses: conda-incubator/setup-miniconda@v2
+  #       with:
+  #         auto-update-conda: true
+  #         mamba-version: "*"
+  #         channels: conda-forge,defaults
+  #         environment-file: environment.yml
+  #         activate-environment: htsinfer
+  #         auto-activate-base: false
+
+  #     - name: update env with dev packages
+  #       run: mamba env update --file environment-dev.yml
+
+  #     - name: display env info
+  #       run: |
+  #         conda info -a
+  #         conda list
+
+  #     - name: flake8
+  #       run: flake8
+
+  #     - name: pylint
+  #       run: pylint --rcfile pylint.cfg setup.py htsinfer/
+
+  #     - name: mypy
+  #       run: mypy htsinfer
+
+  # unit-testing:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
+
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: [ '3.7', '3.8', '3.9' ]
+
+  #   name: unit-testing-Python-${{ matrix.python-version }}
+
+  #   steps:
+
+  #     - name: check out repository
+  #       uses: actions/checkout@v3
+
+  #     - name: set up miniconda and env
+  #       uses: conda-incubator/setup-miniconda@v2
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         auto-update-conda: true
+  #         mamba-version: "*"
+  #         channels: conda-forge,defaults
+  #         environment-file: environment.yml
+  #         activate-environment: htsinfer
+  #         auto-activate-base: false
+
+  #     - name: update env with dev packages
+  #       run: mamba env update --file environment-dev.yml
+
+  #     - name: display env info
+  #       run: |
+  #         conda info -a
+  #         conda list
+
+  #     - name: run unit tests
+  #       run: |
+  #         coverage run --source htsinfer -m pytest
+  #         coverage xml
+
+  #     - name: submit coverage report
+  #       uses: codecov/codecov-action@v2
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         files: ./coverage.xml
+  #         fail_ci_if_error: true
+  #         verbose: true
+
+  # integration-testing:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
+
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: [ '3.7', '3.8', '3.9' ]
+
+  #   name: integration-testing-Python-${{ matrix.python-version }}
+
+  #   steps:
+
+  #     - name: check out repository
+  #       uses: actions/checkout@v3
+
+  #     - name: set up miniconda and env
+  #       uses: conda-incubator/setup-miniconda@v2
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         auto-update-conda: true
+  #         mamba-version: "*"
+  #         channels: conda-forge,defaults
+  #         environment-file: environment.yml
+  #         activate-environment: htsinfer
+  #         auto-activate-base: false
+
+  #     - name: update env with dev packages
+  #       run: mamba env update --file environment-dev.yml
+
+  #     - name: display env info
+  #       run: |
+  #         conda info -a
+  #         conda list
+
+  #     - name: integration test - help screen
+  #       run: htsinfer --help
+
+  #     - name: integration test - single-ended library
+  #       run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_single.fastq
+
+  #     - name: integration test - paired-ended library
+  #       run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_{1,2}.fastq
+
+  publish:
+    name: build and publish app image
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
+    if: |
+      github.event_name == 'push' && 
+      github.ref == 'refs/heads/issue_126'
+
     steps:
 
       - name: check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: set up miniconda and env
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
-          activate-environment: htsinfer
-          auto-activate-base: false
-
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
-
-      - name: display env info
+      - name: generate tag
         run: |
-          conda info -a
-          conda list
+          echo "TAG=$(date '+%Y%m%d')" >> $GITHUB_ENV
 
-      - name: flake8
-        run: flake8
-
-      - name: pylint
-        run: pylint --rcfile pylint.cfg setup.py htsinfer/
-
-      - name: mypy
-        run: mypy htsinfer
-
-  unit-testing:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
-
-    name: unit-testing-Python-${{ matrix.python-version }}
-
-    steps:
-
-      - name: check out repository
-        uses: actions/checkout@v2
-
-      - name: set up miniconda and env
-        uses: conda-incubator/setup-miniconda@v2
+      - name: build and publish image
+        id: docker
+        uses: philips-software/docker-ci-scripts@v5.1.0
         with:
-          python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
-          mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
-          activate-environment: htsinfer
-          auto-activate-base: false
+          dockerfile: .
+          image-name: "htsinfer"
+          tags: "latest ${{ env.TAG }}"
+          push-branches: "issue_126"
+        env:
+          REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
+          REGISTRY_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"
+          DOCKER_ORGANIZATION: ${{ secrets.DOCKERHUB_ORG }}
+          GITHUB_ORGANIZATION: ${{ github.repository_owner }}
 
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
-
-      - name: display env info
+      - name: Verify that image was pushed
         run: |
-          conda info -a
-          conda list
-
-      - name: run unit tests
-        run: |
-          coverage run --source htsinfer -m pytest
-          coverage xml
-
-      - name: submit coverage report
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          fail_ci_if_error: true
-          verbose: true
-
-  integration-testing:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
-
-    name: integration-testing-Python-${{ matrix.python-version }}
-
-    steps:
-
-      - name: check out repository
-        uses: actions/checkout@v2
-
-      - name: set up miniconda and env
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
-          mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
-          activate-environment: htsinfer
-          auto-activate-base: false
-
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
-
-      - name: display env info
-        run: |
-          conda info -a
-          conda list
-
-      - name: integration test - help screen
-        run: htsinfer --help
-
-      - name: integration test - single-ended library
-        run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_single.fastq
-
-      - name: integration test - paired-ended library
-        run: htsinfer --cleanup-regime=KEEP_NONE --verbosity=DEBUG tests/files/adapter_{1,2}.fastq
+          echo "Push indicator: ${{ steps.docker.outputs.push-indicator }}"
+          echo "# Set to 'true' if image was pushed, empty string otherwise"
+          test "${{ steps.docker.outputs.push-indicator }}" == "true"
