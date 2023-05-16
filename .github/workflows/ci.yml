@@ -158,7 +158,7 @@ jobs:
           dockerfile: .
           image-name: "htsinfer"
           tags: "latest ${{ env.TAG }}"
-          push-branches: "issue_126"
+          push-branches: "refs/heads/issue_126_test"
         env:
           REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
           REGISTRY_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"
