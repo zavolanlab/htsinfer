@@ -86,6 +86,14 @@ class HtsInfer:
                     f"{self.config.results.library_stats.json()}"
                 )
 
+                # determine library source
+                LOGGER.info("Determining library source...")
+                self.config.results.library_source = self.get_library_source()
+                LOGGER.info(
+                    "Library source determined: "
+                    f"{self.config.results.library_source.json()}"
+                )
+
                 # determine library type
                 LOGGER.info("Determining library type...")
                 try:
@@ -96,14 +104,6 @@ class HtsInfer:
                 LOGGER.info(
                     "Library type determined: "
                     f"{self.config.results.library_type.json()}"
-                )
-
-                # determine library source
-                LOGGER.info("Determining library source...")
-                self.config.results.library_source = self.get_library_source()
-                LOGGER.info(
-                    "Library source determined: "
-                    f"{self.config.results.library_source.json()}"
                 )
 
                 # determine read orientation
@@ -228,14 +228,6 @@ class HtsInfer:
         )
         self.config.results.library_stats = get_lib_stats.evaluate()
 
-    def get_library_type(self):
-        """Determine library type."""
-        get_lib_type = GetLibType(
-            config=self.config,
-        )
-        get_lib_type.evaluate()
-        self.config.results.library_type = get_lib_type.results
-
     def get_library_source(self) -> ResultsSource:
         """Determine library source.
 
@@ -247,6 +239,14 @@ class HtsInfer:
         )
         results = get_lib_source.evaluate()
         return results
+
+    def get_library_type(self):
+        """Determine library type."""
+        get_lib_type = GetLibType(
+            config=self.config,
+        )
+        get_lib_type.evaluate()
+        self.config.results.library_type = get_lib_type.results
 
     def get_read_orientation(self):
         """Determine read orientation."""

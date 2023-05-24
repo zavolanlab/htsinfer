@@ -35,6 +35,7 @@ class TestGetReadLayout:
 
     def test_init_required(self, tmpdir):
         """Create instance with required parameters."""
+        CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.out_dir = tmpdir
         CONFIG.args.path_2_processed = None
         test_instance = GetReadLayout(config=CONFIG)

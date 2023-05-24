@@ -163,7 +163,7 @@ class StatesTypeRelationship(Enum):
             provided, or because the files do not compatible sequence
             identifiers.
         split_mates: One of the provided files represents the first and the
-            the other the second mates of a paired-end library.
+            other the second mates of a paired-end library.
     """
     split_mates = "split_mates"
     not_available = None
