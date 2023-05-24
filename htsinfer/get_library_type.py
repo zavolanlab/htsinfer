@@ -152,7 +152,6 @@ plit_mates: 'split_mates'>)
         reads2 = []  # List to store alignments for one read from file2
 
         concordant = 0
-        discordant = 0
 
         for read1 in samfile1:
             seq_id1 = read1.query_name
@@ -173,8 +172,6 @@ plit_mates: 'split_mates'>)
                     and previous_seq_id2 is not None:
                 if self._compare_alignments(mate1[read_counter], reads2):
                     concordant += 1
-                else:
-                    discordant += 1
                 reads2.clear()
                 read_counter += 1
             reads2.append(read2)
@@ -182,8 +179,6 @@ plit_mates: 'split_mates'>)
 
         if self._compare_alignments(mate1[read_counter], reads2):
             concordant += 1
-        else:
-            discordant += 1
 
         if (concordant / read_counter) >= self.cutoff:
             self.results.relationship = (
