@@ -99,6 +99,8 @@ htsinfer [--output-directory PATH]
          [--read-layout-min-frequency-ratio FLOAT]
          [--library-source-min-match-percentage FLOAT]
          [--library-source-min-frequency-ratio FLOAT]
+         [--library-type-max-distance INT]
+         [--library-type-mates-cutoff FLOAT]
          [--read-orientation-min-mapped-reads INT]
          [--read-orientation-min-fraction FLOAT]
          [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
@@ -154,13 +156,21 @@ optional arguments:
                         most frequent adapter in order for the former to be
                         considered as the library's 3'-end adapter (default: 2)
   --library-source-min-match-percentage FLOAT
-                        Minimum percentage of reads that are consistent with a
+                        minimum percentage of reads that are consistent with a
                         given source in order for it to be considered as the
                         to be considered the library's source.
   --library-source-min-frequency-ratio FLOAT
-                        Minimum frequency ratio between the first and second
+                        minimum frequency ratio between the first and second
                         most frequent source in order for the former to be
                         considered the library's source.
+  --library-type-max-distance INT
+                        upper limit on the difference in the reference sequence
+			coordinates between the two mates to be considered as
+			coming from a single fragment. (default: 1000)
+  --library-type-mates-cutoff FLOAT
+                        minimum fraction of mates that can be mapped to compatible
+			loci and are considered concordant pairs / all mates. 
+			(default: 0.95)
   --read-orientation-min-mapped-reads INT
                         minimum number of mapped reads for deeming the read
                         orientation result reliable (default: 20)

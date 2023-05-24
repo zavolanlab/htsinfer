@@ -213,6 +213,29 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
+        "--library-type-max-distance",
+        dest="lib_type_max_distance",
+        metavar="INT",
+        type=int,
+        default=1000,
+        help=(
+            "upper limit on the difference in the reference "
+            "sequence coordinates between the two mates to be "
+            "considered as coming from a single fragment. "
+        )
+    )
+    parser.add_argument(
+        "--library-type-mates-cutoff",
+        dest="lib_type_mates_cutoff",
+        metavar="FLOAT",
+        type=float,
+        default=0.95,
+        help=(
+            "minimum fraction of mates that can be mapped to compatible loci "
+            "and are considered concordant pairs / all mates. "
+        )
+    )
+    parser.add_argument(
         "--read-orientation-min-mapped-reads",
         dest="read_orientation_min_mapped_reads",
         metavar="INT",

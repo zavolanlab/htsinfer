@@ -71,8 +71,8 @@ plit_mates: 'split_mates'>)
         self.tmp_dir = config.args.tmp_dir
         self.get_read_orientation: \
             GetOrientation = GetOrientation(config=config)
-        self.max_distance: int = 1000
-        self.cutoff: float = 0.95
+        self.max_distance = config.args.lib_type_max_distance
+        self.cutoff = config.args.lib_type_mates_cutoff
 
     def evaluate(self) -> None:
         """Decide type information and mate relationship."""

@@ -391,6 +391,11 @@ class Args(BaseModel):
         lib_source_min_freq_ratio: Minimum frequency ratio between the first
             and second most frequent source in order for the former to be
             considered the library's source.
+        lib_type_max_distance: Upper limit on the difference in the
+            reference sequence coordinates between the two mates to be
+            considered as coming from a single fragment.
+        lib_type_mates_cutoff: Minimum fraction of mates that can be mapped to
+            compatible loci and are considered concordant pairs / all mates.
         read_orientation_min_mapped_reads: Minimum number of mapped reads for
             deeming the read orientation result reliable.
         read_orientation_min_fraction: Minimum fraction of mapped reads
@@ -417,6 +422,8 @@ class Args(BaseModel):
     read_layout_min_freq_ratio: float = 2
     lib_source_min_match_pct: float = 2
     lib_source_min_freq_ratio: float = 2
+    lib_type_max_distance: int = 1000
+    lib_type_mates_cutoff: float = 0.95
     read_orientation_min_mapped_reads: int = 20
     read_orientation_min_fraction: float = 0.75
     path_1_processed: Path = Path()
