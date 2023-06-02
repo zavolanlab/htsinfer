@@ -221,7 +221,8 @@ def parse_args() -> argparse.Namespace:
         help=(
             "upper limit on the difference in the reference "
             "sequence coordinates between the two mates to be "
-            "considered as coming from a single fragment. "
+            "considered as coming from a single fragment "
+            "(Used only when sequence identifiers do not match) "
         )
     )
     parser.add_argument(
@@ -232,7 +233,8 @@ def parse_args() -> argparse.Namespace:
         default=0.95,
         help=(
             "minimum fraction of mates that can be mapped to compatible loci "
-            "and are considered concordant pairs / all mates. "
+            "and are considered concordant pairs / all mates"
+            "(Used only when sequence identifiers do not match)"
         )
     )
     parser.add_argument(
@@ -255,7 +257,7 @@ def parse_args() -> argparse.Namespace:
         help=(
             "minimum fraction of mapped reads required to be consistent with "
             "a given read orientation state in order for that orientation to "
-            "be reported. Must be above 0.5."
+            "be reported. Must be above 0.5"
         )
     )
     parser.add_argument(

@@ -394,8 +394,10 @@ class Args(BaseModel):
         lib_type_max_distance: Upper limit on the difference in the
             reference sequence coordinates between the two mates to be
             considered as coming from a single fragment.
+            (Used only when sequence identifiers do not match)
         lib_type_mates_cutoff: Minimum fraction of mates that can be mapped to
             compatible loci and are considered concordant pairs / all mates.
+            (Used only when sequence identifiers do not match)
         read_orientation_min_mapped_reads: Minimum number of mapped reads for
             deeming the read orientation result reliable.
         read_orientation_min_fraction: Minimum fraction of mapped reads
