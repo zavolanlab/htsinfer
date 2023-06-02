@@ -155,26 +155,26 @@ plit_mates: 'split_mates'>)
 
         for read1 in samfile1:
             seq_id1 = read1.query_name
-
             if seq_id1 != previous_seq_id1 \
                     and previous_seq_id1 is not None:
                 mate1.append(reads1.copy())
                 reads1.clear()
-            reads1.append(read1)
+            if read1.reference_end:
+                reads1.append(read1)
             previous_seq_id1 = seq_id1
         mate1.append(reads1.copy())
 
         read_counter = 0
         for read2 in samfile2:
             seq_id2 = read2.query_name
-
             if seq_id2 != previous_seq_id2 \
                     and previous_seq_id2 is not None:
                 if self._compare_alignments(mate1[read_counter], reads2):
                     concordant += 1
                 reads2.clear()
                 read_counter += 1
-            reads2.append(read2)
+            if read2.reference_end:
+                reads2.append(read2)
             previous_seq_id2 = seq_id2
 
         if self._compare_alignments(mate1[read_counter], reads2):
