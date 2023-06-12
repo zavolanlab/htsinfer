@@ -2,8 +2,9 @@
 
 import logging
 from pathlib import Path
-import re
 from typing import (List, Optional)
+import re
+import pysam
 
 from Bio.SeqIO.QualityIO import FastqGeneralIterator  # type: ignore
 
@@ -19,6 +20,9 @@ from htsinfer.models import (
     StatesTypeRelationship,
     SeqIdFormats,
     Config,
+)
+from htsinfer.get_read_orientation import (
+    GetOrientation,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -62,7 +66,13 @@ plit_mates: 'split_mates'>)
         """Class constructor."""
         self.path_1: Path = config.args.path_1_processed
         self.path_2: Optional[Path] = config.args.path_2_processed
+        self.library_source = config.results.library_source
         self.results: ResultsType = ResultsType()
+        self.tmp_dir = config.args.tmp_dir
+        self.get_read_orientation: \
+            GetOrientation = GetOrientation(config=config)
+        self.max_distance = config.args.lib_type_max_distance
+        self.cutoff = config.args.lib_type_mates_cutoff
 
     def evaluate(self) -> None:
         """Decide type information and mate relationship."""
@@ -116,6 +126,107 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.split_mates
                 )
+        else:
+            self.get_read_orientation.library_type.relationship \
+                = StatesTypeRelationship.not_available
+            self.get_read_orientation.library_source = self.library_source
+            _ = self.get_read_orientation.evaluate()
+            self._align_mates()
+
+    def _align_mates(self):
+        """Decide mate relationship by alignment."""
+
+        alignment_1 = Path(self.tmp_dir) \
+            / "alignments" / "file_1" / "Aligned.out.sam"
+        alignment_2 = Path(self.tmp_dir) \
+            / "alignments" / "file_2" / "Aligned.out.sam"
+
+        samfile1 = pysam.AlignmentFile(alignment_1, 'r')
+        samfile2 = pysam.AlignmentFile(alignment_2, 'r')
+
+        previous_seq_id1 = None
+        previous_seq_id2 = None
+
+        reads1 = []  # List to store alignments for one read from file1
+        mate1 = []  # List to store alignments for each read
+        reads2 = []  # List to store alignments for one read from file2
+
+        concordant = 0
+
+        for read1 in samfile1:
+            seq_id1 = read1.query_name
+            if seq_id1 != previous_seq_id1 \
+                    and previous_seq_id1 is not None:
+                mate1.append(reads1.copy())
+                reads1.clear()
+            if read1.reference_end:
+                reads1.append(read1)
+            previous_seq_id1 = seq_id1
+        mate1.append(reads1.copy())
+
+        read_counter = 0
+        for read2 in samfile2:
+            seq_id2 = read2.query_name
+            if seq_id2 != previous_seq_id2 \
+                    and previous_seq_id2 is not None:
+                if self._compare_alignments(mate1[read_counter], reads2):
+                    concordant += 1
+                reads2.clear()
+                read_counter += 1
+            if read2.reference_end:
+                reads2.append(read2)
+            previous_seq_id2 = seq_id2
+
+        if self._compare_alignments(mate1[read_counter], reads2):
+            concordant += 1
+
+        if (concordant / read_counter) >= self.cutoff:
+            self.results.relationship = (
+                StatesTypeRelationship.split_mates
+            )
+        else:
+            self.results.relationship = (
+                StatesTypeRelationship.not_mates
+            )
+
+        samfile1.close()
+        samfile2.close()
+
+    class AlignedSegment:
+        """Placeholder class for mypy "Missing attribute"
+        error in _compare_alignments(), the actual object used
+        is pysam.AlignedSegment class.
+        """
+        def __init__(self):
+            """Class constructor."""
+            self.reference_name: str = ""
+            self.reference_start: int = 0
+            self.reference_end: int = 0
+
+    def _compare_alignments(
+            self,
+            read1: List[AlignedSegment],
+            read2: List[AlignedSegment],  # List[object],
+    ) -> bool:
+        """Compare two lists of alignments and decide
+        if they come from a single fragment.
+
+        Args:
+        read1: List of pysam.AlignedSegment records for first mate
+        read2: List of pysam.AlignedSegment records for second mate
+        """
+        for one in read1:
+            for two in read2:
+                if one.reference_name == two.reference_name:
+                    second_start = one.reference_start \
+                        if one.reference_start > two.reference_start \
+                        else two.reference_start
+                    first_end = one.reference_end \
+                        if one.reference_end < two.reference_end \
+                        else two.reference_end
+                    if second_start - first_end < self.max_distance:
+                        return True
+        return False
 
 
 class GetFastqType():

@@ -27,6 +27,9 @@ from tests.utils import (
     FILE_INCONSISTENT_IDS_SINGLE_OLD_NEW,
     FILE_MATE_1,
     FILE_MATE_2,
+    FILE_IDS_NOT_MATCH_1,
+    FILE_IDS_NOT_MATCH_2,
+    FILE_TRANSCRIPTS,
     FILE_SINGLE,
     FILE_UNKNOWN_SEQ_ID,
     RaiseError,
@@ -106,6 +109,9 @@ class TestGetLibType:
         """Test mate relationship evaluation logic with input files that are
         not mates from a paired-end library.
         """
+        CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetLibType(config=CONFIG)
         test_instance.results.file_1 = StatesType.first_mate
         test_instance.results.file_2 = StatesType.second_mate
@@ -127,6 +133,31 @@ class TestGetLibType:
             test_instance.results.relationship ==
             StatesTypeRelationship.not_mates
         )
+
+    def test_evaluate_split_mates_not_matching_ids(self):
+        """Test mate relationship evaluation logic with input files that are
+        not mates from a paired-end library.
+        """
+        CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
+        CONFIG.args.path_2_processed = FILE_IDS_NOT_MATCH_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetLibType(config=CONFIG)
+        test_instance.evaluate()
+        assert (
+                test_instance.results.relationship ==
+                StatesTypeRelationship.split_mates
+        )
+
+
+class TestAlignedSegment:
+    """Test ``GetFastqType`` class."""
+
+    def test_init(self):
+        """Create instance."""
+        test_instance = GetLibType.AlignedSegment()
+        assert test_instance.reference_name == ""
+        assert test_instance.reference_start == 0
+        assert test_instance.reference_end == 0
 
 
 class TestGetFastqType:
