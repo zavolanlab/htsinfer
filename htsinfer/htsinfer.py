@@ -9,6 +9,7 @@ from random import choices
 import shutil
 import string
 import sys
+import time
 
 from htsinfer.exceptions import (
     FileProblem,
@@ -27,6 +28,7 @@ from htsinfer.models import (
     Config,
 )
 from htsinfer.subset_fastq import SubsetFastq
+from htsinfer.mapping import Mapping
 
 LOGGER = logging.getLogger(__name__)
 
@@ -64,6 +66,7 @@ class HtsInfer:
             else config.args.tmp_dir / config.args.transcripts_file.name
         )
         self.state: RunStates = RunStates.OKAY
+        self.mapping: Mapping
 
     def evaluate(self):
         """Determine library metadata."""
@@ -94,6 +97,9 @@ class HtsInfer:
                     f"{self.config.results.library_source.json()}"
                 )
 
+                # initialize the Mapping Class
+                self.mapping = Mapping(config=self.config)
+
                 # determine library type
                 LOGGER.info("Determining library type...")
                 try:
@@ -117,6 +123,8 @@ class HtsInfer:
                     "Read orientation determined: "
                     f"{self.config.results.read_orientation.json()}"
                 )
+
+                time.sleep(10)
 
                 # determine read layout
                 LOGGER.info("Determining read layout...")
@@ -244,6 +252,7 @@ class HtsInfer:
         """Determine library type."""
         get_lib_type = GetLibType(
             config=self.config,
+            mapping=self.mapping,
         )
         get_lib_type.evaluate()
         self.config.results.library_type = get_lib_type.results
@@ -252,6 +261,7 @@ class HtsInfer:
         """Determine read orientation."""
         get_read_orientation = GetOrientation(
             config=self.config,
+            mapping=self.mapping,
         )
         self.config.results.read_orientation = get_read_orientation.evaluate()
 
