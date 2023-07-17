@@ -124,11 +124,13 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.split_mates
                 )
+                self.mapping.library_type.relationship \
+                    = StatesTypeRelationship.split_mates
         else:
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source
-            _ = self.mapping.evaluate()
+            self.mapping.evaluate()
             self._align_mates()
 
     def _align_mates(self):
@@ -180,6 +182,10 @@ plit_mates: 'split_mates'>)
             self.results.relationship = (
                 StatesTypeRelationship.split_mates
             )
+            self.mapping.library_type.relationship \
+                = StatesTypeRelationship.split_mates
+            self.mapping.mapped = False
+            self.mapping.star_dirs = []
         else:
             self.results.relationship = (
                 StatesTypeRelationship.not_mates

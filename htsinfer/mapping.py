@@ -1,26 +1,20 @@
 """Mapping FASTQ's and managing the outputs of STAR."""
 
-from collections import defaultdict
 import logging
 import math
 from pathlib import Path
 import subprocess as sp
-from typing import (Any, DefaultDict, Dict, List)
+from typing import (Dict, List)
 
 from Bio import SeqIO  # type: ignore
-import pysam  # type: ignore
 
 from htsinfer.exceptions import (
     FileProblem,
-    SamFileProblem,
     StarProblem,
 )
 from htsinfer.models import (
-    ResultsOrientation,
-    StatesOrientation,
-    StatesOrientationRelationship,
-    StatesTypeRelationship,
     Config,
+    StatesTypeRelationship,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -53,12 +47,10 @@ class Mapping:
         self.transcripts_file = config.args.t_file_processed
         self.tmp_dir = config.args.tmp_dir
         self.threads_star = config.args.threads
-        self.min_mapped_reads = config.args.read_orientation_min_mapped_reads
-        self.min_fraction = config.args.read_orientation_min_fraction
         self.mapped = False
-        self.star_dirs: List[Path]
+        self.star_dirs: List[Path] = []
 
-    def evaluate(self) -> ResultsOrientation:
+    def evaluate(self):
         """Infer read orientation.
 
         Returns:
@@ -82,6 +74,7 @@ class Mapping:
         self.generate_star_alignments(commands=star_cmds)
         # process alignments
         self.star_dirs = [e for e in star_cmds if e is not None]
+        self.mapped = True
 
     def subset_transcripts_by_organism(self) -> Path:
         """Filter FASTA file of transcripts by current sources.
@@ -347,8 +340,6 @@ class Mapping:
                     read_files=[str(self.paths[1])],
                     out_dir=f"{str(out_dir)}/",
                 )
-
-        self.alignment_dir = out_dir_base
 
         return commands
 

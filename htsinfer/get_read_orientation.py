@@ -2,23 +2,18 @@
 
 from collections import defaultdict
 import logging
-import time
 from pathlib import Path
 from typing import (Any, DefaultDict, Dict, List)
 
-from Bio import SeqIO  # type: ignore
 import pysam  # type: ignore
 
 from htsinfer.exceptions import (
     FileProblem,
-    SamFileProblem,
-    StarProblem,
 )
 from htsinfer.models import (
     ResultsOrientation,
     StatesOrientation,
     StatesOrientationRelationship,
-    StatesTypeRelationship,
     Config,
 )
 from htsinfer.mapping import Mapping
@@ -63,7 +58,6 @@ class GetOrientation:
         self.library_source = config.results.library_source
         self.transcripts_file = config.args.t_file_processed
         self.tmp_dir = config.args.tmp_dir
-        self.threads_star = config.args.threads
         self.min_mapped_reads = config.args.read_orientation_min_mapped_reads
         self.min_fraction = config.args.read_orientation_min_fraction
         self.mapping = mapping
@@ -74,6 +68,12 @@ class GetOrientation:
         Returns:
             Orientation results object.
         """
+
+        self.mapping.paths = self.paths
+        self.mapping.library_type = self.library_type
+        self.mapping.library_source = self.library_source
+        self.mapping.transcripts_file = self.transcripts_file
+        self.mapping.tmp_dir = self.tmp_dir
 
         if not self.mapping.mapped:
             self.mapping.evaluate()
@@ -101,15 +101,9 @@ class GetOrientation:
             if star_dirs[0].name == "file_1":
                 results.file_1 = self.process_single(sam=paths[0])
         elif len(star_dirs) == 2:
-            if self.library_type.relationship \
-                    == StatesTypeRelationship.split_mates:
-                merged = str(star_dirs[0] / 'merged.sam')
-                pysam.merge(merged, str(paths[0]), str(paths[1]))
-                results = self.process_paired(
-                    star_dirs[0] / 'merged.sam', force_paired=True)
-            else:
-                results.file_1 = self.process_single(sam=paths[0])
-                results.file_2 = self.process_single(sam=paths[1])
+            print("Getting there")
+            results.file_1 = self.process_single(sam=paths[0])
+            results.file_2 = self.process_single(sam=paths[1])
         return results
 
     def process_single(
@@ -151,15 +145,9 @@ class GetOrientation:
                             states[record.query_name].append(
                                 StatesOrientation.stranded_forward
                             )
-
-        except OSError as exc:
+        except (OSError, ValueError) as exc:
             raise FileProblem(
                 f"Failed to open SAM file: '{sam}'"
-            ) from exc
-
-        except ValueError as exc:
-            raise SamFileProblem(
-                f"Not a valid SAM file: '{sam}'"
             ) from exc
 
         LOGGER.debug("Deciding read orientation...")
@@ -197,14 +185,12 @@ class GetOrientation:
     def process_paired(  # pylint: disable=R0912,R0915
         self,
         sam: Path,
-        force_paired=False,
     ) -> ResultsOrientation:
         """Determine read orientation of a paired-ended sequencing library.
 
         Args:
             sam: Path to SAM file.
-            force_paired: If files were aligned separately,
-                the pair check is skipped
+
         Returns:
             Read orientation state of each mate and orientation state
                 relationship of library.
@@ -216,16 +202,11 @@ class GetOrientation:
             str, List[StatesOrientationRelationship]
         ] = defaultdict(lambda: [])
         try:
-            primary_sam = str(self.tmp_dir / "primary.sam")
-            pysam.view("-F", "256", "-o", primary_sam,
-                       str(sam), catch_stdout=False)
-            with pysam.AlignmentFile(primary_sam, "r") as _file:
+            with pysam.AlignmentFile(str(sam), "r") as _file:
                 for record_1 in _file.fetch():
 
                     # ensure both mates are mapped and part of mate pair
-                    if force_paired:
-                        pass
-                    elif not (
+                    if not (
                         record_1.flag & (1 << 0) and
                         record_1.flag & (1 << 1) and
                         not record_1.flag & (1 << 2) and

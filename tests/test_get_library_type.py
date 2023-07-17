@@ -38,6 +38,7 @@ from tests.utils import (
     SEQ_ID_MATE_2,
     SEQ_ID_SINGLE,
     CONFIG,
+    MAPPING,
 )
 
 
@@ -47,20 +48,23 @@ class TestGetLibType:
     def test_init_required(self):
         """Create instance with required parameters."""
         CONFIG.args.path_2_processed = None
-        test_instance = GetLibType(config=CONFIG)
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
         assert test_instance.path_1 == FILE_MATE_1
 
     def test_init_all(self):
         """Create instance with all available parameters."""
         CONFIG.args.path_2_processed = FILE_MATE_2
-        test_instance = GetLibType(config=CONFIG)
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
         assert test_instance.path_1 == FILE_MATE_1
         assert test_instance.path_2 == FILE_MATE_2
 
     def test_evaluate_one_file(self):
         """Get library type for a single file."""
         CONFIG.args.path_2_processed = None
-        test_instance = GetLibType(config=CONFIG)
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
         test_instance.evaluate()
         assert test_instance.results == ResultsType(
             file_1=StatesType.first_mate,
@@ -71,7 +75,8 @@ class TestGetLibType:
     def test_evaluate_two_files(self):
         """Get library type for two files."""
         CONFIG.args.path_2_processed = FILE_MATE_2
-        test_instance = GetLibType(config=CONFIG)
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
         test_instance.evaluate()
         assert test_instance.results == ResultsType(
             file_1=StatesType.first_mate,
@@ -83,7 +88,8 @@ class TestGetLibType:
         """Test mate relationship evaluation logic with input files being
         mates of a paired-end library.
         """
-        test_instance = GetLibType(config=CONFIG)
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
         test_instance.results.file_1 = StatesType.first_mate
         test_instance.results.file_2 = StatesType.second_mate
         test_instance._evaluate_mate_relationship(
@@ -112,7 +118,10 @@ class TestGetLibType:
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
-        test_instance = GetLibType(config=CONFIG)
+        MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_MATE_2)
+        MAPPING.transcripts_file = FILE_TRANSCRIPTS
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
         test_instance.results.file_1 = StatesType.first_mate
         test_instance.results.file_2 = StatesType.second_mate
         test_instance._evaluate_mate_relationship(
@@ -140,8 +149,9 @@ class TestGetLibType:
         """
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_IDS_NOT_MATCH_2
-        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
-        test_instance = GetLibType(config=CONFIG)
+        MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_IDS_NOT_MATCH_2)
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
         test_instance.evaluate()
         assert (
                 test_instance.results.relationship ==
