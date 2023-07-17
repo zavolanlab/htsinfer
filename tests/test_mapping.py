@@ -8,36 +8,20 @@ from htsinfer.exceptions import (
 )
 from htsinfer.mapping import Mapping
 from htsinfer.models import (
-    ResultsOrientation,
     ResultsSource,
     ResultsType,
     Source,
-    StatesOrientation,
-    StatesOrientationRelationship,
     StatesTypeRelationship,
 )
 from tests.utils import (
     FILE_2000_RECORDS,
     FILE_DUMMY,
-    FILE_EMPTY_ALIGNED_SAM,
-    FILE_BAD_ALIGNED_SAM,
     FILE_INVALID_TRANSCRIPTS,
-    FILE_INVALID_SEQ_1,
     FILE_MATE_1,
     FILE_MATE_2,
-    FILE_ORIENTATION_ISF_1,
-    FILE_ORIENTATION_ISF_2,
-    FILE_ORIENTATION_ISR_1,
-    FILE_ORIENTATION_ISR_2,
     FILE_ORIENTATION_IU_1,
     FILE_ORIENTATION_IU_2,
-    FILE_ORIENTATION_SF,
-    FILE_ORIENTATION_SR,
-    FILE_ORIENTATION_U,
     FILE_TRANSCRIPTS,
-    FILE_UNMAPPED_PAIRED_1,
-    FILE_UNMAPPED_PAIRED_2,
-    FILE_UNMAPPED_SINGLE,
     CONFIG,
     MAPPING,
     RaiseError,
@@ -210,27 +194,6 @@ class TestMapping:
             index_dir=index_dir
             )
         assert ' '.join(list(results.values())[0]) == cmd
-
-    # def test_generate_star_alignments_problem(self, monkeypatch, tmpdir):
-    #     """Force raising exception to simulate problem."""
-    #     CONFIG.results.library_source = ResultsSource(
-    #             file_1=SOURCE_HUMAN,
-    #             file_2=SOURCE_FRUIT_FLY,
-    #         )
-    #     CONFIG.args.path_1_processed = FILE_ORIENTATION_IU_1
-    #     CONFIG.args.path_2_processed = FILE_ORIENTATION_IU_2
-    #     CONFIG.results.library_type = ResultsType(
-    #         relationship=StatesTypeRelationship.not_mates,
-    #     )
-    #     CONFIG.args.tmp_dir = tmpdir
-    #     test_instance = Mapping(config=CONFIG)
-    #     sub_method_name = 'htsinfer.mapping.Mapping.generate_star_alignments'
-    #     monkeypatch.setattr(
-    #         sub_method_name,
-    #         lambda *args, **kwargs: StarProblem,
-    #     )
-    #     with pytest.raises(StarProblem):
-    #         test_instance.evaluate()
 
     def test_generate_star_alignments_dummy_cmd(self, tmpdir):
         """Pass dummy cmd to force simulate star problem."""

@@ -4,8 +4,6 @@ import pytest
 
 from htsinfer.exceptions import (
     FileProblem,
-    SamFileProblem,
-    StarProblem,
 )
 from htsinfer.get_read_orientation import GetOrientation
 from htsinfer.models import (
@@ -18,11 +16,8 @@ from htsinfer.models import (
     StatesTypeRelationship,
 )
 from tests.utils import (
-    FILE_2000_RECORDS,
-    FILE_DUMMY,
     FILE_EMPTY_ALIGNED_SAM,
     FILE_BAD_ALIGNED_SAM,
-    FILE_INVALID_TRANSCRIPTS,
     FILE_MATE_1,
     FILE_MATE_2,
     FILE_ORIENTATION_ISF_1,
@@ -38,14 +33,9 @@ from tests.utils import (
     FILE_UNMAPPED_PAIRED_1,
     FILE_UNMAPPED_PAIRED_2,
     FILE_UNMAPPED_SINGLE,
-    FILE_IDS_NOT_MATCH_1,
     FILE_IDS_NOT_MATCH_2,
     CONFIG,
     MAPPING,
-    RaiseError,
-    SubprocessError,
-    SOURCE_HUMAN,
-    SOURCE_FRUIT_FLY,
 )
 
 
