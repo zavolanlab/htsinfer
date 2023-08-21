@@ -5,7 +5,7 @@ channels:
   - conda-forge
 dependencies:
   - biopython>=1.78
-  - kallisto>=0.46.1
+  - kallisto>=0.46.1, <= 0.48.0
   - pandas>=1.0.5
   - pip>=20.2.3
   - pyahocorasick>=1.4.0

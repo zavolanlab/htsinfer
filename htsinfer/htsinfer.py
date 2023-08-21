@@ -310,6 +310,6 @@ class HtsInfer:
         sys.stdout.write(
             self.config.results.json(
                 indent=3,
-                sort_keys=True,
+                sort_keys=False,
             ) + linesep
         )

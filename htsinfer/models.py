@@ -81,23 +81,34 @@ class ReadLength(BaseModel):
     Args:
         min: Minimum read length.
         max: Maximum read length.
+        mean: Mean of read lengths.
+        median: Median of read lengths.
+        mode: Mode of read length.
 
     Attributes:
         min: Minimum read length.
         max: Maximum read length.
+        mean: Mean of read lengths.
+        median: Median of read lengths.
+        mode: Mode of read length.
     """
     min: Optional[int] = None
     max: Optional[int] = None
+    mean: Optional[float] = None
+    median: Optional[float] = None
+    mode: Optional[int] = None
 
 
 class Stats(BaseModel):
     """Library statistics of an individual sequencing file.
 
     Args:
-        read_length: Tuple of minimum and maximum length of reads in library.
+        read_length: Tuple of mininimum, maximum, mean, median and mode
+            of lengths of reads in library.
 
     Attributes:
-        read_length: Tuple of minimum and maximum length of reads in library.
+        read_length: Tuple of mininimum, maximum, mean, median and mode
+            of lengths of reads in library.
     """
     read_length: ReadLength = ReadLength()
 
