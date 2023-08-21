@@ -2,6 +2,8 @@
 
 import logging
 from pathlib import Path
+from collections import Counter
+import statistics
 from typing import Tuple
 
 from Bio import SeqIO  # type: ignore
@@ -18,8 +20,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GetLibStats:
-    """Determine library statitics of a single- or paired-end seguencing
-    library.
+    """Determine library statitics of a single- or paired-end \
+        sequencing library.
 
     Args:
         config: Container class for all arguments used in inference
@@ -30,6 +32,7 @@ class GetLibStats:
             files.
         tmp_dir: Path to directory where temporary output is written to.
     """
+
     def __init__(
         self,
         config: Config,
@@ -48,21 +51,31 @@ class GetLibStats:
         stats = ResultsStats()
 
         # process file 1
-        LOGGER.info(f"Obtaining statistics for file: {self.paths[0]}")
-        stats.file_1.read_length.min, stats.file_1.read_length.max = (
-            self.fastq_get_min_max_read_length(fastq=self.paths[0])
+        LOGGER.info("Obtaining statistics for file: %s", self.paths[0])
+        (stats.file_1.read_length.min,
+         stats.file_1.read_length.max,
+         stats.file_1.read_length.mean,
+         stats.file_1.read_length.median,
+         stats.file_1.read_length.mode) = (
+            self.fastq_get_stats_read_length(fastq=self.paths[0])
         )
         # process file 2
-        LOGGER.info(f"Obtaining statistics for file: {self.paths[0]}")
+        LOGGER.info("Obtaining statistics for file: %s", self.paths[0])
         if self.paths[1] is not None:
-            stats.file_2.read_length.min, stats.file_2.read_length.max = (
-                self.fastq_get_min_max_read_length(fastq=self.paths[1])
+            (stats.file_2.read_length.min,
+             stats.file_2.read_length.max,
+             stats.file_2.read_length.mean,
+             stats.file_2.read_length.median,
+             stats.file_2.read_length.mode) = (
+                self.fastq_get_stats_read_length(fastq=self.paths[0])
             )
 
         return stats
 
     @staticmethod
-    def fastq_get_min_max_read_length(fastq: Path) -> Tuple[int, int]:
+    def fastq_get_stats_read_length(fastq: Path) -> Tuple[
+        int, int, float, int, int
+            ]:
         """Get number of records in a FASTQ file.
 
         Args:
@@ -75,21 +88,35 @@ class GetLibStats:
             FileProblem: Could not process FASTQ file.
         """
         LOGGER.debug(
-            f"Extracting minimum and maximum read length in: {fastq}")
+            "Extracting minimum and maximum read length in: %s", {fastq})
         min_len: int = 1000000
         max_len: int = 0
+        total_lengths: int = 0
+        lengths: list = []
+        length_counter: Counter = Counter()
+
         try:
             for record in SeqIO.parse(
                 handle=fastq,
                 format='fastq',
             ):
-                min_len = min(min_len, len(record.seq))
-                max_len = max(max_len, len(record.seq))
+                seq_length = len(record.seq)
+                min_len = min(min_len, seq_length)
+                max_len = max(max_len, seq_length)
+                total_lengths += seq_length
+                lengths.append(seq_length)
+                length_counter[seq_length] += 1
         except OSError as exc:
             raise FileProblem(
                 f"Failed to process FASTQ file: {fastq}"
             ) from exc
+
+        mean_len = total_lengths / len(lengths)
+        median_len = int(statistics.median(lengths))
+        mode_len = length_counter.most_common(1)[0][0]
+
         LOGGER.debug(
-            f"Extracted minimum and maximum read length: {(min_len, max_len)}"
+            "Extracted minimum and maximum read length: %s",
+            {(min_len, max_len, mean_len, median_len, mode_len)}
         )
-        return (min_len, max_len)
+        return min_len, max_len, mean_len, median_len, mode_len
