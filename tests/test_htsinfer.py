@@ -380,6 +380,31 @@ class TestHtsInfer:
         test_instance.print()
         captured = capsys.readouterr()
         assert captured.out == ('''{
+   "library_stats": {
+      "file_1": {
+         "read_length": {
+            "min": null,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "mode": null
+         }
+      },
+      "file_2": {
+         "read_length": {
+            "min": null,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "mode": null
+         }
+      }
+   },
+   "library_type": {
+      "file_1": null,
+      "file_2": null,
+      "relationship": null
+   },
    "library_source": {
       "file_1": {
          "short_name": null,
@@ -390,21 +415,7 @@ class TestHtsInfer:
          "taxon_id": null
       }
    },
-   "library_stats": {
-      "file_1": {
-         "read_length": {
-            "max": null,
-            "min": null
-         }
-      },
-      "file_2": {
-         "read_length": {
-            "max": null,
-            "min": null
-         }
-      }
-   },
-   "library_type": {
+   "read_orientation": {
       "file_1": null,
       "file_2": null,
       "relationship": null
@@ -418,11 +429,6 @@ class TestHtsInfer:
          "adapt_3": null,
          "polyA_frac": null
       }
-   },
-   "read_orientation": {
-      "file_1": null,
-      "file_2": null,
-      "relationship": null
    }
 }''') + linesep
         assert captured.err == ""
