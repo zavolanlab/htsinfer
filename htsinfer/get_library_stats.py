@@ -20,8 +20,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GetLibStats:
-    """Determine library statitics of a single- or paired-end \
-        sequencing library.
+    """
+    Determine library statistics of a single- or paired-end sequencing library.
 
     Args:
         config: Container class for all arguments used in inference
@@ -51,7 +51,7 @@ class GetLibStats:
         stats = ResultsStats()
 
         # process file 1
-        LOGGER.info("Obtaining statistics for file: %s", self.paths[0])
+        LOGGER.info(f"Obtaining statistics for file: {self.paths[0]}")
         (stats.file_1.read_length.min,
          stats.file_1.read_length.max,
          stats.file_1.read_length.mean,
@@ -60,7 +60,7 @@ class GetLibStats:
             self.fastq_get_stats_read_length(fastq=self.paths[0])
         )
         # process file 2
-        LOGGER.info("Obtaining statistics for file: %s", self.paths[0])
+        LOGGER.info(f"Obtaining statistics for file: {self.paths[0]}")
         if self.paths[1] is not None:
             (stats.file_2.read_length.min,
              stats.file_2.read_length.max,
@@ -88,7 +88,7 @@ class GetLibStats:
             FileProblem: Could not process FASTQ file.
         """
         LOGGER.debug(
-            "Extracting read length statistics in: %s", {fastq})
+            f"Extracting read length statistics in: {fastq}")
         min_len: int = 1000000
         max_len: int = 0
         total_lengths: int = 0
@@ -116,7 +116,7 @@ class GetLibStats:
         mode_len = length_counter.most_common(1)[0][0]
 
         LOGGER.debug(
-            "Extracted read length statistics: %s",
-            {(min_len, max_len, mean_len, median_len, mode_len)}
+            f"Extracted read length statistics: "
+            f"{(min_len, max_len, mean_len, median_len, mode_len)}"
         )
         return min_len, max_len, mean_len, median_len, mode_len

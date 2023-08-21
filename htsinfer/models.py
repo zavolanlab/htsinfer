@@ -103,11 +103,11 @@ class Stats(BaseModel):
     """Library statistics of an individual sequencing file.
 
     Args:
-        read_length: Tuple of mininimum, maximum, mean, median and mode \
+        read_length: Tuple of mininimum, maximum, mean, median and mode
             of lengths of reads in library.
 
     Attributes:
-        read_length: Tuple of mininimum, maximum, mean, median and mode \
+        read_length: Tuple of mininimum, maximum, mean, median and mode
             of lengths of reads in library.
     """
     read_length: ReadLength = ReadLength()
