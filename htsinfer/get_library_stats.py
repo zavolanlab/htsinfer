@@ -88,7 +88,7 @@ class GetLibStats:
             FileProblem: Could not process FASTQ file.
         """
         LOGGER.debug(
-            "Extracting minimum and maximum read length in: %s", {fastq})
+            "Extracting read length statistics in: %s", {fastq})
         min_len: int = 1000000
         max_len: int = 0
         total_lengths: int = 0
@@ -111,12 +111,12 @@ class GetLibStats:
                 f"Failed to process FASTQ file: {fastq}"
             ) from exc
 
-        mean_len = total_lengths / len(lengths)
+        mean_len = round(total_lengths / len(lengths), 2)
         median_len = int(statistics.median(lengths))
         mode_len = length_counter.most_common(1)[0][0]
 
         LOGGER.debug(
-            "Extracted minimum and maximum read length: %s",
+            "Extracted read length statistics: %s",
             {(min_len, max_len, mean_len, median_len, mode_len)}
         )
         return min_len, max_len, mean_len, median_len, mode_len
