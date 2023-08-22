@@ -440,7 +440,7 @@ class Args(BaseModel):
     read_orientation_min_mapped_reads: int = 20
     read_orientation_min_fraction: float = 0.75
     path_1_processed: Path = Path()
-    path_2_processed: Optional[Path]
+    path_2_processed: Optional[Path] = None
     t_file_processed: Path = Path()
 
 
@@ -456,5 +456,5 @@ class Config(BaseModel):
         results: Container class for aggregating results
                 from the different inference functionalities.
     """
-    args: Args = Args(path_2_processed=None)
+    args: Args = Args()
     results: Results = Results()
