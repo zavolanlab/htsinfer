@@ -456,5 +456,5 @@ class Config(BaseModel):
         results: Container class for aggregating results
                 from the different inference functionalities.
     """
-    args: Args = Args()
+    args: Args = Args(path_2_processed=None)
     results: Results = Results()
