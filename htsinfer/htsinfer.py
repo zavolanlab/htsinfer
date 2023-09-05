@@ -99,7 +99,8 @@ class HtsInfer:
                 try:
                     self.get_library_type()
                 except MetadataWarning as exc:
-                    self.state = RunStates.WARNING
+                    if self.state is RunStates.OKAY:
+                        self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
                 LOGGER.info(
                     "Library type determined: "
@@ -111,7 +112,8 @@ class HtsInfer:
                 try:
                     self.get_read_orientation()
                 except MetadataWarning as exc:
-                    self.state = RunStates.WARNING
+                    if self.state is RunStates.OKAY:
+                        self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
                 LOGGER.info(
                     "Read orientation determined: "
@@ -123,7 +125,8 @@ class HtsInfer:
                 try:
                     self.get_read_layout()
                 except MetadataWarning as exc:
-                    self.state = RunStates.WARNING
+                    if self.state is RunStates.OKAY:
+                        self.state = RunStates.WARNING
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
                 LOGGER.info(
                     "Read layout determined: "
