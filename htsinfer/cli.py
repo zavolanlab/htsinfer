@@ -4,6 +4,7 @@
 import argparse
 import logging
 from pathlib import Path
+from traceback import format_exc
 from typing import Dict
 import signal
 import sys
@@ -330,6 +331,11 @@ def main() -> None:
     except KeyboardInterrupt:
         LOGGER.error('Execution interrupted.')
         sys.exit(128 + signal.SIGINT)
+
+    except Exception as exc:  # pylint: disable=W0703
+        LOGGER.error(f"{exc}")
+        LOGGER.debug(format_exc())
+        sys.exit(2)
 
     # conclude execution
     LOGGER.info("Done")

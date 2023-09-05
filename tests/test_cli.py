@@ -190,6 +190,17 @@ class TestMain:
             main()
         assert exc.value.code >= 128
 
+    def test_generic_exception(self, monkeypatch):
+        """Test keyboard interrupt."""
+
+        monkeypatch.setattr(
+            'htsinfer.cli.parse_args',
+            RaiseError(exc=Exception),
+        )
+        with pytest.raises(SystemExit) as exc:
+            main()
+        assert exc.value.code == 2
+
 
 def test_main_as_script():
     """Run as script."""
