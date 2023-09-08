@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from typing import Optional
 import subprocess as sp
 import tempfile
 
@@ -63,6 +64,8 @@ class GetLibSource:
         self.tmp_dir = config.args.tmp_dir
         self.min_match_pct = config.args.lib_source_min_match_pct
         self.min_freq_ratio = config.args.lib_source_min_freq_ratio
+        self.org_name = config.args.org_name
+        self.org_id = config.args.org_id
 
     def evaluate(self) -> ResultsSource:
         """Infer read source.
@@ -71,16 +74,33 @@ class GetLibSource:
             Source results object.
         """
         source = ResultsSource()
-        index = self.create_kallisto_index()
-        source.file_1 = self.get_source(
-            fastq=self.paths[0],
-            index=index,
-        )
-        if self.paths[1] is not None:
-            source.file_2 = self.get_source(
-                fastq=self.paths[1],
+        # Check if library_source is provided, otherwise infer it
+        if self.org_name is not None:
+            source.file_1.short_name = self.org_name
+            source.file_1.taxon_id = self.org_id
+        else:
+            # Infer library source here and set it to source.library_source
+            index = self.create_kallisto_index()
+            library_source = self.get_source(
+                fastq=self.paths[0],
                 index=index,
             )
+            source.file_1.short_name = library_source.short_name
+            source.file_1.taxon_id = library_source.taxon_id
+
+        if self.paths[1] is not None:
+            # Check if library_source is provided for file_2, otherwise infer it
+            if self.org_name is not None:
+                source.file_2.short_name = self.org_name
+                source.file_2.taxon_id = self.org_id
+            else:
+                library_source = self.get_source(
+                    fastq=self.paths[1],
+                    index=index,
+                )
+                source.file_2.short_name = library_source.short_name
+                source.file_2.taxon_id = library_source.taxon_id
+
         return source
 
     def create_kallisto_index(self) -> Path:
