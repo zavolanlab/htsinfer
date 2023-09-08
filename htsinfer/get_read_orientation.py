@@ -101,7 +101,6 @@ class GetOrientation:
             if star_dirs[0].name == "file_1":
                 results.file_1 = self.process_single(sam=paths[0])
         elif len(star_dirs) == 2:
-            print("Getting there")
             results.file_1 = self.process_single(sam=paths[0])
             results.file_2 = self.process_single(sam=paths[1])
         return results

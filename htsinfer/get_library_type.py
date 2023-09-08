@@ -124,8 +124,9 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.split_mates
                 )
-                self.mapping.library_type.relationship \
-                    = StatesTypeRelationship.split_mates
+                self.mapping.library_type.relationship = (
+                    StatesTypeRelationship.split_mates
+                )
         else:
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available

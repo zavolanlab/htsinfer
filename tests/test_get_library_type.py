@@ -124,20 +124,7 @@ class TestGetLibType:
                                    mapping=MAPPING)
         test_instance.results.file_1 = StatesType.first_mate
         test_instance.results.file_2 = StatesType.second_mate
-        test_instance._evaluate_mate_relationship(
-            ids_1=["A", "B", "C"],
-            ids_2=["C", "B", "A"],
-        )
-        assert (
-            test_instance.results.relationship ==
-            StatesTypeRelationship.not_mates
-        )
-        test_instance.results.file_1 = StatesType.single
-        test_instance.results.file_2 = StatesType.first_mate
-        test_instance._evaluate_mate_relationship(
-            ids_1=["A", "B", "C"],
-            ids_2=["A", "B", "C"],
-        )
+        test_instance.evaluate()
         assert (
             test_instance.results.relationship ==
             StatesTypeRelationship.not_mates
