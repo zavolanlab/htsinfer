@@ -123,12 +123,14 @@ dependencies via [Conda][conda]:
 git clone https://github.com/zavolanlab/htsinfer
 cd htsinfer
 conda env create --file environment.yml
-conda env update --file environment-dev.yml  # optional: install development/testing dependencies
+# Alternatively, to install with development dependencies,
+# run the following instead
+conda env create --file environment-dev.yml
 ```
 
-Note that creating the environment takes non-trivial time and it is strongly
-recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
-in the previous commands.
+> Note that creating the environment takes non-trivial time and it is strongly
+> recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
+> in the previous command.
 
 Then, activate the `htsinfer` Conda environment with:
 
