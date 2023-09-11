@@ -12,20 +12,17 @@ jobs:
     steps:
 
       - name: check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: set up miniconda and env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          auto-update-conda: true
+          python-version: "3.9"
           mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
+          auto-update-conda: true
           activate-environment: htsinfer
+          environment-file: environment-dev.yml
           auto-activate-base: false
-
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
 
       - name: display env info
         run: |
@@ -63,15 +60,11 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
           mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
+          auto-update-conda: true
           activate-environment: htsinfer
+          environment-file: environment-dev.yml
           auto-activate-base: false
-
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
 
       - name: display env info
         run: |
@@ -107,21 +100,17 @@ jobs:
     steps:
 
       - name: check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: set up miniconda and env
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
           mamba-version: "*"
-          channels: conda-forge,defaults
-          environment-file: environment.yml
+          auto-update-conda: true
           activate-environment: htsinfer
+          environment-file: environment-dev.yml
           auto-activate-base: false
-
-      - name: update env with dev packages
-        run: mamba env update --file environment-dev.yml
 
       - name: display env info
         run: |
