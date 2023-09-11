@@ -1,8 +1,8 @@
 ###### BASE IMAGE ######
-FROM python:3.9-slim
+FROM continuumio/miniconda3:4.12.0
 
 ####### METADATA #######
-LABEL base_image="python:3.9-slim"
+LABEL base_image="continuumio/miniconda3:4.12.0"
 LABEL version="1.0"
 LABEL software="HTSinfer"
 LABEL software.version="v0.9.0"
@@ -21,14 +21,28 @@ LABEL maintainer.lab="Zavolan Lab"
 
 ##### INSTALLATION #####
 
-WORKDIR /htsinfer
-
+# COPY THE YAML & INSTALL SOFTWARE WITH CONDA
+WORKDIR /usr/src/app
 COPY ./ ./
+RUN conda env create --file environment.yml \
+    && conda clean --all
 
-RUN apt-get update && apt-get install -y kallisto rna-star && rm -rf /var/lib/apt/lists/*
+# VARIABLES
+ARG WORKDIR="/home/USER"
+ARG USER="USER"
+ARG GROUP="GROUP"
+ENV PATH="${WORKDIR}:${PATH}"
 
-RUN pip install --upgrade pip && pip install biopython pandas pyahocorasick pydantic pysam cutadapt && \
-    pip install -e . && pip cache purge
+# CREATE USER
+RUN groupadd -r ${GROUP} && useradd --no-log-init -r -g ${GROUP} ${USER}
 
+# SET ENVIRONMENT
+WORKDIR ${WORKDIR}
+RUN chown -R ${USER}:${GROUP} ${WORKDIR} && chmod 700 ${WORKDIR}
+USER ${USER}
+RUN echo "source activate htsinfer" > ~/.bashrc
+ENV PATH /opt/conda/envs/htsinfer/bin:$PATH
+
+# SET ENTRYPOINT
 ENTRYPOINT ["htsinfer"]
 CMD ["-h"]

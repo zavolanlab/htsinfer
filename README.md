@@ -45,14 +45,20 @@ example library:
    "library_stats": {
       "file_1": {
          "read_length": {
+            "min": 75,
             "max": 75,
-            "min": 75
+            "mean": 75.0,
+            "median": 75,
+            "mode": 75
          }
       },
       "file_2": {
          "read_length": {
+            "min": 75,
             "max": 75,
-            "min": 75
+            "mean": 75.0,
+            "median": 75,
+            "mode": 75
          }
       }
    },

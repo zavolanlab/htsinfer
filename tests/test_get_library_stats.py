@@ -41,8 +41,12 @@ class TestGetOrientation:
         )
         results = test_instance.evaluate()
         assert results == ResultsStats(
-            file_1=Stats(read_length=ReadLength(min=150, max=150)),
-            file_2=Stats(read_length=ReadLength(min=None, max=None)),
+            file_1=Stats(read_length=ReadLength(
+                min=150, max=150, mean=150.0, median=150, mode=150
+            )),
+            file_2=Stats(read_length=ReadLength(
+                min=None, max=None, mean=None, median=None, mode=None
+            )),
         )
 
     def test_evaluate_paired(self, tmpdir):
@@ -54,20 +58,24 @@ class TestGetOrientation:
         )
         results = test_instance.evaluate()
         assert results == ResultsStats(
-            file_1=Stats(read_length=ReadLength(min=150, max=150)),
-            file_2=Stats(read_length=ReadLength(min=150, max=150)),
+            file_1=Stats(read_length=ReadLength(
+                min=150, max=150, mean=150.0, median=150, mode=150
+            )),
+            file_2=Stats(read_length=ReadLength(
+                min=150, max=150, mean=150.0, median=150, mode=150
+            )),
         )
 
-    def test_fastq_get_min_max_read_length(self):
+    def test_fastq_get_stats_read_length(self):
         """Get min/max read length of a FASTQ file."""
-        results = GetLibStats.fastq_get_min_max_read_length(fastq=FILE_MATE_1)
-        assert results == (150, 150)
+        results = GetLibStats.fastq_get_stats_read_length(fastq=FILE_MATE_1)
+        assert results == (150, 150, 150.0, 150, 150)
 
-    def test_fastq_get_min_max_read_length_file_problem(self, monkeypatch):
+    def test_fastq_get_stats_read_length_file_problem(self, monkeypatch):
         """File problem when accessing FASTQ file."""
         monkeypatch.setattr(
             'Bio.SeqIO.parse',
             RaiseError(exc=OSError),
         )
         with pytest.raises(FileProblem):
-            GetLibStats.fastq_get_min_max_read_length(fastq=FILE_MATE_1)
+            GetLibStats.fastq_get_stats_read_length(fastq=FILE_MATE_1)

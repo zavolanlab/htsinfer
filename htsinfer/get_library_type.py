@@ -140,8 +140,8 @@ plit_mates: 'split_mates'>)
         alignment_1 = self.mapping.star_dirs[0] / 'Aligned.out.sam'
         alignment_2 = self.mapping.star_dirs[1] / 'Aligned.out.sam'
 
-        samfile1 = pysam.AlignmentFile(alignment_1, 'r')
-        samfile2 = pysam.AlignmentFile(alignment_2, 'r')
+        samfile1 = pysam.AlignmentFile(str(alignment_1), 'r')
+        samfile2 = pysam.AlignmentFile(str(alignment_2), 'r')
 
         previous_seq_id1 = None
         previous_seq_id2 = None

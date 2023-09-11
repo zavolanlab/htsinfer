@@ -4,6 +4,7 @@
 import argparse
 import logging
 from pathlib import Path
+from traceback import format_exc
 from typing import Dict
 import signal
 import sys
@@ -49,6 +50,7 @@ def parse_args() -> argparse.Namespace:
             values,
             option_string=None,
         ) -> None:
+            assert isinstance(values, list)
             if len(values) > 2:
                 parser.print_usage(file=sys.stderr)
                 sys.stderr.write(
@@ -222,7 +224,7 @@ def parse_args() -> argparse.Namespace:
             "upper limit on the difference in the reference "
             "sequence coordinates between the two mates to be "
             "considered as coming from a single fragment "
-            "(used only when sequence identifiers do not match) "
+            "(Used only when sequence identifiers do not match) "
         )
     )
     parser.add_argument(
@@ -234,7 +236,7 @@ def parse_args() -> argparse.Namespace:
         help=(
             "minimum fraction of mates that can be mapped to compatible loci "
             "and are considered concordant pairs / all mates"
-            "(used only when sequence identifiers do not match)"
+            "(Used only when sequence identifiers do not match)"
         )
     )
     parser.add_argument(
@@ -330,6 +332,11 @@ def main() -> None:
     except KeyboardInterrupt:
         LOGGER.error('Execution interrupted.')
         sys.exit(128 + signal.SIGINT)
+
+    except Exception as exc:  # pylint: disable=W0703
+        LOGGER.error(f"{exc}")
+        LOGGER.debug(format_exc())
+        sys.exit(2)
 
     # conclude execution
     LOGGER.info("Done")
