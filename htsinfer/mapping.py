@@ -95,7 +95,7 @@ class Mapping:
         """
         LOGGER.debug(f"Subsetting transcripts for: {self.library_source}")
 
-        outfile = self.tmp_dir / f"{self.library_source}.fasta"
+        outfile = self.tmp_dir / "transcripts_subset.fasta"
 
         def yield_filtered_seqs():
             """Generator yielding sequence records for specified sources.

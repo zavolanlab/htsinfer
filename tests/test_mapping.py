@@ -84,7 +84,7 @@ class TestMapping:
         test_instance = Mapping(config=CONFIG)
         results = test_instance.subset_transcripts_by_organism()
         filtered_organisms_transcripts = \
-            tmpdir / f"{CONFIG.results.library_source}.fasta"
+            tmpdir / "transcripts_subset.fasta"
         assert results == filtered_organisms_transcripts
 
     def test_subset_transcripts_by_organism_file_problem(self, tmpdir):
@@ -111,7 +111,7 @@ class TestMapping:
         test_instance = Mapping(config=CONFIG)
         results = test_instance.subset_transcripts_by_organism()
         filtered_organisms_transcripts = \
-            tmpdir / f"{CONFIG.results.library_source}.fasta"
+            tmpdir / "transcripts_subset.fasta"
         assert results == filtered_organisms_transcripts
 
     def test_get_fasta_size(self, tmpdir):
