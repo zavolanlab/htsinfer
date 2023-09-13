@@ -1,6 +1,5 @@
 """Mapping FASTQ's and managing the outputs of STAR."""
 
-import os
 import logging
 import math
 from pathlib import Path

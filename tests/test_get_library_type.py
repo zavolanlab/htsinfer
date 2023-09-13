@@ -121,7 +121,7 @@ class TestGetLibType:
         CONFIG.args.tmp_dir = tmpdir
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_MATE_2)
         MAPPING.transcripts_file = FILE_TRANSCRIPTS
-        MAPPING.tmp_dir =tmpdir
+        MAPPING.tmp_dir = tmpdir
         test_instance = GetLibType(config=CONFIG,
                                    mapping=MAPPING)
         test_instance.results.file_1 = StatesType.first_mate
