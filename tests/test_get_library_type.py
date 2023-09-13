@@ -111,14 +111,14 @@ class TestGetLibType:
             StatesTypeRelationship.split_mates
         )
 
-    def test_evaluate_mate_relationship_not_mates(self):
+    def test_evaluate_mate_relationship_not_mates(self, tmpdir):
         """Test mate relationship evaluation logic with input files that are
         not mates from a paired-end library.
         """
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
-        CONFIG.results.library_source.file_1.short_name = "hsapiens"
+        CONFIG.args.tmp_dir = tmpdir
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_MATE_2)
         MAPPING.transcripts_file = FILE_TRANSCRIPTS
         test_instance = GetLibType(config=CONFIG,
@@ -131,13 +131,13 @@ class TestGetLibType:
             StatesTypeRelationship.not_mates
         )
 
-    def test_evaluate_split_mates_not_matching_ids(self):
+    def test_evaluate_split_mates_not_matching_ids(self, tmpdir):
         """Test mate relationship evaluation logic with input files that are
         not mates from a paired-end library.
         """
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_IDS_NOT_MATCH_2
-        CONFIG.results.library_source.file_1.short_name = None
+        CONFIG.args.tmp_dir = tmpdir
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_IDS_NOT_MATCH_2)
         test_instance = GetLibType(config=CONFIG,
                                    mapping=MAPPING)
