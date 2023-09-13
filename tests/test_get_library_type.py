@@ -118,6 +118,7 @@ class TestGetLibType:
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.results.library_source.file_1.short_name = "hsapiens"
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_MATE_2)
         MAPPING.transcripts_file = FILE_TRANSCRIPTS
         test_instance = GetLibType(config=CONFIG,
@@ -136,6 +137,7 @@ class TestGetLibType:
         """
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_IDS_NOT_MATCH_2
+        CONFIG.results.library_source.file_1.short_name = None
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_IDS_NOT_MATCH_2)
         test_instance = GetLibType(config=CONFIG,
                                    mapping=MAPPING)
