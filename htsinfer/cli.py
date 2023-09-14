@@ -50,6 +50,7 @@ def parse_args() -> argparse.Namespace:
             values,
             option_string=None,
         ) -> None:
+            assert isinstance(values, list)
             if len(values) > 2:
                 parser.print_usage(file=sys.stderr)
                 sys.stderr.write(

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Type
 
 from htsinfer.models import (Source, Config, Args, Results)
+from htsinfer.mapping import Mapping
 
 # test files
 PACKAGE_DIR = Path(__file__).resolve().parents[1] / "htsinfer"
@@ -86,6 +87,8 @@ CONFIG = Config(
     args=ARGS,
     results=Results(),
 )
+
+MAPPING = Mapping(config=CONFIG)
 
 
 # helper classes

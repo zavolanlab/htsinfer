@@ -21,9 +21,7 @@ from htsinfer.models import (
     SeqIdFormats,
     Config,
 )
-from htsinfer.get_read_orientation import (
-    GetOrientation,
-)
+from htsinfer.mapping import Mapping
 
 LOGGER = logging.getLogger(__name__)
 
@@ -62,6 +60,7 @@ plit_mates: 'split_mates'>)
     def __init__(
         self,
         config: Config,
+        mapping: Mapping,
     ):
         """Class constructor."""
         self.path_1: Path = config.args.path_1_processed
@@ -69,8 +68,7 @@ plit_mates: 'split_mates'>)
         self.library_source = config.results.library_source
         self.results: ResultsType = ResultsType()
         self.tmp_dir = config.args.tmp_dir
-        self.get_read_orientation: \
-            GetOrientation = GetOrientation(config=config)
+        self.mapping = mapping
         self.max_distance = config.args.lib_type_max_distance
         self.cutoff = config.args.lib_type_mates_cutoff
 
@@ -126,23 +124,24 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.split_mates
                 )
+                self.mapping.library_type.relationship = (
+                    StatesTypeRelationship.split_mates
+                )
         else:
-            self.get_read_orientation.library_type.relationship \
+            self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
-            self.get_read_orientation.library_source = self.library_source
-            _ = self.get_read_orientation.evaluate()
+            self.mapping.library_source = self.library_source
+            self.mapping.evaluate()
             self._align_mates()
 
     def _align_mates(self):
         """Decide mate relationship by alignment."""
 
-        alignment_1 = Path(self.tmp_dir) \
-            / "alignments" / "file_1" / "Aligned.out.sam"
-        alignment_2 = Path(self.tmp_dir) \
-            / "alignments" / "file_2" / "Aligned.out.sam"
+        alignment_1 = self.mapping.star_dirs[0] / 'Aligned.out.sam'
+        alignment_2 = self.mapping.star_dirs[1] / 'Aligned.out.sam'
 
-        samfile1 = pysam.AlignmentFile(alignment_1, 'r')
-        samfile2 = pysam.AlignmentFile(alignment_2, 'r')
+        samfile1 = pysam.AlignmentFile(str(alignment_1), 'r')
+        samfile2 = pysam.AlignmentFile(str(alignment_2), 'r')
 
         previous_seq_id1 = None
         previous_seq_id2 = None
@@ -184,6 +183,10 @@ plit_mates: 'split_mates'>)
             self.results.relationship = (
                 StatesTypeRelationship.split_mates
             )
+            self.mapping.library_type.relationship \
+                = StatesTypeRelationship.split_mates
+            self.mapping.mapped = False
+            self.mapping.star_dirs = []
         else:
             self.results.relationship = (
                 StatesTypeRelationship.not_mates
