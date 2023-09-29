@@ -131,6 +131,7 @@ plit_mates: 'split_mates'>)
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source
+            self.mapping.paths = (self.path_1, self.path_2)
             self.mapping.evaluate()
             self._align_mates()
 
