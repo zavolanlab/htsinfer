@@ -82,6 +82,9 @@ class GetLibSource:
                 self.org_id,
                 self.transcripts_file
             )
+            if self.paths[1] is not None:
+                source.file_2.taxon_id = self.org_id
+                source.file_2.short_name = source.file_1.short_name
         else:
             # Infer library source here and set it to source.library_source
             index = self.create_kallisto_index()
@@ -92,13 +95,7 @@ class GetLibSource:
             source.file_1.short_name = library_source.short_name
             source.file_1.taxon_id = library_source.taxon_id
 
-        if self.paths[1] is not None:
-            # Check if library_source is provided for file_2,
-            # otherwise infer it
-            if self.org_id is not None:
-                source.file_2.taxon_id = self.org_id
-                source.file_2.short_name = source.file_1.short_name
-            else:
+            if self.paths[1] is not None:
                 library_source = self.get_source(
                     fastq=self.paths[1],
                     index=index,
