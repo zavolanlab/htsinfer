@@ -274,17 +274,6 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        '--org-name',
-        dest="org_name",
-        metavar="STR",
-        type=str,
-        default=None,
-        help=(
-            "source organism of the sequencing library; if provided, will not "
-            "not be inferred by the application"
-        )
-    )
-    parser.add_argument(
         "--verbosity",
         choices=[e.name for e in LogLevels],
         default=LogLevels.INFO.name,

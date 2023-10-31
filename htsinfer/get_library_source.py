@@ -2,10 +2,11 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
 import subprocess as sp
 import tempfile
 
+from typing import Optional
+from Bio import SeqIO  # type: ignore
 import pandas as pd  # type: ignore
 from pandas import DataFrame  # type: ignore
 
@@ -51,6 +52,7 @@ class GetLibSource:
         min_freq_ratio: Minimum frequency ratio between the first and second
             most frequent source in order for the former to be considered the
             library's source.
+        org_id: Taxonomy ID of the organism.
     """
     def __init__(  # pylint: disable=E1101
         self,
@@ -64,7 +66,6 @@ class GetLibSource:
         self.tmp_dir = config.args.tmp_dir
         self.min_match_pct = config.args.lib_source_min_match_pct
         self.min_freq_ratio = config.args.lib_source_min_freq_ratio
-        self.org_name = config.args.org_name
         self.org_id = config.args.org_id
 
     def evaluate(self) -> ResultsSource:
@@ -75,9 +76,12 @@ class GetLibSource:
         """
         source = ResultsSource()
         # Check if library_source is provided, otherwise infer it
-        if self.org_name is not None:
-            source.file_1.short_name = self.org_name
+        if self.org_id is not None:
             source.file_1.taxon_id = self.org_id
+            source.file_1.short_name = self.get_organism_name(
+                self.org_id,
+                self.transcripts_file
+            )
         else:
             # Infer library source here and set it to source.library_source
             index = self.create_kallisto_index()
@@ -89,10 +93,11 @@ class GetLibSource:
             source.file_1.taxon_id = library_source.taxon_id
 
         if self.paths[1] is not None:
-            # Check if library_source is provided for file_2, otherwise infer it
-            if self.org_name is not None:
-                source.file_2.short_name = self.org_name
+            # Check if library_source is provided for file_2,
+            # otherwise infer it
+            if self.org_id is not None:
                 source.file_2.taxon_id = self.org_id
+                source.file_2.short_name = source.file_1.short_name
             else:
                 library_source = self.get_source(
                     fastq=self.paths[1],
@@ -301,3 +306,48 @@ class GetLibSource:
 
         # return as dictionary
         return dat_agg.sort_values(["tpm"], ascending=False)
+
+    @staticmethod
+    def get_organism_name(
+        taxon_id: int,
+        transcripts_file: Path,
+    ) -> Optional[str]:
+        """Return name of the organism, based on tax ID.
+
+        Args:
+            taxon_id: Taxonomy ID of a given organism (int).
+            transcripts_file: Path to fasta file containing transcripts.
+
+        Returns:
+            Short name of the organism belonging to the given tax ID.
+
+        Raises:
+            Could not process input FASTA file.
+        """
+        org_dict = {}
+        # Construct dictionary of organism ID's and names
+        try:
+            for record in SeqIO.parse(
+                    handle=transcripts_file,
+                    format='fasta',
+            ):
+                org_id = int(record.description.split("|")[4])
+                org_name = record.description.split("|")[3]
+
+                if org_id not in org_dict:
+                    org_dict[org_id] = org_name
+                else:
+                    org_dict[org_id] = org_name
+
+        except OSError as exc:
+            raise FileProblem(
+                f"Could not process file '{transcripts_file}'"
+            ) from exc
+
+        if taxon_id in org_dict:
+            return org_dict[taxon_id]
+        LOGGER.warning(
+            f"Taxon ID '{taxon_id}' not found in organism dictionary, "
+            "using default 'None' for organism."
+        )
+        return None
