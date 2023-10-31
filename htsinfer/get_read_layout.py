@@ -221,7 +221,7 @@ class GetAdapter3():
         try:
             with open(self.path, encoding="utf-8") as _f:  # type: ignore
 
-                LOGGER.debug("Procecssing Reads")
+                LOGGER.debug("Processing Reads")
                 try:
                     for record in FastqGeneralIterator(source=_f):
                         read = record[1]
