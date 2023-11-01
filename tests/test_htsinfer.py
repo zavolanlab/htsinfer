@@ -305,7 +305,7 @@ class TestHtsInfer:
     def test_clean_up_keep_results(self, tmpdir):
         """Remove temporary data."""
         arguments = Args(path_1=FILE_MATE_1,
-                         out_dir=tmpdir,
+                         out_dir=tmpdir.strpath,
                          tmpdir=tmpdir,
                          )
         results = Results()
@@ -323,8 +323,8 @@ class TestHtsInfer:
     def test_clean_up_keep_all(self, tmpdir):
         """Remove no data."""
         arguments = Args(path_1=FILE_MATE_1,
-                         out_dir=tmpdir,
-                         tmpdir=tmpdir,
+                         out_dir=tmpdir.strpath,
+                         tmpdir=tmpdir.strpath,
                          )
         results = Results()
         configs = Config(

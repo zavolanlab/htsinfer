@@ -315,8 +315,7 @@ class HtsInfer:
     def print(self):
         """Print results to STDOUT."""
         sys.stdout.write(
-            self.config.results.json(
+            self.config.results.model_dump_json(
                 indent=3,
-                sort_keys=False,
             ) + linesep
         )
