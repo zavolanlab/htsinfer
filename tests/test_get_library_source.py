@@ -264,6 +264,52 @@ class TestGetLibSource:
             file_2=Source()
         )
 
+    def test_evaluate_org_id_not_none(self):
+        """Test when self.org_id is not None."""
+        CONFIG.args.org_id = 7227  # An example taxon ID
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetLibSource(config=CONFIG)
+        result = test_instance.evaluate()
+
+        assert result.file_1.taxon_id == 7227
+        assert result.file_1.short_name == "dmelanogaster"
+
+    def test_evaluate_org_id_none_with_path_2(self, tmpdir, monkeypatch):
+        """Test when self.org_id is None and self.paths[1] is not None."""
+        CONFIG.args.org_id = None
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
+
+        # Mock the get_source method to return a specific result
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.get_source',
+            lambda *args, **kwargs: SOURCE_HUMAN,
+        )
+
+        result = test_instance.evaluate()
+
+        assert result.file_2.taxon_id == SOURCE_HUMAN.taxon_id
+        assert result.file_2.short_name == SOURCE_HUMAN.short_name
+
+    def test_evaluate_org_id_not_none_with_path_2(self, tmpdir):
+        """Test when self.org_id is not None and self.paths[1] is not None."""
+        CONFIG.args.org_id = 7227
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
+
+        result = test_instance.evaluate()
+
+        assert result.file_2.taxon_id == 7227
+        assert result.file_2.short_name == "dmelanogaster"
+
     def test_create_kallisto_index_problem(self, tmpdir):
         """Pass invalid file as transcripts.fasta file
         to simulate KallistoProblem."""
@@ -276,3 +322,36 @@ class TestGetLibSource:
         test_instance = GetLibSource(config=CONFIG)
         with pytest.raises(KallistoProblem):
             test_instance.create_kallisto_index()
+
+    def test_get_organism_name_found(self):
+        """Test the function when the taxon_id
+        is found in the organism dictionary."""
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetLibSource(config=CONFIG)
+        taxon_id = 7227
+        result = test_instance.get_organism_name(
+            taxon_id, CONFIG.args.t_file_processed
+        )
+        assert result == "dmelanogaster"
+
+    def test_get_organism_name_not_found(self):
+        """Test the function when the taxon_id
+        is not found in the organism dictionary."""
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        test_instance = GetLibSource(config=CONFIG)
+        taxon_id = 12345  # A tax ID that doesn't exist in transcripts
+        result = test_instance.get_organism_name(
+            taxon_id, CONFIG.args.t_file_processed
+        )
+        assert result is None
+
+    def test_get_organism_name_file_problem(self):
+        """Test the function when there's a
+        file problem while processing the FASTA file."""
+        CONFIG.args.t_file_processed = FILE_DUMMY
+        test_instance = GetLibSource(config=CONFIG)
+        taxon_id = 7227
+        with pytest.raises(FileProblem):
+            test_instance.get_organism_name(
+                taxon_id, CONFIG.args.t_file_processed
+            )
