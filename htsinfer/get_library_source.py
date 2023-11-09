@@ -78,15 +78,37 @@ class GetLibSource:
         # Check if library_source is provided, otherwise infer it
         if self.org_id is not None:
             source.file_1.taxon_id = self.org_id
-            source.file_1.short_name = self.get_organism_name(
-                self.org_id,
-                self.transcripts_file
-            )
-            if self.paths[1] is not None:
-                source.file_2.taxon_id = self.org_id
-                source.file_2.short_name = source.file_1.short_name
+            org_name = self.get_organism_name(self.org_id, self.transcripts_file)
+            
+            if org_name is not None:
+                source.file_1.short_name = org_name
+
+                if self.paths[1] is not None:
+                    source.file_2.taxon_id = self.org_id
+                    source.file_2.short_name = source.file_1.short_name
+
+            else:
+                LOGGER.warning(
+                    f"Taxon ID '{self.org_id}' not found in organism dictionary, "
+                    "inferring source organism..."
+                )
+                index = self.create_kallisto_index()
+                library_source = self.get_source(
+                    fastq=self.paths[0],
+                    index=index,
+                )
+                source.file_1.short_name = library_source.short_name
+                source.file_1.taxon_id = library_source.taxon_id
+
+                if self.paths[1] is not None:
+                    library_source = self.get_source(
+                        fastq=self.paths[1],
+                        index=index,
+                    )
+                    source.file_2.short_name = library_source.short_name
+                    source.file_2.taxon_id = library_source.taxon_id
+
         else:
-            # Infer library source here and set it to source.library_source
             index = self.create_kallisto_index()
             library_source = self.get_source(
                 fastq=self.paths[0],
@@ -343,8 +365,5 @@ class GetLibSource:
 
         if taxon_id in org_dict:
             return org_dict[taxon_id]
-        LOGGER.warning(
-            f"Taxon ID '{taxon_id}' not found in organism dictionary, "
-            "using default 'None' for organism."
-        )
+
         return None
