@@ -78,8 +78,11 @@ class GetLibSource:
         # Check if library_source is provided, otherwise infer it
         if self.org_id is not None:
             source.file_1.taxon_id = self.org_id
-            org_name = self.get_organism_name(self.org_id, self.transcripts_file)
-            
+            org_name = self.get_organism_name(
+                self.org_id,
+                self.transcripts_file
+            )
+
             if org_name is not None:
                 source.file_1.short_name = org_name
 
@@ -89,8 +92,8 @@ class GetLibSource:
 
             else:
                 LOGGER.warning(
-                    f"Taxon ID '{self.org_id}' not found in organism dictionary, "
-                    "inferring source organism..."
+                    f"Taxon ID '{self.org_id}' not found in "
+                    "organism dictionary, inferring source organism..."
                 )
                 index = self.create_kallisto_index()
                 library_source = self.get_source(

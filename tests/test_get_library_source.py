@@ -355,3 +355,93 @@ class TestGetLibSource:
             test_instance.get_organism_name(
                 taxon_id, CONFIG.args.t_file_processed
             )
+
+    def test_evaluate_org_id_is_none(self, monkeypatch, tmpdir):
+        """Test when self.org_id is None."""
+        CONFIG.args.org_id = None
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
+
+        # Mock the create_kallisto_index method to return a specific result
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.create_kallisto_index',
+            lambda *args, **kwargs: tmpdir / "kallisto.idx",
+        )
+
+        # Mock the get_source method to return a specific result
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.get_source',
+            lambda *args, **kwargs: SOURCE_FRUIT_FLY,
+        )
+
+        result = test_instance.evaluate()
+
+        assert result.file_1.taxon_id == SOURCE_FRUIT_FLY.taxon_id
+        assert result.file_1.short_name == SOURCE_FRUIT_FLY.short_name
+
+        assert result.file_2.taxon_id == SOURCE_FRUIT_FLY.taxon_id
+        assert result.file_2.short_name == SOURCE_FRUIT_FLY.short_name
+
+    def test_evaluate_org_id_not_none_no_org_name(self, monkeypatch, tmpdir):
+        """Test when self.org_id is not None but org_name is not found."""
+        CONFIG.args.org_id = 7227
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
+
+        # Mock the get_organism_name method to return None
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.get_organism_name',
+            lambda *args, **kwargs: None,
+        )
+
+        # Mock the create_kallisto_index method to return a specific result
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.create_kallisto_index',
+            lambda *args, **kwargs: tmpdir / "kallisto.idx",
+        )
+
+        # Mock the get_source method to return a specific result
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.get_source',
+            lambda *args, **kwargs: SOURCE_FRUIT_FLY,
+        )
+
+        result = test_instance.evaluate()
+
+        assert result.file_1.taxon_id == SOURCE_FRUIT_FLY.taxon_id
+        assert result.file_1.short_name == SOURCE_FRUIT_FLY.short_name
+
+        assert result.file_2.taxon_id == SOURCE_FRUIT_FLY.taxon_id
+        assert result.file_2.short_name == SOURCE_FRUIT_FLY.short_name
+
+    def test_evaluate_org_id_not_none_name_found(self, monkeypatch, tmpdir):
+        """Test when self.org_id is not None and org_name is found."""
+        CONFIG.args.org_id = 7227
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.args.out_dir = tmpdir
+        test_instance = GetLibSource(config=CONFIG)
+
+        # Mock the get_organism_name method to return a specific result
+        monkeypatch.setattr(
+            'htsinfer.get_library_source.GetLibSource.get_organism_name',
+            lambda *args, **kwargs: "dmelanogaster",
+        )
+
+        result = test_instance.evaluate()
+
+        assert result.file_1.taxon_id == 7227
+        assert result.file_1.short_name == "dmelanogaster"
+
+        assert result.file_2.taxon_id == 7227
+        assert result.file_2.short_name == "dmelanogaster"
