@@ -427,7 +427,7 @@ class Args(BaseModel):
         Path(tempfile.gettempdir()) / 'tmp_htsinfer'
     cleanup_regime: CleanupRegimes = \
         CleanupRegimes.DEFAULT
-    records: int = 0
+    records: int = 1000000
     threads: int = 1
     transcripts_file: Path = Path()
     read_layout_adapter_file: Path = Path()
