@@ -115,7 +115,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--records",
         dest="records",
-        default=0,
+        default=1000000,
         type=int,
         metavar="INT",
         help=(
