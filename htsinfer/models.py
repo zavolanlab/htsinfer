@@ -356,7 +356,7 @@ class Args(BaseModel):
         records: Number of input file records to process; set to `0` to
             process all records.
         threads: Number of threads to run STAR with.
-        org_id: Organism ID.
+        tax_id: Organism ID.
         transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).
@@ -430,7 +430,7 @@ class Args(BaseModel):
         CleanupRegimes.DEFAULT
     records: int = 1000000
     threads: int = 1
-    org_id: Optional[int] = None
+    tax_id: Optional[int] = None
     transcripts_file: Path = Path()
     read_layout_adapter_file: Path = Path()
     read_layout_min_match_pct: float = 0.1

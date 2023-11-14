@@ -264,9 +264,9 @@ class TestGetLibSource:
             file_2=Source()
         )
 
-    def test_evaluate_org_id_not_none(self):
-        """Test when self.org_id is not None."""
-        CONFIG.args.org_id = 7227  # An example taxon ID
+    def test_evaluate_tax_id_not_none(self):
+        """Test when self.tax_id is not None."""
+        CONFIG.args.tax_id = 7227  # An example taxon ID
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetLibSource(config=CONFIG)
         result = test_instance.evaluate()
@@ -274,9 +274,9 @@ class TestGetLibSource:
         assert result.file_1.taxon_id == 7227
         assert result.file_1.short_name == "dmelanogaster"
 
-    def test_evaluate_org_id_none_with_path_2(self, tmpdir, monkeypatch):
-        """Test when self.org_id is None and self.paths[1] is not None."""
-        CONFIG.args.org_id = None
+    def test_evaluate_tax_id_none_with_path_2(self, tmpdir, monkeypatch):
+        """Test when self.tax_id is None and self.paths[1] is not None."""
+        CONFIG.args.tax_id = None
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
@@ -295,9 +295,9 @@ class TestGetLibSource:
         assert result.file_2.taxon_id == SOURCE_HUMAN.taxon_id
         assert result.file_2.short_name == SOURCE_HUMAN.short_name
 
-    def test_evaluate_org_id_not_none_with_path_2(self, tmpdir):
-        """Test when self.org_id is not None and self.paths[1] is not None."""
-        CONFIG.args.org_id = 7227
+    def test_evaluate_tax_id_not_none_with_path_2(self, tmpdir):
+        """Test when self.tax_id is not None and self.paths[1] is not None."""
+        CONFIG.args.tax_id = 7227
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
@@ -356,9 +356,9 @@ class TestGetLibSource:
                 taxon_id, CONFIG.args.t_file_processed
             )
 
-    def test_evaluate_org_id_is_none(self, monkeypatch, tmpdir):
-        """Test when self.org_id is None."""
-        CONFIG.args.org_id = None
+    def test_evaluate_tax_id_is_none(self, monkeypatch, tmpdir):
+        """Test when self.tax_id is None."""
+        CONFIG.args.tax_id = None
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
@@ -386,9 +386,9 @@ class TestGetLibSource:
         assert result.file_2.taxon_id == SOURCE_FRUIT_FLY.taxon_id
         assert result.file_2.short_name == SOURCE_FRUIT_FLY.short_name
 
-    def test_evaluate_org_id_not_none_no_org_name(self, monkeypatch, tmpdir):
-        """Test when self.org_id is not None but org_name is not found."""
-        CONFIG.args.org_id = 7227
+    def test_evaluate_tax_id_not_none_no_src_name(self, monkeypatch, tmpdir):
+        """Test when self.tax_id is not None but src_name is not found."""
+        CONFIG.args.tax_id = 7227
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
@@ -422,9 +422,9 @@ class TestGetLibSource:
         assert result.file_2.taxon_id == SOURCE_FRUIT_FLY.taxon_id
         assert result.file_2.short_name == SOURCE_FRUIT_FLY.short_name
 
-    def test_evaluate_org_id_not_none_name_found(self, monkeypatch, tmpdir):
-        """Test when self.org_id is not None and org_name is found."""
-        CONFIG.args.org_id = 7227
+    def test_evaluate_tax_id_not_none_name_found(self, monkeypatch, tmpdir):
+        """Test when self.tax_id is not None and src_name is found."""
+        CONFIG.args.tax_id = 7227
         CONFIG.args.path_1_processed = FILE_MATE_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS

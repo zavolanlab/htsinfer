@@ -4,8 +4,8 @@ import logging
 from pathlib import Path
 import subprocess as sp
 import tempfile
-
 from typing import Optional
+
 from Bio import SeqIO  # type: ignore
 import pandas as pd  # type: ignore
 from pandas import DataFrame  # type: ignore
@@ -52,7 +52,7 @@ class GetLibSource:
         min_freq_ratio: Minimum frequency ratio between the first and second
             most frequent source in order for the former to be considered the
             library's source.
-        org_id: Taxonomy ID of the organism.
+        tax_id: Taxonomy ID of the organism.
     """
     def __init__(  # pylint: disable=E1101
         self,
@@ -66,7 +66,7 @@ class GetLibSource:
         self.tmp_dir = config.args.tmp_dir
         self.min_match_pct = config.args.lib_source_min_match_pct
         self.min_freq_ratio = config.args.lib_source_min_freq_ratio
-        self.org_id = config.args.org_id
+        self.tax_id = config.args.tax_id
 
     def evaluate(self) -> ResultsSource:
         """Infer read source.
@@ -76,23 +76,23 @@ class GetLibSource:
         """
         source = ResultsSource()
         # Check if library_source is provided, otherwise infer it
-        if self.org_id is not None:
-            source.file_1.taxon_id = self.org_id
-            org_name = self.get_organism_name(
-                self.org_id,
+        if self.tax_id is not None:
+            source.file_1.taxon_id = self.tax_id
+            src_name = self.get_source_name(
+                self.tax_id,
                 self.transcripts_file
             )
 
-            if org_name is not None:
-                source.file_1.short_name = org_name
+            if src_name is not None:
+                source.file_1.short_name = src_name
 
                 if self.paths[1] is not None:
-                    source.file_2.taxon_id = self.org_id
+                    source.file_2.taxon_id = self.tax_id
                     source.file_2.short_name = source.file_1.short_name
 
             else:
                 LOGGER.warning(
-                    f"Taxon ID '{self.org_id}' not found in "
+                    f"Taxon ID '{self.tax_id}' not found in "
                     "organism dictionary, inferring source organism..."
                 )
                 index = self.create_kallisto_index()
@@ -330,15 +330,15 @@ class GetLibSource:
         return dat_agg.sort_values(["tpm"], ascending=False)
 
     @staticmethod
-    def get_organism_name(
+    def get_source_name(
         taxon_id: int,
         transcripts_file: Path,
     ) -> Optional[str]:
-        """Return name of the organism, based on tax ID.
+        """Return name of the source organism, based on tax ID.
 
         Args:
-            taxon_id: Taxonomy ID of a given organism (int).
-            transcripts_file: Path to fasta file containing transcripts.
+            taxon_id: Taxonomy ID of a given organism.
+            transcripts_file: Path to FASTA file containing transcripts.
 
         Returns:
             Short name of the organism belonging to the given tax ID.
@@ -346,27 +346,24 @@ class GetLibSource:
         Raises:
             Could not process input FASTA file.
         """
-        org_dict = {}
-        # Construct dictionary of organism ID's and names
+        src_dict = {}
+        # Construct dictionary of taxonomy ID's and short names
         try:
-            for record in SeqIO.parse(
+            for record in list(SeqIO.parse(
                     handle=transcripts_file,
                     format='fasta',
-            ):
-                org_id = int(record.description.split("|")[4])
-                org_name = record.description.split("|")[3]
+            )):
+                tax_id = int(record.description.split("|")[4])
+                src_name = record.description.split("|")[3]
 
-                if org_id not in org_dict:
-                    org_dict[org_id] = org_name
-                else:
-                    org_dict[org_id] = org_name
+                src_dict[tax_id] = src_name
 
         except OSError as exc:
             raise FileProblem(
                 f"Could not process file '{transcripts_file}'"
             ) from exc
 
-        if taxon_id in org_dict:
-            return org_dict[taxon_id]
+        if taxon_id in src_dict:
+            return src_dict[taxon_id]
 
         return None

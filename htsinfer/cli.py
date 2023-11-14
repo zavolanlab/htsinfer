@@ -263,14 +263,14 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
-        '--org-id',
-        dest="org_id",
+        '--tax-id',
+        dest="tax_id",
         metavar="INT",
         type=int,
         default=None,
         help=(
-            "source organism of the sequencing library; if provided, will not "
-            "not be inferred by the application"
+            "NCBI taxonomic identifier of source organism of the library; "
+            "if provided, will not be inferred by the application"
         )
     )
     parser.add_argument(
