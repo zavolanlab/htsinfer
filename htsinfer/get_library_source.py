@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 import subprocess as sp
 import tempfile
-from typing import Optional
 
 from Bio import SeqIO  # type: ignore
 import pandas as pd  # type: ignore
@@ -14,6 +13,7 @@ from htsinfer.exceptions import (
     FileProblem,
     KallistoProblem,
     TranscriptsFastaProblem,
+    UnsupportedSampleSourceException,
 )
 from htsinfer.models import (
     ResultsSource,
@@ -82,34 +82,11 @@ class GetLibSource:
                 self.tax_id,
                 self.transcripts_file
             )
+            source.file_1.short_name = src_name
 
-            if src_name is not None:
-                source.file_1.short_name = src_name
-
-                if self.paths[1] is not None:
-                    source.file_2.taxon_id = self.tax_id
-                    source.file_2.short_name = source.file_1.short_name
-
-            else:
-                LOGGER.warning(
-                    f"Taxon ID '{self.tax_id}' not found in "
-                    "organism dictionary, inferring source organism..."
-                )
-                index = self.create_kallisto_index()
-                library_source = self.get_source(
-                    fastq=self.paths[0],
-                    index=index,
-                )
-                source.file_1.short_name = library_source.short_name
-                source.file_1.taxon_id = library_source.taxon_id
-
-                if self.paths[1] is not None:
-                    library_source = self.get_source(
-                        fastq=self.paths[1],
-                        index=index,
-                    )
-                    source.file_2.short_name = library_source.short_name
-                    source.file_2.taxon_id = library_source.taxon_id
+            if self.paths[1] is not None:
+                source.file_2.taxon_id = self.tax_id
+                source.file_2.short_name = source.file_1.short_name
 
         else:
             index = self.create_kallisto_index()
@@ -333,7 +310,7 @@ class GetLibSource:
     def get_source_name(
         taxon_id: int,
         transcripts_file: Path,
-    ) -> Optional[str]:
+    ) -> str:
         """Return name of the source organism, based on tax ID.
 
         Args:
@@ -344,10 +321,11 @@ class GetLibSource:
             Short name of the organism belonging to the given tax ID.
 
         Raises:
-            Could not process input FASTA file.
+            FileProblem: Could not process input FASTA file.
+            UnsupportedSampleSourceException: Taxon ID is not supported.
         """
         src_dict = {}
-        # Construct dictionary of taxonomy ID's and short names
+
         try:
             for record in list(SeqIO.parse(
                     handle=transcripts_file,
@@ -363,7 +341,10 @@ class GetLibSource:
                 f"Could not process file '{transcripts_file}'"
             ) from exc
 
-        if taxon_id in src_dict:
+        try:
             return src_dict[taxon_id]
 
-        return None
+        except KeyError as exc:
+            raise UnsupportedSampleSourceException(
+                f'Taxon ID "{taxon_id}" is not supported by HTSinfer.'
+            ) from exc
