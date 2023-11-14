@@ -85,7 +85,7 @@ class HtsInfer:
                 self.get_library_stats()
                 LOGGER.info(
                     "Library stats determined: "
-                    f"{self.config.results.library_stats.json()}"
+                    f"{self.config.results.library_stats.model_dump_json()}"
                 )
 
                 # determine library source
@@ -93,7 +93,7 @@ class HtsInfer:
                 self.config.results.library_source = self.get_library_source()
                 LOGGER.info(
                     "Library source determined: "
-                    f"{self.config.results.library_source.json()}"
+                    f"{self.config.results.library_source.model_dump_json()}"
                 )
 
                 # determine library type
@@ -106,7 +106,7 @@ class HtsInfer:
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
                 LOGGER.info(
                     "Library type determined: "
-                    f"{self.config.results.library_type.json()}"
+                    f"{self.config.results.library_type.model_dump_json()}"
                 )
 
                 # determine read orientation
@@ -119,7 +119,7 @@ class HtsInfer:
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
                 LOGGER.info(
                     "Read orientation determined: "
-                    f"{self.config.results.read_orientation.json()}"
+                    f"{self.config.results.read_orientation.model_dump_json()}"
                 )
 
                 # determine read layout
@@ -132,7 +132,7 @@ class HtsInfer:
                     LOGGER.warning(f"{type(exc).__name__}: {str(exc)}")
                 LOGGER.info(
                     "Read layout determined: "
-                    f"{self.config.results.read_layout.json()}"
+                    f"{self.config.results.read_layout.model_dump_json()}"
                 )
 
             except FileProblem as exc:
@@ -148,7 +148,7 @@ class HtsInfer:
             LOGGER.error(f"{type(exc).__name__}: {str(exc)}")
 
         # log results
-        LOGGER.info(f"Results: {self.config.results.json()}")
+        LOGGER.info(f"Results: {self.config.results.model_dump_json()}")
 
     def prepare_env(self):
         """Set up work environment."""
