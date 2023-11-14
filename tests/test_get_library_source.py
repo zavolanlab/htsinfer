@@ -5,7 +5,8 @@ import pytest
 from htsinfer.exceptions import (
     FileProblem,
     KallistoProblem,
-    TranscriptsFastaProblem
+    TranscriptsFastaProblem,
+    UnsupportedSampleSourceException,
 )
 from htsinfer.get_library_source import GetLibSource
 from htsinfer.models import (
@@ -323,36 +324,36 @@ class TestGetLibSource:
         with pytest.raises(KallistoProblem):
             test_instance.create_kallisto_index()
 
-    def test_get_organism_name_found(self):
+    def test_get_source_name_found(self):
         """Test the function when the taxon_id
         is found in the organism dictionary."""
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetLibSource(config=CONFIG)
         taxon_id = 7227
-        result = test_instance.get_organism_name(
+        result = test_instance.get_source_name(
             taxon_id, CONFIG.args.t_file_processed
         )
         assert result == "dmelanogaster"
 
-    def test_get_organism_name_not_found(self):
+    def test_get_source_name_not_found(self):
         """Test the function when the taxon_id
         is not found in the organism dictionary."""
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         test_instance = GetLibSource(config=CONFIG)
         taxon_id = 12345  # A tax ID that doesn't exist in transcripts
-        result = test_instance.get_organism_name(
-            taxon_id, CONFIG.args.t_file_processed
-        )
-        assert result is None
+        with pytest.raises(UnsupportedSampleSourceException):
+            test_instance.get_source_name(
+                taxon_id, CONFIG.args.t_file_processed
+            )
 
-    def test_get_organism_name_file_problem(self):
+    def test_get_source_name_file_problem(self):
         """Test the function when there's a
         file problem while processing the FASTA file."""
         CONFIG.args.t_file_processed = FILE_DUMMY
         test_instance = GetLibSource(config=CONFIG)
         taxon_id = 7227
         with pytest.raises(FileProblem):
-            test_instance.get_organism_name(
+            test_instance.get_source_name(
                 taxon_id, CONFIG.args.t_file_processed
             )
 
@@ -386,42 +387,6 @@ class TestGetLibSource:
         assert result.file_2.taxon_id == SOURCE_FRUIT_FLY.taxon_id
         assert result.file_2.short_name == SOURCE_FRUIT_FLY.short_name
 
-    def test_evaluate_tax_id_not_none_no_src_name(self, monkeypatch, tmpdir):
-        """Test when self.tax_id is not None but src_name is not found."""
-        CONFIG.args.tax_id = 7227
-        CONFIG.args.path_1_processed = FILE_MATE_1
-        CONFIG.args.path_2_processed = FILE_MATE_2
-        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
-        CONFIG.args.tmp_dir = tmpdir
-        CONFIG.args.out_dir = tmpdir
-        test_instance = GetLibSource(config=CONFIG)
-
-        # Mock the get_organism_name method to return None
-        monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.get_organism_name',
-            lambda *args, **kwargs: None,
-        )
-
-        # Mock the create_kallisto_index method to return a specific result
-        monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.create_kallisto_index',
-            lambda *args, **kwargs: tmpdir / "kallisto.idx",
-        )
-
-        # Mock the get_source method to return a specific result
-        monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.get_source',
-            lambda *args, **kwargs: SOURCE_FRUIT_FLY,
-        )
-
-        result = test_instance.evaluate()
-
-        assert result.file_1.taxon_id == SOURCE_FRUIT_FLY.taxon_id
-        assert result.file_1.short_name == SOURCE_FRUIT_FLY.short_name
-
-        assert result.file_2.taxon_id == SOURCE_FRUIT_FLY.taxon_id
-        assert result.file_2.short_name == SOURCE_FRUIT_FLY.short_name
-
     def test_evaluate_tax_id_not_none_name_found(self, monkeypatch, tmpdir):
         """Test when self.tax_id is not None and src_name is found."""
         CONFIG.args.tax_id = 7227
@@ -432,9 +397,9 @@ class TestGetLibSource:
         CONFIG.args.out_dir = tmpdir
         test_instance = GetLibSource(config=CONFIG)
 
-        # Mock the get_organism_name method to return a specific result
+        # Mock the get_source_name method to return a specific result
         monkeypatch.setattr(
-            'htsinfer.get_library_source.GetLibSource.get_organism_name',
+            'htsinfer.get_library_source.GetLibSource.get_source_name',
             lambda *args, **kwargs: "dmelanogaster",
         )
 
