@@ -356,7 +356,7 @@ class Args(BaseModel):
         records: Number of input file records to process; set to `0` to
             process all records.
         threads: Number of threads to run STAR with.
-        tax_id: Taxonomy ID of the source organism.
+        tax_id: Taxonomy ID of the sample source.
         transcripts_file: File path to transcripts FASTA file.
         read_layout_adapter_file: Path to text file containing 3' adapter
             sequences to scan for (one sequence per line).

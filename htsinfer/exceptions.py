@@ -47,6 +47,4 @@ class CutadaptProblem(Exception):
 
 
 class UnsupportedSampleSourceException(Exception):
-    """Exception raised when taxonomy ID is not found in the source
-    organism list.
-    """
+    """Exception raised when taxonomy ID is not supported."""

@@ -52,7 +52,7 @@ class GetLibSource:
         min_freq_ratio: Minimum frequency ratio between the first and second
             most frequent source in order for the former to be considered the
             library's source.
-        tax_id: Taxonomy ID of the organism.
+        tax_id: Taxonomy ID of the sample source.
     """
     def __init__(  # pylint: disable=E1101
         self,
