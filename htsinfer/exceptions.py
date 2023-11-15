@@ -44,3 +44,7 @@ class TranscriptsFastaProblem(Exception):
 
 class CutadaptProblem(Exception):
     """Exception raised when running cutadapt commands."""
+
+
+class UnsupportedSampleSourceException(Exception):
+    """Exception raised when taxonomy ID is not supported."""

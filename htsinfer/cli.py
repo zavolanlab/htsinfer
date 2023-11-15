@@ -263,6 +263,17 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument(
+        '--tax-id',
+        dest="tax_id",
+        metavar="INT",
+        type=int,
+        default=None,
+        help=(
+            "NCBI taxonomic identifier of source organism of the library; "
+            "if provided, will not be inferred by the application"
+        )
+    )
+    parser.add_argument(
         "--verbosity",
         choices=[e.name for e in LogLevels],
         default=LogLevels.INFO.name,

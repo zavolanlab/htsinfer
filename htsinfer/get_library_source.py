@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess as sp
 import tempfile
 
+from Bio import SeqIO  # type: ignore
 import pandas as pd  # type: ignore
 from pandas import DataFrame  # type: ignore
 
@@ -12,6 +13,7 @@ from htsinfer.exceptions import (
     FileProblem,
     KallistoProblem,
     TranscriptsFastaProblem,
+    UnsupportedSampleSourceException,
 )
 from htsinfer.models import (
     ResultsSource,
@@ -50,6 +52,7 @@ class GetLibSource:
         min_freq_ratio: Minimum frequency ratio between the first and second
             most frequent source in order for the former to be considered the
             library's source.
+        tax_id: Taxonomy ID of the sample source.
     """
     def __init__(  # pylint: disable=E1101
         self,
@@ -63,6 +66,7 @@ class GetLibSource:
         self.tmp_dir = config.args.tmp_dir
         self.min_match_pct = config.args.lib_source_min_match_pct
         self.min_freq_ratio = config.args.lib_source_min_freq_ratio
+        self.tax_id = config.args.tax_id
 
     def evaluate(self) -> ResultsSource:
         """Infer read source.
@@ -71,16 +75,36 @@ class GetLibSource:
             Source results object.
         """
         source = ResultsSource()
-        index = self.create_kallisto_index()
-        source.file_1 = self.get_source(
-            fastq=self.paths[0],
-            index=index,
-        )
-        if self.paths[1] is not None:
-            source.file_2 = self.get_source(
-                fastq=self.paths[1],
+        # Check if library_source is provided, otherwise infer it
+        if self.tax_id is not None:
+            source.file_1.taxon_id = self.tax_id
+            src_name = self.get_source_name(
+                self.tax_id,
+                self.transcripts_file
+            )
+            source.file_1.short_name = src_name
+
+            if self.paths[1] is not None:
+                source.file_2.taxon_id = self.tax_id
+                source.file_2.short_name = source.file_1.short_name
+
+        else:
+            index = self.create_kallisto_index()
+            library_source = self.get_source(
+                fastq=self.paths[0],
                 index=index,
             )
+            source.file_1.short_name = library_source.short_name
+            source.file_1.taxon_id = library_source.taxon_id
+
+            if self.paths[1] is not None:
+                library_source = self.get_source(
+                    fastq=self.paths[1],
+                    index=index,
+                )
+                source.file_2.short_name = library_source.short_name
+                source.file_2.taxon_id = library_source.taxon_id
+
         return source
 
     def create_kallisto_index(self) -> Path:
@@ -281,3 +305,46 @@ class GetLibSource:
 
         # return as dictionary
         return dat_agg.sort_values(["tpm"], ascending=False)
+
+    @staticmethod
+    def get_source_name(
+        taxon_id: int,
+        transcripts_file: Path,
+    ) -> str:
+        """Return name of the source organism, based on tax ID.
+
+        Args:
+            taxon_id: Taxonomy ID of a given organism.
+            transcripts_file: Path to FASTA file containing transcripts.
+
+        Returns:
+            Short name of the organism belonging to the given tax ID.
+
+        Raises:
+            FileProblem: Could not process input FASTA file.
+            UnsupportedSampleSourceException: Taxon ID is not supported.
+        """
+        src_dict = {}
+
+        try:
+            for record in list(SeqIO.parse(
+                    handle=transcripts_file,
+                    format='fasta',
+            )):
+                tax_id = int(record.description.split("|")[4])
+                src_name = record.description.split("|")[3]
+
+                src_dict[tax_id] = src_name
+
+        except OSError as exc:
+            raise FileProblem(
+                f"Could not process file '{transcripts_file}'"
+            ) from exc
+
+        try:
+            return src_dict[taxon_id]
+
+        except KeyError as exc:
+            raise UnsupportedSampleSourceException(
+                f'Taxon ID "{taxon_id}" is not supported by HTSinfer.'
+            ) from exc
