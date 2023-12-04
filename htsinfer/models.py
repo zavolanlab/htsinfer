@@ -95,7 +95,7 @@ class ReadLength(BaseModel):
     min: Optional[int] = None
     max: Optional[int] = None
     mean: Optional[float] = None
-    median: Optional[float] = None
+    median: Optional[int] = None
     mode: Optional[int] = None
 
 

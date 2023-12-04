@@ -60,14 +60,14 @@ class GetLibStats:
             self.fastq_get_stats_read_length(fastq=self.paths[0])
         )
         # process file 2
-        LOGGER.info(f"Obtaining statistics for file: {self.paths[0]}")
+        LOGGER.info(f"Obtaining statistics for file: {self.paths[1]}")
         if self.paths[1] is not None:
             (stats.file_2.read_length.min,
              stats.file_2.read_length.max,
              stats.file_2.read_length.mean,
              stats.file_2.read_length.median,
              stats.file_2.read_length.mode) = (
-                self.fastq_get_stats_read_length(fastq=self.paths[0])
+                self.fastq_get_stats_read_length(fastq=self.paths[1])
             )
 
         return stats
