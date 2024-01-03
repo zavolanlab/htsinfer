@@ -135,6 +135,7 @@ plit_mates: 'split_mates'>)
             self.mapping.evaluate()
             self._align_mates()
 
+    # pylint: disable=R0912
     def _align_mates(self):
         """Decide mate relationship by alignment."""
 
@@ -186,7 +187,7 @@ plit_mates: 'split_mates'>)
         if self._compare_alignments(mate1[read_counter], reads2):
             concordant += 1
 
-        if read_counter > 0:
+        try:
             if (concordant / read_counter) >= self.cutoff:
                 self.results.relationship = (
                     StatesTypeRelationship.split_mates
@@ -199,7 +200,7 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.not_mates
                 )
-        else:
+        except ZeroDivisionError:
             self.results.relationship = (
                 StatesTypeRelationship.not_available
             )

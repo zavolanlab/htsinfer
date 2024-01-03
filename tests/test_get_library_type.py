@@ -113,6 +113,35 @@ class TestGetLibType:
 
     def test_evaluate_mate_relationship_not_mates(self, tmpdir):
         """Test mate relationship evaluation logic with input files that are
+        mates, but the relationship is not enough to trigger split_mates.
+        """
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        MAPPING.paths = (FILE_MATE_1, FILE_MATE_2)
+        MAPPING.transcripts_file = FILE_TRANSCRIPTS
+        MAPPING.tmp_dir = tmpdir
+
+        test_instance = GetLibType(config=CONFIG, mapping=MAPPING)
+        test_instance.results.file_1 = StatesType.not_available
+        test_instance.results.file_2 = StatesType.not_available
+
+        # Set the cutoff such that it's not enough to trigger split_mates
+        test_instance.cutoff = 300
+
+        # Call the _evaluate_mate_relationship method
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"], ids_2=["A", "B", "C"]
+        )
+
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.not_mates
+        )
+
+    def test_evaluate_mate_relationship_not_available(self, tmpdir):
+        """Test mate relationship evaluation logic with input files that are
         not mates from a paired-end library.
         """
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
@@ -124,12 +153,12 @@ class TestGetLibType:
         MAPPING.tmp_dir = tmpdir
         test_instance = GetLibType(config=CONFIG,
                                    mapping=MAPPING)
-        test_instance.results.file_1 = StatesType.first_mate
-        test_instance.results.file_2 = StatesType.second_mate
+        test_instance.results.file_1 = StatesType.not_available
+        test_instance.results.file_2 = StatesType.not_available
         test_instance.evaluate()
         assert (
             test_instance.results.relationship ==
-            StatesTypeRelationship.not_mates
+            StatesTypeRelationship.not_available
         )
 
     def test_evaluate_split_mates_not_matching_ids(self, tmpdir):
