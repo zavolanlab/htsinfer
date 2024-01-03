@@ -135,7 +135,6 @@ plit_mates: 'split_mates'>)
             self.mapping.evaluate()
             self._align_mates()
 
-    # pylint: disable=R0912
     def _align_mates(self):
         """Decide mate relationship by alignment."""
 
@@ -187,6 +186,13 @@ plit_mates: 'split_mates'>)
         if self._compare_alignments(mate1[read_counter], reads2):
             concordant += 1
 
+        self._update_relationship(concordant, read_counter)
+
+        samfile1.close()
+        samfile2.close()
+
+    def _update_relationship(self, concordant, read_counter):
+        """Helper function to update relationship based on alignment."""
         try:
             if (concordant / read_counter) >= self.cutoff:
                 self.results.relationship = (
@@ -204,9 +210,6 @@ plit_mates: 'split_mates'>)
             self.results.relationship = (
                 StatesTypeRelationship.not_available
             )
-
-        samfile1.close()
-        samfile2.close()
 
     class AlignedSegment:
         """Placeholder class for mypy "Missing attribute"
