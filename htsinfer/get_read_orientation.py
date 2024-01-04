@@ -75,8 +75,15 @@ class GetOrientation:
         self.mapping.transcripts_file = self.transcripts_file
         self.mapping.tmp_dir = self.tmp_dir
 
-        if not self.mapping.mapped:
+        if not self.mapping.mapped \
+                and self.library_source.file_1.short_name is not None \
+                and self.library_source.file_2.short_name is not None:
             self.mapping.evaluate()
+        else:
+            LOGGER.warning(
+                "Library source is not determined, "
+                "read orientation cannot be inferred by alignment."
+            )
 
         return self.process_alignments(star_dirs=self.mapping.star_dirs)
 

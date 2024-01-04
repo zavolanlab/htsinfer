@@ -127,13 +127,19 @@ plit_mates: 'split_mates'>)
                 self.mapping.library_type.relationship = (
                     StatesTypeRelationship.split_mates
                 )
-        else:
+        elif self.library_source.file_1.short_name is not None \
+                and self.library_source.file_2.short_name is not None:
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source
             self.mapping.paths = self.path_1, self.path_2
             self.mapping.evaluate()
             self._align_mates()
+        else:
+            LOGGER.warning(
+                "Library source is not determined, "
+                "mate relationship cannot be inferred by alignment."
+            )
 
     def _align_mates(self):
         """Decide mate relationship by alignment."""
