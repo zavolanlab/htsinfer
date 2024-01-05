@@ -127,8 +127,8 @@ plit_mates: 'split_mates'>)
                 self.mapping.library_type.relationship = (
                     StatesTypeRelationship.split_mates
                 )
-        elif self.library_source.file_1.short_name is not None \
-                and self.library_source.file_2.short_name is not None:
+        elif (self.library_source.file_1.short_name is not None
+              and self.library_source.file_2.short_name is not None):
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source

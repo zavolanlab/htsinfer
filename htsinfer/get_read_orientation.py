@@ -76,8 +76,8 @@ class GetOrientation:
         self.mapping.tmp_dir = self.tmp_dir
 
         if not self.mapping.mapped \
-                and self.library_source.file_1.short_name is not None \
-                or self.library_source.file_2.short_name is not None:
+                and (self.library_source.file_1.short_name is not None
+                     or self.library_source.file_2.short_name is not None):
             self.mapping.evaluate()
         else:
             LOGGER.warning(
