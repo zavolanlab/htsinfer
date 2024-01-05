@@ -73,6 +73,10 @@ class TestGetOrientation:
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         CONFIG.args.tmp_dir = tmpdir
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(),
+            file_2=Source()
+        )
         test_instance = GetOrientation(config=CONFIG,
                                        mapping=MAPPING)
         assert test_instance.paths[0] == FILE_MATE_1
