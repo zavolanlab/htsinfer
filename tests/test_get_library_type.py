@@ -13,7 +13,9 @@ from htsinfer.get_library_type import (
     GetFastqType,
 )
 from htsinfer.models import (
+    ResultsSource,
     ResultsType,
+    Source,
     SeqIdFormats,
     StatesType,
     StatesTypeRelationship,
@@ -147,6 +149,10 @@ class TestGetLibType:
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(short_name="hsapiens", taxon_id=9606),
+            file_2=Source(short_name="hsapiens", taxon_id=9606),
+        )
         CONFIG.args.tmp_dir = tmpdir
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_MATE_2)
         MAPPING.transcripts_file = FILE_TRANSCRIPTS
@@ -167,6 +173,10 @@ class TestGetLibType:
         """
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_IDS_NOT_MATCH_2
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(short_name="hsapiens", taxon_id=9606),
+            file_2=Source(short_name="hsapiens", taxon_id=9606),
+        )
         CONFIG.args.tmp_dir = tmpdir
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_IDS_NOT_MATCH_2)
         MAPPING.tmp_dir = tmpdir
