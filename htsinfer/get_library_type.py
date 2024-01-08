@@ -206,7 +206,13 @@ plit_mates: 'split_mates'>)
     def _update_relationship(self, concordant, read_counter):
         """Helper function to update relationship based on alignment."""
         try:
-            if (concordant / read_counter) >= self.cutoff:
+            ratio = concordant / read_counter
+        except ZeroDivisionError:
+            self.results.relationship = (
+                StatesTypeRelationship.not_available
+            )
+        else:
+            if ratio >= self.cutoff:
                 self.results.relationship = (
                     StatesTypeRelationship.split_mates
                 )
@@ -218,10 +224,6 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.not_mates
                 )
-        except ZeroDivisionError:
-            self.results.relationship = (
-                StatesTypeRelationship.not_available
-            )
 
     class AlignedSegment:
         """Placeholder class for mypy "Missing attribute"
@@ -331,7 +333,7 @@ class GetFastqType():
 
                 if self.seq_id_format is None:
                     self.result = StatesType.not_available
-                    LOGGER.warning(
+                    LOGGER.debug(
                         "Could not determine sequence identifier format."
                     )
                 else:

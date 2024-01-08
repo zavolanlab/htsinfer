@@ -33,7 +33,6 @@ from tests.utils import (
     FILE_IDS_NOT_MATCH_2,
     FILE_TRANSCRIPTS,
     FILE_SINGLE,
-    FILE_UNKNOWN_SEQ_ID,
     RaiseError,
     SEQ_ID_DUMMY,
     SEQ_ID_MATE_1,
