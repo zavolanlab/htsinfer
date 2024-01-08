@@ -127,8 +127,10 @@ plit_mates: 'split_mates'>)
                 self.mapping.library_type.relationship = (
                     StatesTypeRelationship.split_mates
                 )
-        elif (self.library_source.file_1.short_name is not None
-              and self.library_source.file_2.short_name is not None):
+        elif (
+            self.library_source.file_1.short_name is not None and
+            self.library_source.file_2.short_name is not None
+        ):
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source
@@ -136,6 +138,7 @@ plit_mates: 'split_mates'>)
             self.mapping.evaluate()
             self._align_mates()
         else:
+            self.results.relationship = StatesTypeRelationship.not_available
             LOGGER.debug(
                 "Library source is not determined, "
                 "mate relationship cannot be inferred by alignment."
@@ -195,8 +198,8 @@ plit_mates: 'split_mates'>)
             mate1[read_counter], reads2
         ):
             concordant += 1
-        LOGGER.debug(f"Number of mapped reads file 1: {len(mate1)}")
-        LOGGER.debug(f"Number of mapped reads file 2: {read_counter}")
+        LOGGER.debug(f"Number of aligned reads file 1: {len(mate1)}")
+        LOGGER.debug(f"Number of aligned reads file 2: {read_counter}")
         LOGGER.debug(f"Number of concordant reads: {concordant}")
         self._update_relationship(concordant, read_counter)
 
@@ -331,25 +334,26 @@ class GetFastqType():
                     self.result = StatesType.not_available
                     raise FileProblem(f"File is empty: {self.path}") from exc
 
-                if self.seq_id_format is None:
-                    self.result = StatesType.not_available
-                    LOGGER.debug(
-                        "Could not determine sequence identifier format."
-                    )
-                else:
+                if self.seq_id_format is not None:
                     LOGGER.debug(
                         "Sequence identifier format: "
                         f"{self.seq_id_format.name}"
+                    )
+                else:
+                    self.result = StatesType.not_available
+                    LOGGER.debug(
+                        "Could not determine sequence identifier format."
                     )
 
                 # Ensure that remaining records are compatible with sequence
                 # identifier format and library type determined from first
                 # record
-                LOGGER.debug(
-                    "Checking consistency of remaining reads with initially "
-                    "determined identifier format and library type..."
-                )
                 if self.seq_id_format is not None:
+                    LOGGER.debug(
+                        "Checking consistency of remaining reads with "
+                        "initially determined identifier format "
+                        "and library type..."
+                    )
                     for record in seq_iter:
                         records += 1
                         try:
@@ -366,11 +370,6 @@ class GetFastqType():
                                 f"{type(exc).__name__}: {str(exc)}"
                             ) from exc
                     LOGGER.debug(f"Total records processed: {records}")
-                else:
-                    LOGGER.debug(
-                        "Could not determine sequence identifier format. "
-                        "Skipping consistency check for the remaining reads."
-                    )
 
         except (OSError, ValueError) as exc:
             self.result = StatesType.not_available

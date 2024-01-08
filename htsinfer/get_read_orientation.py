@@ -75,9 +75,10 @@ class GetOrientation:
         self.mapping.transcripts_file = self.transcripts_file
         self.mapping.tmp_dir = self.tmp_dir
 
-        if not self.mapping.mapped \
-                and (self.library_source.file_1.short_name is not None
-                     or self.library_source.file_2.short_name is not None):
+        if not self.mapping.mapped and (
+            self.library_source.file_1.short_name is not None or
+            self.library_source.file_2.short_name is not None
+        ):
             self.mapping.evaluate()
         else:
             LOGGER.debug(

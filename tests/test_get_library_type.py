@@ -29,6 +29,7 @@ from tests.utils import (
     FILE_INCONSISTENT_IDS_SINGLE_OLD_NEW,
     FILE_MATE_1,
     FILE_MATE_2,
+    FILE_UNKNOWN_SEQ_ID,
     FILE_IDS_NOT_MATCH_1,
     FILE_IDS_NOT_MATCH_2,
     FILE_TRANSCRIPTS,
@@ -148,11 +149,11 @@ class TestGetLibType:
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
         CONFIG.results.library_source = ResultsSource(
             file_1=Source(short_name="hsapiens", taxon_id=9606),
             file_2=Source(short_name="hsapiens", taxon_id=9606),
         )
-        CONFIG.args.tmp_dir = tmpdir
         MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_MATE_2)
         MAPPING.transcripts_file = FILE_TRANSCRIPTS
         MAPPING.tmp_dir = tmpdir
@@ -161,6 +162,62 @@ class TestGetLibType:
         test_instance.results.file_1 = StatesType.not_available
         test_instance.results.file_2 = StatesType.not_available
         test_instance.evaluate()
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.not_available
+        )
+
+    def test_update_relationship_not_mates(self, tmpdir):
+        """Test update_relationship logic."""
+        CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        MAPPING.paths = (FILE_IDS_NOT_MATCH_1, FILE_MATE_2)
+        MAPPING.transcripts_file = FILE_TRANSCRIPTS
+        MAPPING.tmp_dir = tmpdir
+
+        test_instance = GetLibType(config=CONFIG, mapping=MAPPING)
+        test_instance.results.file_1 = StatesType.not_available
+        test_instance.results.file_2 = StatesType.not_available
+
+        # Simulate a scenario where ratio is below the cutoff
+        concordant = 0
+        read_counter = 20
+
+        # Call the _update_relationship method
+        test_instance._update_relationship(concordant, read_counter)
+
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.not_mates
+        )
+        assert (
+            test_instance.mapping.library_type.relationship ==
+            StatesTypeRelationship.not_available
+        )
+
+    def test_evaluate_mate_relationship_not_determined(self, tmpdir):
+        """Test mate relationship evaluation logic when
+        library source is not determined.
+        """
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(),
+            file_2=Source(),
+        )
+        test_instance = GetLibType(config=CONFIG, mapping=MAPPING)
+        test_instance.results.file_1 = StatesType.not_available
+        test_instance.results.file_2 = StatesType.not_available
+
+        # Call the _evaluate_mate_relationship method
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"], ids_2=["D", "E", "F"]
+        )
+
         assert (
             test_instance.results.relationship ==
             StatesTypeRelationship.not_available
@@ -303,6 +360,12 @@ class TestGetFastqType:
                 seq_id=SEQ_ID_SINGLE,
                 regex=SeqIdFormats['Casava >=1.8'].value,
             )
+
+    def test_evaluate_unknown_identifier_format(self):
+        """Test scenario where seq_id format cannot be determined."""
+        test_instance = GetFastqType(path=FILE_UNKNOWN_SEQ_ID)
+        test_instance.evaluate()
+        assert test_instance.result == StatesType.not_available
 
     def test_get_read_type_single_pass(self):
         """Read identifier is consistent with previous state."""
