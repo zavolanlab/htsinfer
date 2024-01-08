@@ -80,7 +80,7 @@ class GetOrientation:
                      or self.library_source.file_2.short_name is not None):
             self.mapping.evaluate()
         else:
-            LOGGER.warning(
+            LOGGER.debug(
                 "Library source is not determined, "
                 "read orientation cannot be inferred by alignment."
             )

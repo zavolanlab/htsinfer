@@ -214,12 +214,6 @@ class TestGetFastqType:
         test_instance.evaluate()
         assert test_instance.result == StatesType.single
 
-    def test_evaluate_unknown_seq_id(self):
-        """Evaluate file with identifiers of an unknown format."""
-        test_instance = GetFastqType(path=FILE_UNKNOWN_SEQ_ID)
-        with pytest.raises(MetadataWarning):
-            test_instance.evaluate()
-
     def test_evaluate_inconsistent_identifiers_single_mate(self):
         """Raise ``MetadataWarning`` by passing a file with inconsistent
         identifiers, suggesting a single-end library first, then a paired-end
