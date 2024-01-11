@@ -400,11 +400,6 @@ class TestHtsInfer:
          }
       }
    },
-   "library_type": {
-      "file_1": null,
-      "file_2": null,
-      "relationship": null
-   },
    "library_source": {
       "file_1": {
          "short_name": null,
@@ -414,6 +409,11 @@ class TestHtsInfer:
          "short_name": null,
          "taxon_id": null
       }
+   },
+   "library_type": {
+      "file_1": null,
+      "file_2": null,
+      "relationship": null
    },
    "read_orientation": {
       "file_1": null,
