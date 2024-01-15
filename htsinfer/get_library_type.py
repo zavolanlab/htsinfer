@@ -113,7 +113,7 @@ plit_mates: 'split_mates'>)
             ids_2: As `ids_1` but for the putative second mate file.
         """
         self.results.relationship = StatesTypeRelationship.not_mates
-        if ids_1 == ids_2 and len(ids_1) > 0 and len(ids_2) > 0:
+        if ids_1 and ids_2 and ids_1 == ids_2:
             if (
                 self.results.file_1 == StatesType.first_mate and
                 self.results.file_2 == StatesType.second_mate
@@ -140,8 +140,7 @@ plit_mates: 'split_mates'>)
         else:
             self.results.relationship = StatesTypeRelationship.not_available
             LOGGER.debug(
-                "Library source is not determined, "
-                "mate relationship cannot be inferred by alignment."
+                "Mate relationship cannot be determined."
             )
 
     def _align_mates(self):
@@ -165,6 +164,7 @@ plit_mates: 'split_mates'>)
         concordant = 0
 
         for read1 in samfile1:
+            # ensure that "unmapped" flag is not set and query name is set
             if not read1.flag & (1 << 2) and isinstance(read1.query_name, str):
                 seq_id1 = read1.query_name
                 if (
@@ -180,6 +180,7 @@ plit_mates: 'split_mates'>)
 
         read_counter = 0
         for read2 in samfile2:
+            # ensure that "unmapped" flag is not set and query name is set
             if not read2.flag & (1 << 2) and isinstance(read2.query_name, str):
                 seq_id2 = read2.query_name
                 if seq_id2 != previous_seq_id2 \
@@ -219,8 +220,9 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.split_mates
                 )
-                self.mapping.library_type.relationship \
-                    = StatesTypeRelationship.split_mates
+                self.mapping.library_type.relationship = (
+                    StatesTypeRelationship.split_mates
+                )
                 self.mapping.mapped = False
                 self.mapping.star_dirs = []
             else:

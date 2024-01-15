@@ -82,8 +82,7 @@ class GetOrientation:
             self.mapping.evaluate()
         else:
             LOGGER.debug(
-                "Library source is not determined, "
-                "read orientation cannot be inferred by alignment."
+                "Read orientation cannot be determined."
             )
 
         return self.process_alignments(star_dirs=self.mapping.star_dirs)
