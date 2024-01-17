@@ -79,11 +79,8 @@ class GetOrientation:
             self.library_source.file_1.short_name is not None or
             self.library_source.file_2.short_name is not None
         ):
+            LOGGER.debug("Determining read relationship by alignment...")
             self.mapping.evaluate()
-        else:
-            LOGGER.debug(
-                "Read orientation cannot be determined."
-            )
 
         return self.process_alignments(star_dirs=self.mapping.star_dirs)
 

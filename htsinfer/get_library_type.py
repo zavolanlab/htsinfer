@@ -128,9 +128,10 @@ plit_mates: 'split_mates'>)
                     StatesTypeRelationship.split_mates
                 )
         elif (
-            self.library_source.file_1.short_name is not None and
+            self.library_source.file_1.short_name is not None or
             self.library_source.file_2.short_name is not None
         ):
+            LOGGER.debug("Determining mate relationship by alignment...")
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source
@@ -140,7 +141,8 @@ plit_mates: 'split_mates'>)
         else:
             self.results.relationship = StatesTypeRelationship.not_available
             LOGGER.debug(
-                "Mate relationship cannot be determined."
+                "Sequence IDs and library source are not determined, "
+                "mate relationship cannot be inferred."
             )
 
     def _align_mates(self):
