@@ -299,6 +299,7 @@ class Mapping:
                 "--runThreadN", f"{str(self.threads_star)}",
                 "--genomeDir", f"{str(index_dir)}",
                 "--outFilterMultimapNmax", "50",
+                "--outSAMorder", "PairedKeepInputOrder",
                 "--outSAMunmapped", "Within", "KeepPairs",
             ]
             cmd: List[str] = cmd_base[:]
