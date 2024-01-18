@@ -51,11 +51,7 @@ class Mapping:
         self.star_dirs: List[Path] = []
 
     def evaluate(self):
-        """Infer read orientation.
-
-        Returns:
-            Orientation results object.
-        """
+        """Align FASTQ files to reference transcripts with STAR."""
 
         # get transcripts for current organims
         transcripts = self.subset_transcripts_by_organism()
@@ -269,6 +265,10 @@ class Mapping:
             index_dir: Path,
     ) -> Dict[Path, List[str]]:
         """Prepare STAR alignment commands.
+
+        Input FASTQ files are assumed to be sorted according to reference names
+        or coordinates, the order of input reads is kept with the option
+        "PairedKeepInputOrder", no additional sorting of aligned reads is done.
 
         Args:
             index_dir: Path to directory containing STAR index.
