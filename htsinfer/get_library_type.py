@@ -113,7 +113,7 @@ plit_mates: 'split_mates'>)
             ids_2: As `ids_1` but for the putative second mate file.
         """
         self.results.relationship = StatesTypeRelationship.not_mates
-        if ids_1 == ids_2:
+        if ids_1 and ids_2 and ids_1 == ids_2:
             if (
                 self.results.file_1 == StatesType.first_mate and
                 self.results.file_2 == StatesType.second_mate
@@ -127,13 +127,23 @@ plit_mates: 'split_mates'>)
                 self.mapping.library_type.relationship = (
                     StatesTypeRelationship.split_mates
                 )
-        else:
+        elif (
+            self.library_source.file_1.short_name is not None or
+            self.library_source.file_2.short_name is not None
+        ):
+            LOGGER.debug("Determining mate relationship by alignment...")
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source
             self.mapping.paths = self.path_1, self.path_2
             self.mapping.evaluate()
             self._align_mates()
+        else:
+            self.results.relationship = StatesTypeRelationship.not_available
+            LOGGER.debug(
+                "Sequence IDs and library source are not determined, "
+                "mate relationship cannot be inferred."
+            )
 
     def _align_mates(self):
         """Decide mate relationship by alignment."""
@@ -144,19 +154,24 @@ plit_mates: 'split_mates'>)
         samfile1 = pysam.AlignmentFile(str(alignment_1), 'r')
         samfile2 = pysam.AlignmentFile(str(alignment_2), 'r')
 
+        seq_id1 = None
+        seq_id2 = None
         previous_seq_id1 = None
         previous_seq_id2 = None
 
         reads1 = []  # List to store alignments for one read from file1
-        mate1 = []  # List to store alignments for each read
+        mate1 = []  # List to store alignments for each read from file1
         reads2 = []  # List to store alignments for one read from file2
+        mate2 = []  # List to store alignments for each read from file2
 
         concordant = 0
 
         for read1 in samfile1:
             seq_id1 = read1.query_name
-            if seq_id1 != previous_seq_id1 \
-                    and previous_seq_id1 is not None:
+            if (
+                seq_id1 != previous_seq_id1 and
+                previous_seq_id1 is not None
+            ):
                 mate1.append(reads1.copy())
                 reads1.clear()
             if read1.reference_end:
@@ -167,34 +182,62 @@ plit_mates: 'split_mates'>)
         read_counter = 0
         for read2 in samfile2:
             seq_id2 = read2.query_name
-            if seq_id2 != previous_seq_id2 \
-                    and previous_seq_id2 is not None:
-                if self._compare_alignments(mate1[read_counter], reads2):
+            if (
+                seq_id2 != previous_seq_id2 and
+                previous_seq_id2 is not None
+            ):
+                mate2.append(reads2.copy())
+                if self._compare_alignments(
+                    mate1[read_counter], reads2
+                ):
                     concordant += 1
                 reads2.clear()
                 read_counter += 1
             if read2.reference_end:
                 reads2.append(read2)
             previous_seq_id2 = seq_id2
-
-        if self._compare_alignments(mate1[read_counter], reads2):
+        mate2.append(reads2.copy())
+        if self._compare_alignments(
+            mate1[read_counter], reads2
+        ):
             concordant += 1
 
-        if (concordant / read_counter) >= self.cutoff:
-            self.results.relationship = (
-                StatesTypeRelationship.split_mates
-            )
-            self.mapping.library_type.relationship \
-                = StatesTypeRelationship.split_mates
-            self.mapping.mapped = False
-            self.mapping.star_dirs = []
-        else:
-            self.results.relationship = (
-                StatesTypeRelationship.not_mates
-            )
+        aligned_mate1 = len(list(filter(None, mate1)))
+        aligned_mate2 = len(list(filter(None, mate2)))
+
+        LOGGER.debug(f"Number of aligned reads file 1: {aligned_mate1}")
+        LOGGER.debug(f"Number of aligned reads file 2: {aligned_mate2}")
+        LOGGER.debug(f"Number of concordant reads: {concordant}")
+
+        self._update_relationship(
+            concordant, min(aligned_mate1, aligned_mate2)
+        )
 
         samfile1.close()
         samfile2.close()
+
+    def _update_relationship(self, concordant, aligned_reads):
+        """Helper function to update relationship based on alignment."""
+        try:
+            ratio = concordant / aligned_reads
+        except ZeroDivisionError:
+            self.results.relationship = (
+                StatesTypeRelationship.not_available
+            )
+        else:
+            if ratio >= self.cutoff:
+                self.results.relationship = (
+                    StatesTypeRelationship.split_mates
+                )
+                self.mapping.library_type.relationship = (
+                    StatesTypeRelationship.split_mates
+                )
+                self.mapping.mapped = False
+                self.mapping.star_dirs = []
+            else:
+                self.results.relationship = (
+                    StatesTypeRelationship.not_mates
+                )
 
     class AlignedSegment:
         """Placeholder class for mypy "Missing attribute"
@@ -302,43 +345,46 @@ class GetFastqType():
                     self.result = StatesType.not_available
                     raise FileProblem(f"File is empty: {self.path}") from exc
 
-                if self.seq_id_format is None:
+                if self.seq_id_format is not None:
+                    LOGGER.debug(
+                        "Sequence identifier format: "
+                        f"{self.seq_id_format.name}"
+                    )
+                else:
                     self.result = StatesType.not_available
-                    raise MetadataWarning(
+                    LOGGER.debug(
                         "Could not determine sequence identifier format."
                     )
-                LOGGER.debug(
-                    f"Sequence identifier format: {self.seq_id_format.name}"
-                )
 
                 # Ensure that remaining records are compatible with sequence
                 # identifier format and library type determined from first
                 # record
-                LOGGER.debug(
-                    "Checking consistency of remaining reads with initially "
-                    "determined identifier format and library type..."
-                )
-                for record in seq_iter:
-                    records += 1
-                    try:
-                        self._get_read_type(
-                            seq_id=record[0],
-                            regex=self.seq_id_format.value,
-                        )
-                    except (
-                        InconsistentFastqIdentifiers,
-                        UnknownFastqIdentifier,
-                    ) as exc:
-                        self.result = StatesType.not_available
-                        raise MetadataWarning(
-                            f"{type(exc).__name__}: {str(exc)}"
-                        ) from exc
+                if self.seq_id_format is not None:
+                    LOGGER.debug(
+                        "Checking consistency of remaining reads with "
+                        "initially determined identifier format "
+                        "and library type..."
+                    )
+                    for record in seq_iter:
+                        records += 1
+                        try:
+                            self._get_read_type(
+                                seq_id=record[0],
+                                regex=self.seq_id_format.value,
+                            )
+                        except (
+                            InconsistentFastqIdentifiers,
+                            UnknownFastqIdentifier,
+                        ) as exc:
+                            self.result = StatesType.not_available
+                            raise MetadataWarning(
+                                f"{type(exc).__name__}: {str(exc)}"
+                            ) from exc
+                    LOGGER.debug(f"Total records processed: {records}")
 
         except (OSError, ValueError) as exc:
             self.result = StatesType.not_available
             raise FileProblem(f"{type(exc).__name__}: {str(exc)}") from exc
-
-        LOGGER.debug(f"Total records processed: {records}")
 
     def _get_read_type(
         self,

@@ -73,6 +73,10 @@ class TestGetOrientation:
         CONFIG.args.path_2_processed = FILE_MATE_2
         CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
         CONFIG.args.tmp_dir = tmpdir
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(),
+            file_2=Source()
+        )
         test_instance = GetOrientation(config=CONFIG,
                                        mapping=MAPPING)
         assert test_instance.paths[0] == FILE_MATE_1
@@ -154,7 +158,10 @@ class TestGetOrientation:
         CONFIG.args.path_1_processed = FILE_UNMAPPED_PAIRED_1
         CONFIG.args.path_2_processed = FILE_UNMAPPED_PAIRED_2
         CONFIG.args.tmp_dir = tmpdir
-        CONFIG.results.library_source = ResultsSource()
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(short_name="hsapiens", taxon_id=9606),
+            file_2=Source(short_name="hsapiens", taxon_id=9606)
+        )
         CONFIG.results.library_type = ResultsType(
             relationship=StatesTypeRelationship.split_mates,
         )
@@ -259,7 +266,7 @@ class TestGetOrientation:
             )
         CONFIG.results.library_source = ResultsSource(
             file_1=Source(),
-            file_2=Source(),
+            file_2=Source(short_name="hsapiens", taxon_id=9606),
         )
         CONFIG.args.tmp_dir = tmpdir
         MAPPING.mapped = False
