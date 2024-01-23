@@ -113,6 +113,34 @@ class TestGetLibType:
             StatesTypeRelationship.split_mates
         )
 
+    def test_evaluate_mate_relationship_assumed_single(self, tmpdir):
+        """Test mate relationship evaluation logic with input files being
+        mates of a paired-end library but assumed single based on seq_ids.
+        """
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(short_name="hsapiens", taxon_id=9606),
+            file_2=Source(short_name="hsapiens", taxon_id=9606),
+        )
+        MAPPING.paths = (FILE_MATE_1, FILE_MATE_2)
+        MAPPING.transcripts_file = FILE_TRANSCRIPTS
+        MAPPING.tmp_dir = tmpdir
+        test_instance = GetLibType(config=CONFIG,
+                                   mapping=MAPPING)
+        test_instance.results.file_1 = StatesType.single
+        test_instance.results.file_2 = StatesType.single
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"],
+            ids_2=["A", "B", "C"],
+        )
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.not_available
+        )
+
     def test_evaluate_mate_relationship_not_mates(self, tmpdir):
         """Test mate relationship evaluation logic with input files that are
         mates, but the relationship is not enough to trigger split_mates.
@@ -167,7 +195,7 @@ class TestGetLibType:
             StatesTypeRelationship.not_available
         )
 
-    def test_update_relationship_not_mates(self, tmpdir):
+    def test_update_relationship_type_not_mates(self, tmpdir):
         """Test update_relationship logic."""
         CONFIG.args.path_1_processed = FILE_IDS_NOT_MATCH_1
         CONFIG.args.path_2_processed = FILE_MATE_2
@@ -185,8 +213,8 @@ class TestGetLibType:
         concordant = 0
         read_counter = 20
 
-        # Call the _update_relationship method
-        test_instance._update_relationship(concordant, read_counter)
+        # Call the _update_relationship_type method
+        test_instance._update_relationship_type(concordant, read_counter)
 
         assert (
             test_instance.results.relationship ==
