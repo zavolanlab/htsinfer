@@ -155,9 +155,11 @@ class StatesType(Enum):
             that the library represents a single-end library.
     """
     first_mate = "first_mate"
+    first_mate_assumed = "first_mate_assumed"
     mixed_mates = "mixed_mates"
     not_available = None
     second_mate = "second_mate"
+    second_mate_assumed = "second_mate_assumed"
     single = "single"
 
 
@@ -438,7 +440,7 @@ class Args(BaseModel):
     lib_source_min_match_pct: float = 2
     lib_source_min_freq_ratio: float = 2
     lib_type_max_distance: int = 1000
-    lib_type_mates_cutoff: float = 0.95
+    lib_type_mates_cutoff: float = 0.85
     read_orientation_min_mapped_reads: int = 20
     read_orientation_min_fraction: float = 0.75
     path_1_processed: Path = Path()

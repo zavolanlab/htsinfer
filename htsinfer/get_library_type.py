@@ -127,6 +127,21 @@ plit_mates: 'split_mates'>)
                 self.mapping.library_type.relationship = (
                     StatesTypeRelationship.split_mates
                 )
+            # Infer mate relationship, even when assumed to be single
+            elif (
+                self.results.file_1 == StatesType.single and
+                self.results.file_2 == StatesType.single
+            ) and (
+                self.library_source.file_1.short_name is not None or
+                self.library_source.file_2.short_name is not None
+            ):
+                LOGGER.debug("Determining mate relationship by alignment...")
+                self.mapping.library_type.relationship \
+                    = StatesTypeRelationship.not_available
+                self.mapping.library_source = self.library_source
+                self.mapping.paths = self.path_1, self.path_2
+                self.mapping.evaluate()
+                self._align_mates()
         elif (
             self.library_source.file_1.short_name is not None or
             self.library_source.file_2.short_name is not None
@@ -209,15 +224,15 @@ plit_mates: 'split_mates'>)
         LOGGER.debug(f"Number of aligned reads file 2: {aligned_mate2}")
         LOGGER.debug(f"Number of concordant reads: {concordant}")
 
-        self._update_relationship(
+        self._update_relationship_type(
             concordant, min(aligned_mate1, aligned_mate2)
         )
 
         samfile1.close()
         samfile2.close()
 
-    def _update_relationship(self, concordant, aligned_reads):
-        """Helper function to update relationship based on alignment."""
+    def _update_relationship_type(self, concordant, aligned_reads):
+        """Helper function to update relationship and type."""
         try:
             ratio = concordant / aligned_reads
         except ZeroDivisionError:
@@ -238,6 +253,18 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.not_mates
                 )
+        if self.results.relationship == (
+            StatesTypeRelationship.split_mates
+        ) and (
+            self.results.file_1 == StatesType.single and
+            self.results.file_2 == StatesType.single
+        ) or (
+            self.results.file_1 == StatesType.not_available and
+            self.results.file_2 == StatesType.not_available
+        ):
+            # Update first and second relationship
+            self.results.file_1 = StatesType.first_mate_assumed
+            self.results.file_2 = StatesType.second_mate_assumed
 
     class AlignedSegment:
         """Placeholder class for mypy "Missing attribute"
