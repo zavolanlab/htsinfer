@@ -253,18 +253,20 @@ plit_mates: 'split_mates'>)
                 self.results.relationship = (
                     StatesTypeRelationship.not_mates
                 )
-        if self.results.relationship == (
-            StatesTypeRelationship.split_mates
-        ) and (
-            self.results.file_1 == StatesType.single and
-            self.results.file_2 == StatesType.single
-        ) or (
-            self.results.file_1 == StatesType.not_available and
-            self.results.file_2 == StatesType.not_available
-        ):
-            # Update first and second relationship
-            self.results.file_1 = StatesType.first_mate_assumed
-            self.results.file_2 = StatesType.second_mate_assumed
+            if (
+                self.results.relationship == (
+                    StatesTypeRelationship.split_mates
+                )
+                and (
+                    (self.results.file_1 == StatesType.single and
+                     self.results.file_2 == StatesType.single) or
+                    (self.results.file_1 == StatesType.not_available and
+                     self.results.file_2 == StatesType.not_available)
+                )
+            ):
+                # Update first and second relationship
+                self.results.file_1 = StatesType.first_mate_assumed
+                self.results.file_2 = StatesType.second_mate_assumed
 
     class AlignedSegment:
         """Placeholder class for mypy "Missing attribute"
