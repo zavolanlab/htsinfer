@@ -232,7 +232,7 @@ def parse_args() -> argparse.Namespace:
         dest="lib_type_mates_cutoff",
         metavar="FLOAT",
         type=float,
-        default=0.95,
+        default=0.85,
         help=(
             "minimum fraction of mates that can be mapped to compatible loci "
             "and are considered concordant pairs / all mates"

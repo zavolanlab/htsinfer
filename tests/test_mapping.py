@@ -187,7 +187,8 @@ class TestMapping:
         file1_alignment_path = tmpdir / 'alignments/file_1'
         cmd = "STAR --alignIntronMax 1 --alignEndsType Local --runThreadN 1" \
             + " --genomeDir " + str(index_dir) + " --outFilterMultimapNmax " \
-            + "50 --outSAMunmapped Within KeepPairs --readFilesIn " \
+            + "50 --outSAMorder PairedKeepInputOrder " \
+            + "--outSAMunmapped Within KeepPairs --readFilesIn " \
             + str(FILE_2000_RECORDS) + " --outFileNamePrefix " \
             + str(file1_alignment_path) + "/"
         results = test_instance.prepare_star_alignment_commands(
