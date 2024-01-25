@@ -213,16 +213,30 @@ class TestGetLibType:
         concordant = 0
         read_counter = 20
 
-        # Call the _update_relationship_type method
         test_instance._update_relationship_type(concordant, read_counter)
 
         assert (
             test_instance.results.relationship ==
             StatesTypeRelationship.not_mates
         )
+
+        # Simulate a scenario where ratio is above the cutoff
+        concordant = 20
+        read_counter = 20
+
+        test_instance._update_relationship_type(concordant, read_counter)
+
         assert (
-            test_instance.mapping.library_type.relationship ==
-            StatesTypeRelationship.not_available
+            test_instance.results.relationship ==
+            StatesTypeRelationship.split_mates
+        )
+        assert (
+            test_instance.results.file_1 ==
+            StatesType.first_mate_assumed
+        )
+        assert (
+            test_instance.results.file_2 ==
+            StatesType.second_mate_assumed
         )
 
     def test_evaluate_mate_relationship_not_determined(self, tmpdir):
