@@ -111,7 +111,7 @@ class TestGetLibType:
         assert (
             test_instance.results.relationship ==
             StatesTypeRelationship.split_mates
-        )
+        )       
 
     def test_evaluate_mate_relationship_assumed_single(self, tmpdir):
         """Test mate relationship evaluation logic with input files being
