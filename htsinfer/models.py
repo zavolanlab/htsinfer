@@ -339,8 +339,8 @@ class Results(BaseModel):
         read_layout: Read layout inference results.
     """
     library_stats: ResultsStats = ResultsStats()
-    library_type: ResultsType = ResultsType()
     library_source: ResultsSource = ResultsSource()
+    library_type: ResultsType = ResultsType()
     read_orientation: ResultsOrientation = ResultsOrientation()
     read_layout: ResultsLayout = ResultsLayout()
 

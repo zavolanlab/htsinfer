@@ -32,16 +32,6 @@ example library:
 
 ```json
 {
-   "library_source": {
-      "file_1": {
-         "short_name": "hsapiens",
-         "taxon_id": "9606"
-      },
-      "file_2": {
-         "short_name": "hsapiens",
-         "taxon_id": "9606"
-      }
-   },
    "library_stats": {
       "file_1": {
          "read_length": {
@@ -62,10 +52,25 @@ example library:
          }
       }
    },
+   "library_source": {
+      "file_1": {
+         "short_name": "hsapiens",
+         "taxon_id": "9606"
+      },
+      "file_2": {
+         "short_name": "hsapiens",
+         "taxon_id": "9606"
+      }
+   },
    "library_type": {
       "file_1": "first_mate",
       "file_2": "second_mate",
       "relationship": "split_mates"
+   },
+   "read_orientation": {
+      "file_1": "SF",
+      "file_2": "SR",
+      "relationship": "ISF"
    },
    "read_layout": {
       "file_1": {
@@ -76,11 +81,6 @@ example library:
          "adapt_3": "AATGATACGGCGACC",
          "polyA_frac": 10.0
       }
-   },
-   "read_orientation": {
-      "file_1": "SF",
-      "file_2": "SR",
-      "relationship": "ISF"
    }
 }
 ```
