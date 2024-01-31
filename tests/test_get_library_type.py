@@ -219,6 +219,36 @@ class TestGetLibType:
             test_instance.results.relationship ==
             StatesTypeRelationship.not_mates
         )
+        assert (
+            test_instance.mapping.library_type.relationship ==
+            StatesTypeRelationship.not_available
+        )
+
+    def test_evaluate_mate_relationship_not_determined(self, tmpdir):
+        """Test mate relationship evaluation logic when
+        library source is not determined.
+        """
+        CONFIG.args.path_1_processed = FILE_MATE_1
+        CONFIG.args.path_2_processed = FILE_MATE_2
+        CONFIG.args.t_file_processed = FILE_TRANSCRIPTS
+        CONFIG.args.tmp_dir = tmpdir
+        CONFIG.results.library_source = ResultsSource(
+            file_1=Source(),
+            file_2=Source(),
+        )
+        test_instance = GetLibType(config=CONFIG, mapping=MAPPING)
+        test_instance.results.file_1 = StatesType.not_available
+        test_instance.results.file_2 = StatesType.not_available
+
+        # Call the _evaluate_mate_relationship method
+        test_instance._evaluate_mate_relationship(
+            ids_1=["A", "B", "C"], ids_2=["D", "E", "F"]
+        )
+
+        assert (
+            test_instance.results.relationship ==
+            StatesTypeRelationship.not_available
+        )
 
         # Simulate a scenario where ratio is above the cutoff
         concordant = 20
