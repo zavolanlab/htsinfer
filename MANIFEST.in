@@ -2,6 +2,8 @@
 # are packaged. Therefore, this file lists only those files that are
 # version-controlled but should not end up in distributions.
 
+include data/*
+
 exclude .gitignore
 exclude .gitlab-ci.yaml
 exclude pull_request_template.md
