@@ -50,7 +50,8 @@ SeqIdFormats = Enum(  # type: ignore
         (
             'Casava >=1.8',
             re.compile(
-                r'(?P<prefix>\w+:\d+:\w+:\d+:\d+:\d+:\d+(:[ACGTN]\+[ACGTN])?)'
+                r'(?P<prefix>\w+:\d+:[\w-]+:\d+:\d+:\d+:\d+'
+                r'(:[ACGTN]\+[ACGTN])?)'
                 r'('
                 r'(?P<linker> )'
                 r'(?P<mate>[12])'
