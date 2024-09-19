@@ -17,7 +17,7 @@ import sys
 
 from sphinx.ext import apidoc
 
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -74,7 +74,7 @@ def run_apidoc(_):
         "--force",
         "--module-first",
         "-o", "./modules",
-        "../../htsinfer"
+        "../htsinfer"
     ] + ignore_paths
     apidoc.main(argv)
 

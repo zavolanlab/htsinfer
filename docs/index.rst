@@ -14,7 +14,7 @@ HTSinfer Documentation
 =======================
 
 .. toctree::
-   :caption: Contents:
+   :caption: Contents
 
    guides/installation
 
