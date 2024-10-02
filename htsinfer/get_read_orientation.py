@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import (Any, DefaultDict, Dict, List)
 
 import pysam  # type: ignore
+import pandas as pd  # type: ignore
 
 from htsinfer.exceptions import (
     FileProblem,
@@ -58,6 +59,7 @@ class GetOrientation:
         self.library_source = config.results.library_source
         self.transcripts_file = config.args.t_file_processed
         self.tmp_dir = config.args.tmp_dir
+        self.out_dir = config.args.out_dir
         self.min_mapped_reads = config.args.read_orientation_min_mapped_reads
         self.min_fraction = config.args.read_orientation_min_fraction
         self.mapping = mapping
@@ -183,6 +185,24 @@ class GetOrientation:
         LOGGER.debug(f"Number of reads mapped: {reads}")
         LOGGER.debug(f"Fraction of states: {fractions_all_states}")
         LOGGER.debug(f"Orientation: {orientation}")
+
+        # write data frame (in JSON) to file
+        filename = (
+            Path(self.out_dir) / f"read_layout_{sam.name}.json"
+        )
+        LOGGER.debug(f"Writing results to file: {filename}")
+        orientation_df = pd.DataFrame([{
+            'Number of mapped reads': reads,
+            'Fraction of states': fractions_all_states.get(StatesOrientation.stranded_forward, 0),
+            'Orientation': orientation
+        }])
+        orientation_df.to_json(
+            filename,
+            orient='split',
+            index=False,
+            indent=True,
+        )
+
         return orientation
 
     def process_paired(  # pylint: disable=R0912,R0915
