@@ -183,8 +183,13 @@ class GetOrientation:
             f"Required number of mapped reads pairs: {self.min_mapped_reads}"
         )
         LOGGER.debug(f"Number of reads mapped: {reads}")
-        LOGGER.debug(f"Fraction of states: {fractions_all_states}")
-        LOGGER.debug(f"Orientation: {orientation}")
+        LOGGER.debug(
+            f"Fraction of SF: {fractions_all_states.get(StatesOrientation.stranded_forward)}"
+        )
+        LOGGER.debug(
+            f"Fraction of SR: {fractions_all_states.get(StatesOrientation.stranded_reverse)}"
+        )
+        LOGGER.debug(f"Orientation: {orientation.value}")
 
         # write data frame (in JSON) to file
         filename = (
@@ -193,8 +198,9 @@ class GetOrientation:
         LOGGER.debug(f"Writing results to file: {filename}")
         orientation_df = pd.DataFrame([{
             'Number of mapped reads': reads,
-            'Fraction of states': fractions_all_states.get(StatesOrientation.stranded_forward, 0),
-            'Orientation': orientation
+            'Fraction SF': fractions_all_states.get(StatesOrientation.stranded_forward),
+            'Fraction SR': fractions_all_states.get(StatesOrientation.stranded_reverse),
+            'Orientation': orientation.value
         }])
         orientation_df.to_json(
             filename,
