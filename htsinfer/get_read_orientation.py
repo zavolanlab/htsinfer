@@ -178,31 +178,31 @@ class GetOrientation:
             else:
                 orientation = StatesOrientation.unstranded
 
-        # write log messages and return result
+        orient_df = pd.DataFrame([{
+            'Number of mapped reads': reads,
+            'Fraction SF': fractions[0].get(
+                StatesOrientation.stranded_forward
+            ),
+            'Fraction SR': fractions[0].get(
+                StatesOrientation.stranded_reverse
+            ),
+            'Orientation': orientation.value
+        }])
+
         LOGGER.debug(
-            f"Required number of mapped reads pairs: {self.min_mapped_reads}"
+            f"Required number of mapped reads: {self.min_mapped_reads}"
         )
-        LOGGER.debug(f"Number of reads mapped: {reads}")
-        LOGGER.debug(
-            f"Fraction of SF: {fractions_all_states.get(StatesOrientation.stranded_forward)}"
-        )
-        LOGGER.debug(
-            f"Fraction of SR: {fractions_all_states.get(StatesOrientation.stranded_reverse)}"
-        )
-        LOGGER.debug(f"Orientation: {orientation.value}")
+        LOGGER.debug(f"Number of mapped reads: {orient_df.iloc[0, 0]}")
+        LOGGER.debug(f"Fraction of SF: {orient_df.iloc[0, 1]}")
+        LOGGER.debug(f"Fraction of SR: {orient_df.iloc[0, 2]}")
+        LOGGER.debug(f"Orientation: {orient_df.iloc[0, 3]}")
 
         # write data frame (in JSON) to file
         filename = (
-            Path(self.out_dir) / f"read_layout_{sam.name}.json"
+            Path(self.out_dir) / f"read_orientation_{self.paths[0].name}.json"
         )
         LOGGER.debug(f"Writing results to file: {filename}")
-        orientation_df = pd.DataFrame([{
-            'Number of mapped reads': reads,
-            'Fraction SF': fractions_all_states.get(StatesOrientation.stranded_forward),
-            'Fraction SR': fractions_all_states.get(StatesOrientation.stranded_reverse),
-            'Orientation': orientation.value
-        }])
-        orientation_df.to_json(
+        orient_df.to_json(
             filename,
             orient='split',
             index=False,
