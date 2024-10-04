@@ -177,7 +177,7 @@ class GetAdapter3():
         ... ).evaluate()
         <"AAAAAAAAAAAAAAA">
     """
-    def __init__(
+    def __init__(  # pylint: disable=R0917
         self,
         path: Path,
         adapter_file: Path,
