@@ -378,7 +378,7 @@ class GetOrientation:
                 result[key] += num
         return dict(result)
 
-    def create_orient_df(
+    def create_orient_df(  # pylint: disable=R0917
             self,
             reads,
             fractions_all_states,
