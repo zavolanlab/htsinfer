@@ -189,6 +189,10 @@ class GetOrientation:
             'Orientation': orientation.value
         }])
 
+        orient_df = self.create_orient_df(
+            reads, fractions_all_states, orientation, paired=False
+        )
+
         LOGGER.debug(
             f"Required number of mapped reads: {self.min_mapped_reads}"
         )
@@ -197,17 +201,7 @@ class GetOrientation:
         LOGGER.debug(f"Fraction of SR: {orient_df.iloc[0, 2]}")
         LOGGER.debug(f"Orientation: {orient_df.iloc[0, 3]}")
 
-        # write data frame (in JSON) to file
-        filename = (
-            Path(self.out_dir) / f"read_orientation_{self.paths[0].name}.json"
-        )
-        LOGGER.debug(f"Writing results to file: {filename}")
-        orient_df.to_json(
-            filename,
-            orient='split',
-            index=False,
-            indent=True,
-        )
+        self.write_orientation_to_json(orient_df, self.paths[0].name)
 
         return orientation
 
@@ -319,28 +313,13 @@ class GetOrientation:
                 orientation.file_1 = StatesOrientation.unstranded
                 orientation.file_2 = StatesOrientation.unstranded
 
-        orient_df_1 = pd.DataFrame([{
-            'Number of mapped reads': reads,
-            'Fraction ISF': fractions_all_states.get(
-                StatesOrientationRelationship.inward_stranded_forward
-            ),
-            'Fraction ISR': fractions_all_states.get(
-                StatesOrientationRelationship.inward_stranded_reverse
-            ),
-            'Orientation': getattr(orientation.file_1, 'value', None),
-            'Relationship': getattr(orientation.relationship, 'value', None)
-        }])
-        orient_df_2 = pd.DataFrame([{
-            'Number of mapped reads': reads,
-            'Fraction ISF': fractions_all_states.get(
-                StatesOrientationRelationship.inward_stranded_forward
-            ),
-            'Fraction ISR': fractions_all_states.get(
-                StatesOrientationRelationship.inward_stranded_reverse
-            ),
-            'Orientation': getattr(orientation.file_2, 'value', None),
-            'Relationship': getattr(orientation.relationship, 'value', None)
-        }])
+        orient_df_1 = self.create_orient_df(
+            reads, fractions_all_states, orientation, paired=True, file_index=1
+        )
+        orient_df_2 = self.create_orient_df(
+            reads, fractions_all_states, orientation, paired=True, file_index=2
+        )
+
         LOGGER.debug(
             f"Required number of mapped reads: {self.min_mapped_reads}"
         )
@@ -352,26 +331,12 @@ class GetOrientation:
         LOGGER.debug(
             f"Orientation relationship: {orient_df_1.iloc[0, 4]}"
         )
-        filename_1 = (
-            Path(self.out_dir) / f"read_orientation_{self.paths[0].name}.json"
+
+        self.write_orientation_to_json(
+            orient_df_1, getattr(self.paths[0], 'name')
         )
-        LOGGER.debug(f"Writing results to file: {filename_1}")
-        orient_df_1.to_json(
-            filename_1,
-            orient='split',
-            index=False,
-            indent=True,
-        )
-        filename_2 = (
-            Path(self.out_dir) / f"read_orientation_"
-            f"{getattr(self.paths[1], 'name')}.json"
-        )
-        LOGGER.debug(f"Writing results to file: {filename_2}")
-        orient_df_2.to_json(
-            filename_2,
-            orient='split',
-            index=False,
-            indent=True,
+        self.write_orientation_to_json(
+            orient_df_2, getattr(self.paths[1], 'name')
         )
 
         return orientation
@@ -412,3 +377,77 @@ class GetOrientation:
             for key, num in dct.items():
                 result[key] += num
         return dict(result)
+
+    def create_orient_df(
+            self,
+            reads,
+            fractions_all_states,
+            orientation,
+            paired: bool,
+            file_index=None
+    ):
+        """Prepare DataFrame for orientation details.
+
+        Constructs a DataFrame with information about read orientation for
+        single or paired-end sequencing data.
+
+        Args:
+            reads: Number of mapped reads.
+            fractions_all_states: Dictionary containing the fraction
+                of each orientation state.
+            orientation: Orientation states.
+            paired: Indicates if the sequencing data is paired-end.
+            file_index: Specifies the index of the file for paired-end data
+                (1 or 2). Ignored for single-end data.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing orientation details.
+        """
+        if paired:
+            data = {
+                'Number of mapped reads': reads,
+                'Fraction ISF': fractions_all_states.get(
+                    StatesOrientationRelationship.inward_stranded_forward
+                ),
+                'Fraction ISR': fractions_all_states.get(
+                    StatesOrientationRelationship.inward_stranded_reverse
+                ),
+                'Orientation': getattr(
+                    orientation.file_1
+                    if file_index == 1 else orientation.file_2,
+                    'value',
+                    None
+                ),
+                'Relationship': getattr(
+                    orientation.relationship, 'value', None
+                )
+            }
+        else:
+            data = {
+                'Number of mapped reads': reads,
+                'Fraction SF': fractions_all_states.get(
+                    StatesOrientation.stranded_forward
+                ),
+                'Fraction SR': fractions_all_states.get(
+                    StatesOrientation.stranded_reverse
+                ),
+                'Orientation': orientation.value
+            }
+        return pd.DataFrame([data])
+
+    def write_orientation_to_json(self, orient_df, filename):
+        """Write orientation dataframe to a JSON file.
+
+        Serializes the provided orientation dataframe to a JSON file
+            with indentation.
+
+        Args:
+            orient_df: The dataframe containing orientation details.
+            filename: Name of the file to save the JSON data.
+
+        Returns:
+            None
+        """
+        file_path = Path(self.out_dir) / f"read_orientation_{filename}.json"
+        LOGGER.debug(f"Writing results to file: {file_path}")
+        orient_df.to_json(file_path, orient='split', index=False, indent=True)
