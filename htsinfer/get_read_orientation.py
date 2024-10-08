@@ -178,17 +178,6 @@ class GetOrientation:
             else:
                 orientation = StatesOrientation.unstranded
 
-        orient_df = pd.DataFrame([{
-            'Number of mapped reads': reads,
-            'Fraction SF': fractions[0].get(
-                StatesOrientation.stranded_forward
-            ),
-            'Fraction SR': fractions[0].get(
-                StatesOrientation.stranded_reverse
-            ),
-            'Orientation': orientation.value
-        }])
-
         orient_df = self.create_orient_df(
             reads, fractions_all_states, orientation, paired=False
         )
@@ -378,8 +367,8 @@ class GetOrientation:
                 result[key] += num
         return dict(result)
 
-    def create_orient_df(  # pylint: disable=R0917
-            self,
+    @staticmethod
+    def create_orient_df(
             reads,
             fractions_all_states,
             orientation,
