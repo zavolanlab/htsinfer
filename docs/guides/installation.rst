@@ -1,5 +1,5 @@
-Installation Guide
-==================
+Installation
+============
 
 This section describes how to install HTSinfer using Conda.
 

@@ -11,28 +11,23 @@ HTSinfer is a tool for high-throughput sequencing inference.
 This documentation will guide you through installation, usage, and the API reference.
 
 HTSinfer Documentation
-=======================
+----------------------
 
 .. toctree::
-   :caption: Contents
+   :maxdepth: 1
 
    guides/installation
-
-HTSinfer API docs
-=================
+   guides/usage
+   guides/examples
 
 .. toctree::
-   :caption: Modules
+   :caption: API Documentation
+   :maxdepth: 1
 
    modules/modules
 
-.. toctree::
-   :caption: Index
-
-   indices
-
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
