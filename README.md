@@ -9,6 +9,65 @@
 
 HTSinfer infers metadata from Illumina high-throughput sequencing (HTS) data.
 
+## Quick start
+## Installation
+
+In order to use the HTSinfer, clone the repository and install the
+dependencies via [Conda][conda]:
+
+```sh
+git clone https://github.com/zavolanlab/htsinfer
+cd htsinfer
+conda env create --file environment.yml
+# Alternatively, to install with development dependencies,
+# run the following instead
+conda env create --file environment-dev.yml
+```
+
+> Note that creating the environment takes non-trivial time and it is strongly
+> recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
+> in the previous command.
+
+Then, activate the `htsinfer` Conda environment with:
+
+```sh
+conda activate htsinfer
+```
+
+If you have installed the development/testing dependencies, you may first want
+to verify that HTSinfer was installed correctly by executing the tests shipped
+with the package:
+
+```sh
+python -m pytest
+```
+
+Otherwise just go ahead and try one of the [examples](#Examples).
+
+## General usage
+
+```sh
+htsinfer [--output-directory PATH]
+         [--temporary-directory PATH]
+         [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
+         [--records INT]
+         [--threads INT]
+         [--transcripts FASTA]
+         [--read-layout-adapters PATH]
+         [--read-layout-min-match-percentage FLOAT]
+         [--read-layout-min-frequency-ratio FLOAT]
+         [--library-source-min-match-percentage FLOAT]
+         [--library-source-min-frequency-ratio FLOAT]
+         [--library-type-max-distance INT]
+         [--library-type-mates-cutoff FLOAT]
+         [--read-orientation-min-mapped-reads INT]
+         [--read-orientation-min-fraction FLOAT]
+         [--tax-id INT]
+         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
+         [-h] [--version]
+         PATH [PATH]
+```
+
 ## Examples
 
 **Single-ended library***
@@ -91,63 +150,6 @@ model][docs-api-results] in the [API documentation][badge-url-docs]. Note that
 possible outcomes. Simply follow the references in each parent model for
 detailed descriptions of each child model's attributes.
 
-## General usage
-
-```sh
-htsinfer [--output-directory PATH]
-         [--temporary-directory PATH]
-         [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-         [--records INT]
-         [--threads INT]
-         [--transcripts FASTA]
-         [--read-layout-adapters PATH]
-         [--read-layout-min-match-percentage FLOAT]
-         [--read-layout-min-frequency-ratio FLOAT]
-         [--library-source-min-match-percentage FLOAT]
-         [--library-source-min-frequency-ratio FLOAT]
-         [--library-type-max-distance INT]
-         [--library-type-mates-cutoff FLOAT]
-         [--read-orientation-min-mapped-reads INT]
-         [--read-orientation-min-fraction FLOAT]
-         [--tax-id INT]
-         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
-         [-h] [--version]
-         PATH [PATH]
-```
-
-## Installation
-
-In order to use the HTSinfer, clone the repository and install the
-dependencies via [Conda][conda]:
-
-```sh
-git clone https://github.com/zavolanlab/htsinfer
-cd htsinfer
-conda env create --file environment.yml
-# Alternatively, to install with development dependencies,
-# run the following instead
-conda env create --file environment-dev.yml
-```
-
-> Note that creating the environment takes non-trivial time and it is strongly
-> recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
-> in the previous command.
-
-Then, activate the `htsinfer` Conda environment with:
-
-```sh
-conda activate htsinfer
-```
-
-If you have installed the development/testing dependencies, you may first want
-to verify that HTSinfer was installed correctly by executing the tests shipped
-with the package:
-
-```sh
-python -m pytest
-```
-
-Otherwise just go ahead and try one of the [examples](#Examples).
 
 ## API documentation
 
