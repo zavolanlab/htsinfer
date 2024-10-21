@@ -3,15 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to HTSinfer Documentation!
-==================================
+Welcome to the HTSinfer documentation pages!
+============================================
 
-HTSinfer is a tool for high-throughput sequencing inference.
+`HTSinfer` is a command-line tool that infers metadata from Illumina high-throughput sequencing (HTS) data. 
 
 This documentation will guide you through installation, usage, and the API reference.
 
-HTSinfer Documentation
-----------------------
+.. toctree::
+   :hidden:
+
+   Home <self>
+
+Documentation
+-------------
 
 .. toctree::
    :maxdepth: 1
@@ -21,7 +26,7 @@ HTSinfer Documentation
    guides/examples
 
 .. toctree::
-   :caption: API Documentation
+   :caption: API Overview
    :maxdepth: 1
 
    modules/modules

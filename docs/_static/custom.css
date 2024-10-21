@@ -1,0 +1,4 @@
+/* Increase font size for toctree elements */
+.toctree-l1 {
+    font-size: 18px;  /* Adjust the size as needed */
+}

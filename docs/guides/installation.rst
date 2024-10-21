@@ -1,12 +1,12 @@
 Installation
 ============
 
-This section describes how to install HTSinfer using Conda.
+This section describes how to install `HTSinfer` using Conda.
 
 Clone the Repository and Install Dependencies
 ---------------------------------------------
 
-To install HTSinfer, first clone the repository and install the dependencies via `Conda <https://docs.conda.io/en/latest/miniconda.html>`_:
+To install `HTSinfer`, first clone the repository and install the dependencies via `Conda <https://docs.conda.io/en/latest/miniconda.html>`_:
 
 .. code-block:: bash
 
@@ -33,7 +33,7 @@ After the installation is complete, activate the `htsinfer` Conda environment wi
 Verify the Installation (Optional)
 ----------------------------------
 
-If you have installed the development or testing dependencies, you can verify that HTSinfer was installed correctly by executing the tests shipped with the package:
+If you have installed the development or testing dependencies, you can verify that `HTSinfer` was installed correctly by executing the tests shipped with the package:
 
 .. code-block:: bash
 

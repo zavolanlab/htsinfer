@@ -1,6 +1,8 @@
 Usage
 =====
 
+This sections describes the general usage of `HTSinfer`.
+
 General Usage
 -------------
 
