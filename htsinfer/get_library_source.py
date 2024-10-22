@@ -164,7 +164,7 @@ class GetLibSource:
         )
 
         # process expression levels
-        tpm_df = self.get_source_expression(
+        counts_df = self.get_source_expression(
             kallisto_dir=kallisto_dir,
         )
 
@@ -173,7 +173,7 @@ class GetLibSource:
             Path(self.out_dir) / f"library_source_{fastq.name}.json"
         )
         LOGGER.debug(f"Writing results to file: {filename}")
-        tpm_df.to_json(
+        counts_df.to_json(
             filename,
             orient='split',
             index=False,
@@ -182,13 +182,13 @@ class GetLibSource:
 
         # validate results
         if validate_top_score(
-            vector=tpm_df['tpm'].to_list(),
+            vector=counts_df['est_counts'].to_list(),
             min_value=self.min_match_pct,
             min_ratio=self.min_freq_ratio,
             rev_sorted=True,
             accept_zero=True,
         ):
-            source.short_name, taxon_id = tpm_df.iloc[0]['source_ids']
+            source.short_name, taxon_id = counts_df.iloc[0]['source_ids']
             source.taxon_id = int(taxon_id)
 
         LOGGER.debug(f"Source: {source}")
@@ -254,10 +254,10 @@ class GetLibSource:
 
         Returns:
             Data frame with columns `source_ids` (a tuple of source short name
-                and taxon identifier, e.g., `("hsapiens", 9606)`) and `tpm`,
-                signifying the percentages of total expression per read source.
-                The data frame is sorted by total expression in descending
-                order.
+                and taxon identifier, e.g., `("hsapiens", 9606)`) and
+                `est_counts`, signifying the percentages of total expression
+                per read source. The data frame is sorted by total expression
+                in descending order.
 
         Raises:
             FileProblem: Kallisto quantification results could not be
@@ -283,7 +283,7 @@ class GetLibSource:
             )
 
         # handle case where no alignments are found
-        dat.tpm.fillna(0, inplace=True)
+        dat.est_counts.fillna(0, inplace=True)
 
         # aggregate expression by source identifiers
         dat[[
@@ -294,17 +294,17 @@ class GetLibSource:
             'taxon_id'
         ]] = dat.target_id.str.split('|', n=4, expand=True)
         dat['source_ids'] = list(zip(dat.short_name, dat.taxon_id))
-        total_tpm = dat.tpm.sum()
-        dat_agg = dat.groupby(['source_ids'])[['tpm']].agg('sum')
+        total_counts = dat.est_counts.sum()
+        dat_agg = dat.groupby(['source_ids'])[['est_counts']].agg('sum')
         dat_agg['source_ids'] = dat_agg.index
         dat_agg.reset_index(drop=True, inplace=True)
 
         # calculate percentages
-        if total_tpm != 0:
-            dat_agg.tpm = dat_agg.tpm / total_tpm * 100
+        if total_counts != 0:
+            dat_agg.est_counts = dat_agg.est_counts / total_counts * 100
 
         # return as dictionary
-        return dat_agg.sort_values(["tpm"], ascending=False)
+        return dat_agg.sort_values(["est_counts"], ascending=False)
 
     @staticmethod
     def get_source_name(
