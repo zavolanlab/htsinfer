@@ -186,8 +186,8 @@ class GetOrientation:
             f"Required number of mapped reads: {self.min_mapped_reads}"
         )
         LOGGER.info(f"Number of mapped reads: {orient_df.iloc[0, 0]}")
-        LOGGER.info(f"Fraction of SF: {round(orient_df.iloc[0, 1], 3)}")
-        LOGGER.info(f"Fraction of SR: {round(orient_df.iloc[0, 2], 3)}")
+        LOGGER.info(f"Fraction of SF: {orient_df.iloc[0, 1], 3}")
+        LOGGER.info(f"Fraction of SR: {orient_df.iloc[0, 2], 3}")
         LOGGER.debug(f"Orientation: {orient_df.iloc[0, 3]}")
 
         self.write_orientation_to_json(orient_df, self.paths[0].name)
@@ -313,8 +313,8 @@ class GetOrientation:
             f"Required number of mapped reads: {self.min_mapped_reads}"
         )
         LOGGER.info(f"Number of mapped reads: {orient_df_1.iloc[0, 0]}")
-        LOGGER.info(f"Fraction of ISF: {round(orient_df_1.iloc[0, 1], 3)}")
-        LOGGER.info(f"Fraction of ISR: {round(orient_df_1.iloc[0, 2], 3)}")
+        LOGGER.info(f"Fraction of ISF: {orient_df_1.iloc[0, 1], 3}")
+        LOGGER.info(f"Fraction of ISR: {orient_df_1.iloc[0, 2], 3}")
         LOGGER.debug(f"Orientation file 1: {orient_df_1.iloc[0, 3]}")
         LOGGER.debug(f"Orientation file 2: {orient_df_2.iloc[0, 3]}")
         LOGGER.debug(
