@@ -81,7 +81,7 @@ class GetOrientation:
             self.library_source.file_1.short_name is not None or
             self.library_source.file_2.short_name is not None
         ):
-            LOGGER.debug("Determining read relationship by alignment...")
+            LOGGER.info("Determining read relationship by alignment...")
             self.mapping.evaluate()
 
         return self.process_alignments(star_dirs=self.mapping.star_dirs)
@@ -155,7 +155,7 @@ class GetOrientation:
                 f"Failed to open SAM file: '{sam}'"
             ) from exc
 
-        LOGGER.debug("Deciding read orientation...")
+        LOGGER.info("Deciding read orientation...")
         reads = len(states)
         fractions = [
             self.get_frequencies(*state) for state in states.values()
@@ -182,12 +182,12 @@ class GetOrientation:
             reads, fractions_all_states, orientation, paired=False
         )
 
-        LOGGER.debug(
+        LOGGER.info(
             f"Required number of mapped reads: {self.min_mapped_reads}"
         )
-        LOGGER.debug(f"Number of mapped reads: {orient_df.iloc[0, 0]}")
-        LOGGER.debug(f"Fraction of SF: {orient_df.iloc[0, 1]}")
-        LOGGER.debug(f"Fraction of SR: {orient_df.iloc[0, 2]}")
+        LOGGER.info(f"Number of mapped reads: {orient_df.iloc[0, 0]}")
+        LOGGER.info(f"Fraction of SF: {round(orient_df.iloc[0, 1], 3)}")
+        LOGGER.info(f"Fraction of SR: {round(orient_df.iloc[0, 2], 3)}")
         LOGGER.debug(f"Orientation: {orient_df.iloc[0, 3]}")
 
         self.write_orientation_to_json(orient_df, self.paths[0].name)
@@ -268,7 +268,7 @@ class GetOrientation:
             ) from exc
 
         # deciding read orientation
-        LOGGER.debug("Deciding read orientation...")
+        LOGGER.info("Deciding read orientation...")
         reads = len(states)
         fractions = [
             self.get_frequencies(*state) for state in states.values()
@@ -309,12 +309,12 @@ class GetOrientation:
             reads, fractions_all_states, orientation, paired=True, file_index=2
         )
 
-        LOGGER.debug(
+        LOGGER.info(
             f"Required number of mapped reads: {self.min_mapped_reads}"
         )
-        LOGGER.debug(f"Number of mapped reads: {orient_df_1.iloc[0, 0]}")
-        LOGGER.debug(f"Fraction of ISF: {orient_df_1.iloc[0, 1]}")
-        LOGGER.debug(f"Fraction of ISR: {orient_df_1.iloc[0, 2]}")
+        LOGGER.info(f"Number of mapped reads: {orient_df_1.iloc[0, 0]}")
+        LOGGER.info(f"Fraction of ISF: {round(orient_df_1.iloc[0, 1], 3)}")
+        LOGGER.info(f"Fraction of ISR: {round(orient_df_1.iloc[0, 2], 3)}")
         LOGGER.debug(f"Orientation file 1: {orient_df_1.iloc[0, 3]}")
         LOGGER.debug(f"Orientation file 2: {orient_df_2.iloc[0, 3]}")
         LOGGER.debug(

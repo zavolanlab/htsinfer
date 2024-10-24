@@ -88,7 +88,8 @@ class GetLibStats:
             FileProblem: Could not process FASTQ file.
         """
         LOGGER.debug(
-            f"Extracting read length statistics in: {fastq}")
+            f"Extracting read length statistics in: {fastq}"
+        )
         min_len: int = 1000000
         max_len: int = 0
         total_lengths: int = 0

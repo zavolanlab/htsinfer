@@ -211,7 +211,7 @@ class GetLibSource:
         Raises:
             KallistoProblem: Kallisto quantification failed.
         """
-        LOGGER.debug(f"Running Kallisto quantification for: {fastq}")
+        LOGGER.info(f"Running Kallisto quantification for: {fastq}")
 
         with tempfile.TemporaryDirectory(
             prefix="kallisto_",
