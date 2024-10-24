@@ -6,6 +6,7 @@
 [![release_docker][badge-release-docker]][badge-url-release-docker]
 [![ci][badge-ci]][badge-url-ci]
 [![coverage][badge-coverage]][badge-url-coverage]
+[![DOI:zenodo][badge-doi-zenodo]][badge-url-doi-zenodo]
 
 HTSinfer infers metadata from Illumina high-throughput sequencing (HTS) data.
 
@@ -150,6 +151,63 @@ model][docs-api-results] in the [API documentation][badge-url-docs]. Note that
 possible outcomes. Simply follow the references in each parent model for
 detailed descriptions of each child model's attributes.
 
+## General usage
+
+```sh
+htsinfer [--output-directory PATH]
+         [--temporary-directory PATH]
+         [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
+         [--records INT]
+         [--threads INT]
+         [--transcripts FASTA]
+         [--read-layout-adapters PATH]
+         [--read-layout-min-match-percentage FLOAT]
+         [--read-layout-min-frequency-ratio FLOAT]
+         [--library-source-min-match-percentage FLOAT]
+         [--library-source-min-frequency-ratio FLOAT]
+         [--library-type-max-distance INT]
+         [--library-type-mates-cutoff FLOAT]
+         [--read-orientation-min-mapped-reads INT]
+         [--read-orientation-min-fraction FLOAT]
+         [--tax-id INT]
+         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
+         [-h] [--version]
+         PATH [PATH]
+```
+
+## Installation
+
+In order to use the HTSinfer, clone the repository and install the
+dependencies via [Conda][conda]:
+
+```sh
+git clone https://github.com/zavolanlab/htsinfer
+cd htsinfer
+conda env create --file environment.yml
+# Alternatively, to install with development dependencies,
+# run the following instead
+conda env create --file environment-dev.yml
+```
+
+> Note that creating the environment takes non-trivial time and it is strongly
+> recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
+> in the previous command.
+
+Then, activate the `htsinfer` Conda environment with:
+
+```sh
+conda activate htsinfer
+```
+
+If you have installed the development/testing dependencies, you may first want
+to verify that HTSinfer was installed correctly by executing the tests shipped
+with the package:
+
+```sh
+python -m pytest
+```
+
+Otherwise just go ahead and try one of the [examples](#Examples).
 
 ## API documentation
 
@@ -171,18 +229,20 @@ by email: <zavolab-biozentrum@unibas.ch>
 
 (c) 2020 [Zavolan lab, Biozentrum, University of Basel][contact]
 
-[badge-ci]: <https://travis-ci.com/zavolanlab/htsinfer.svg?branch=master>
+[badge-ci]: <https://github.com/zavolanlab/htsinfer/workflows/ci/badge.svg?branch=dev>
 [badge-coverage]: <https://codecov.io/gh/zavolanlab/htsinfer/branch/dev/graph/badge.svg?token=KYGJ9MUPHT>
 [badge-docs]: <https://readthedocs.org/projects/htsinfer/badge/?version=latest>
 [badge-license]: <https://img.shields.io/badge/license-Apache%202.0-blue.svg>
 [badge-release-docker]: <https://img.shields.io/docker/image-size/zavolab/htsinfer?color=C39BD3&label=docker>
 [badge-release-gh]: <https://img.shields.io/github/v/tag/zavolanlab/htsinfer?color=C39BD3>
-[badge-url-ci]: <https://travis-ci.com/zavolanlab/htsinfer>
+[badge-doi-zenodo]: <https://zenodo.org/badge/265279928.svg>
+[badge-url-ci]: <https://github.com/zavolanlab/htsinfer/actions?query=workflow%3Aci>
 [badge-url-coverage]: <https://codecov.io/gh/zavolanlab/htsinfer>
 [badge-url-docs]: <https://htsinfer.readthedocs.io/en/latest/?badge=latest>
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
 [badge-url-release-docker]: <https://hub.docker.com/repository/docker/zavolab/htsinfer>
 [badge-url-release-gh]: <https://github.com/zavolanlab/htsinfer/releases>
+[badge-url-doi-zenodo]: <https://doi.org/10.5281/zenodo.13985958>
 [conda]: <https://docs.conda.io/en/latest/miniconda.html>
 [contact]: <https://zavolan.biozentrum.unibas.ch/>
 [docs-api-results]: <https://htsinfer.readthedocs.io/en/latest/modules/htsinfer.html#htsinfer.models.Results>
