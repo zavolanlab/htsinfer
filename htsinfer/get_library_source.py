@@ -247,7 +247,7 @@ class GetLibSource:
     def get_source_expression(
         kallisto_dir: Path,
     ) -> DataFrame:
-        """Return percentages of total expression per read source.
+        """Return percentages of total estimated counts per read source.
 
         Args:
             kallisto_dir: Directory containing Kallisto quantification results.
@@ -255,9 +255,9 @@ class GetLibSource:
         Returns:
             Data frame with columns `source_ids` (a tuple of source short name
                 and taxon identifier, e.g., `("hsapiens", 9606)`) and
-                `est_counts`, signifying the percentages of total expression
-                per read source. The data frame is sorted by total expression
-                in descending order.
+                `est_counts`, signifying the percentages of total estimated
+                counts per read source. The data frame is sorted by total
+                estimated counts in descending order.
 
         Raises:
             FileProblem: Kallisto quantification results could not be
@@ -285,7 +285,7 @@ class GetLibSource:
         # handle case where no alignments are found
         dat.est_counts.fillna(0, inplace=True)
 
-        # aggregate expression by source identifiers
+        # aggregate counts by source identifiers
         dat[[
             'gene_symbol',
             'gene_id',
