@@ -60,8 +60,8 @@ class GetLibStats:
             self.fastq_get_stats_read_length(fastq=self.paths[0])
         )
         # process file 2
-        LOGGER.info(f"Obtaining statistics for file: {self.paths[1]}")
         if self.paths[1] is not None:
+            LOGGER.info(f"Obtaining statistics for file: {self.paths[1]}")
             (stats.file_2.read_length.min,
              stats.file_2.read_length.max,
              stats.file_2.read_length.mean,
@@ -88,7 +88,8 @@ class GetLibStats:
             FileProblem: Could not process FASTQ file.
         """
         LOGGER.debug(
-            f"Extracting read length statistics in: {fastq}")
+            f"Extracting read length statistics in: {fastq}"
+        )
         min_len: int = 1000000
         max_len: int = 0
         total_lengths: int = 0

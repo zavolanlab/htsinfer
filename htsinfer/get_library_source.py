@@ -83,7 +83,10 @@ class GetLibSource:
                 self.transcripts_file
             )
             source.file_1.short_name = src_name
-
+            LOGGER.info(
+                f'Library source taxonomy ID: {self.tax_id}, '
+                f'short name: {source.file_1.short_name}'
+            )
             if self.paths[1] is not None:
                 source.file_2.taxon_id = self.tax_id
                 source.file_2.short_name = source.file_1.short_name
@@ -211,7 +214,7 @@ class GetLibSource:
         Raises:
             KallistoProblem: Kallisto quantification failed.
         """
-        LOGGER.debug(f"Running Kallisto quantification for: {fastq}")
+        LOGGER.info(f"Running Kallisto quantification for: {fastq}")
 
         with tempfile.TemporaryDirectory(
             prefix="kallisto_",
