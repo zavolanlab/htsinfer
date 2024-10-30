@@ -83,7 +83,10 @@ class GetLibSource:
                 self.transcripts_file
             )
             source.file_1.short_name = src_name
-
+            LOGGER.info(
+                f'Library source taxonomy ID: {self.tax_id}, '
+                f'short name: {source.file_1.short_name}'
+            )
             if self.paths[1] is not None:
                 source.file_2.taxon_id = self.tax_id
                 source.file_2.short_name = source.file_1.short_name
@@ -164,7 +167,7 @@ class GetLibSource:
         )
 
         # process expression levels
-        tpm_df = self.get_source_expression(
+        counts_df = self.get_source_expression(
             kallisto_dir=kallisto_dir,
         )
 
@@ -173,7 +176,7 @@ class GetLibSource:
             Path(self.out_dir) / f"library_source_{fastq.name}.json"
         )
         LOGGER.debug(f"Writing results to file: {filename}")
-        tpm_df.to_json(
+        counts_df.to_json(
             filename,
             orient='split',
             index=False,
@@ -182,13 +185,13 @@ class GetLibSource:
 
         # validate results
         if validate_top_score(
-            vector=tpm_df['tpm'].to_list(),
+            vector=counts_df['est_counts'].to_list(),
             min_value=self.min_match_pct,
             min_ratio=self.min_freq_ratio,
             rev_sorted=True,
             accept_zero=True,
         ):
-            source.short_name, taxon_id = tpm_df.iloc[0]['source_ids']
+            source.short_name, taxon_id = counts_df.iloc[0]['source_ids']
             source.taxon_id = int(taxon_id)
 
         LOGGER.debug(f"Source: {source}")
@@ -211,7 +214,7 @@ class GetLibSource:
         Raises:
             KallistoProblem: Kallisto quantification failed.
         """
-        LOGGER.debug(f"Running Kallisto quantification for: {fastq}")
+        LOGGER.info(f"Running Kallisto quantification for: {fastq}")
 
         with tempfile.TemporaryDirectory(
             prefix="kallisto_",
@@ -247,17 +250,17 @@ class GetLibSource:
     def get_source_expression(
         kallisto_dir: Path,
     ) -> DataFrame:
-        """Return percentages of total expression per read source.
+        """Return percentages of total estimated counts per read source.
 
         Args:
             kallisto_dir: Directory containing Kallisto quantification results.
 
         Returns:
             Data frame with columns `source_ids` (a tuple of source short name
-                and taxon identifier, e.g., `("hsapiens", 9606)`) and `tpm`,
-                signifying the percentages of total expression per read source.
-                The data frame is sorted by total expression in descending
-                order.
+                and taxon identifier, e.g., `("hsapiens", 9606)`) and
+                `est_counts`, signifying the percentages of total estimated
+                counts per read source. The data frame is sorted by total
+                estimated counts in descending order.
 
         Raises:
             FileProblem: Kallisto quantification results could not be
@@ -283,9 +286,9 @@ class GetLibSource:
             )
 
         # handle case where no alignments are found
-        dat.tpm.fillna(0, inplace=True)
+        dat.est_counts.fillna(0, inplace=True)
 
-        # aggregate expression by source identifiers
+        # aggregate counts by source identifiers
         dat[[
             'gene_symbol',
             'gene_id',
@@ -294,17 +297,17 @@ class GetLibSource:
             'taxon_id'
         ]] = dat.target_id.str.split('|', n=4, expand=True)
         dat['source_ids'] = list(zip(dat.short_name, dat.taxon_id))
-        total_tpm = dat.tpm.sum()
-        dat_agg = dat.groupby(['source_ids'])[['tpm']].agg('sum')
+        total_counts = dat.est_counts.sum()
+        dat_agg = dat.groupby(['source_ids'])[['est_counts']].agg('sum')
         dat_agg['source_ids'] = dat_agg.index
         dat_agg.reset_index(drop=True, inplace=True)
 
         # calculate percentages
-        if total_tpm != 0:
-            dat_agg.tpm = dat_agg.tpm / total_tpm * 100
+        if total_counts != 0:
+            dat_agg.est_counts = dat_agg.est_counts / total_counts * 100
 
         # return as dictionary
-        return dat_agg.sort_values(["tpm"], ascending=False)
+        return dat_agg.sort_values(["est_counts"], ascending=False)
 
     @staticmethod
     def get_source_name(

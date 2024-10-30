@@ -135,7 +135,7 @@ plit_mates: 'split_mates'>)
                 self.library_source.file_1.short_name is not None or
                 self.library_source.file_2.short_name is not None
             ):
-                LOGGER.debug("Determining mate relationship by alignment...")
+                LOGGER.info("Determining mate relationship by alignment...")
                 self.mapping.library_type.relationship \
                     = StatesTypeRelationship.not_available
                 self.mapping.library_source = self.library_source
@@ -146,7 +146,7 @@ plit_mates: 'split_mates'>)
             self.library_source.file_1.short_name is not None or
             self.library_source.file_2.short_name is not None
         ):
-            LOGGER.debug("Determining mate relationship by alignment...")
+            LOGGER.info("Determining mate relationship by alignment...")
             self.mapping.library_type.relationship \
                 = StatesTypeRelationship.not_available
             self.mapping.library_source = self.library_source
@@ -155,7 +155,7 @@ plit_mates: 'split_mates'>)
             self._align_mates()
         else:
             self.results.relationship = StatesTypeRelationship.not_available
-            LOGGER.debug(
+            LOGGER.info(
                 "Sequence IDs and library source are not determined, "
                 "mate relationship cannot be inferred."
             )
@@ -220,9 +220,9 @@ plit_mates: 'split_mates'>)
         aligned_mate1 = len(list(filter(None, mate1)))
         aligned_mate2 = len(list(filter(None, mate2)))
 
-        LOGGER.debug(f"Number of aligned reads file 1: {aligned_mate1}")
-        LOGGER.debug(f"Number of aligned reads file 2: {aligned_mate2}")
-        LOGGER.debug(f"Number of concordant reads: {concordant}")
+        LOGGER.info(f"Number of aligned reads file 1: {aligned_mate1}")
+        LOGGER.info(f"Number of aligned reads file 2: {aligned_mate2}")
+        LOGGER.info(f"Number of concordant reads: {concordant}")
 
         self._update_relationship_type(
             concordant, min(aligned_mate1, aligned_mate2)
@@ -351,7 +351,7 @@ class GetFastqType():
             with open(self.path, encoding="utf-8") as _f:  # type: ignore
 
                 # Get sequence identifier format from first record
-                LOGGER.debug(
+                LOGGER.info(
                     "Determining identifier and library type from first "
                     "record..."
                 )
@@ -375,13 +375,13 @@ class GetFastqType():
                     raise FileProblem(f"File is empty: {self.path}") from exc
 
                 if self.seq_id_format is not None:
-                    LOGGER.debug(
+                    LOGGER.info(
                         "Sequence identifier format: "
                         f"{self.seq_id_format.name}"
                     )
                 else:
                     self.result = StatesType.not_available
-                    LOGGER.debug(
+                    LOGGER.info(
                         "Could not determine sequence identifier format."
                     )
 

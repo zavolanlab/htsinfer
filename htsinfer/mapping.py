@@ -355,7 +355,7 @@ class Mapping:
         Raises:
             StarProblem: Generating alignments failed.
         """
-        LOGGER.debug("Aligning reads with STAR...")
+        LOGGER.info("Aligning reads with STAR...")
 
         # execute commands
         for out_dir, cmd in commands.items():
