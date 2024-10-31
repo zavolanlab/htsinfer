@@ -5,7 +5,7 @@ FROM continuumio/miniconda3:4.12.0
 LABEL base_image="continuumio/miniconda3:4.12.0"
 LABEL version="1.0"
 LABEL software="HTSinfer"
-LABEL software.version="v0.9.0"
+LABEL software.version="v1.0.0"
 LABEL about.summary="HTSinfer infers metadata from Illumina high-throughput sequencing (HTS) data"
 LABEL about.home="https://github.com/zavolanlab/htsinfer"
 LABEL about.documentation="https://htsinfer.readthedocs.io/"
