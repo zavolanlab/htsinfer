@@ -1,13 +1,13 @@
 Examples
 ========
 
-HTSinfer provides easy-to-use commands for analyzing single- and paired-ended RNA-Seq libraries.
+`HTSinfer` provides easy-to-use commands for analyzing single- and paired-ended RNA-Seq libraries.
 
 
 Single-ended Library Example
 ----------------------------
 
-To run HTSinfer on a single-ended RNA-Seq library, use the following command:
+To run `HTSinfer` on a single-ended RNA-Seq library, use the following command:
 
 .. code-block:: bash
 
@@ -16,13 +16,13 @@ To run HTSinfer on a single-ended RNA-Seq library, use the following command:
 Paired-ended Library Example
 ----------------------------
 
-To run HTSinfer on a paired-ended RNA-Seq library, use the following command:
+To run `HTSinfer` on a paired-ended RNA-Seq library, use the following command:
 
 .. code-block:: bash
 
    htsinfer tests/files/adapter_1.fastq tests/files/adapter_2.fastq
 
-Both commands will output the results in JSON format to `STDOUT` and the log to `STDERR`.
+Both commands will output the results in JSON format to :code:`STDOUT` and the log to :code:`STDERR`.
 
 Example Output
 --------------
@@ -84,4 +84,4 @@ Here is a sample output for the paired-ended library:
       }
    }
 
-For more details on the output structure, refer to the `Results` model in the API documentation.
+For more details on the output structure, refer to the :code:`Results` model in the API documentation.

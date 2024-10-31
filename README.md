@@ -11,23 +11,19 @@
 HTSinfer infers metadata from Illumina high-throughput sequencing (HTS) data.
 
 ## Quick start
-## Installation
+
+For a more in-depth guide please refer to the [HTSinfer documentation][docs-documentation].
+
+### Installation
 
 In order to use the HTSinfer, clone the repository and install the
-dependencies via [Conda][conda]:
+dependencies via [Conda][conda] or [Mamba][mamba]:
 
 ```sh
 git clone https://github.com/zavolanlab/htsinfer
 cd htsinfer
 conda env create --file environment.yml
-# Alternatively, to install with development dependencies,
-# run the following instead
-conda env create --file environment-dev.yml
 ```
-
-> Note that creating the environment takes non-trivial time and it is strongly
-> recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
-> in the previous command.
 
 Then, activate the `htsinfer` Conda environment with:
 
@@ -35,17 +31,7 @@ Then, activate the `htsinfer` Conda environment with:
 conda activate htsinfer
 ```
 
-If you have installed the development/testing dependencies, you may first want
-to verify that HTSinfer was installed correctly by executing the tests shipped
-with the package:
-
-```sh
-python -m pytest
-```
-
-Otherwise just go ahead and try one of the [examples](#Examples).
-
-## General usage
+### General usage
 
 ```sh
 htsinfer [--output-directory PATH]
@@ -69,15 +55,15 @@ htsinfer [--output-directory PATH]
          PATH [PATH]
 ```
 
-## Examples
+### Examples
 
-**Single-ended library***
+**Single-ended library**
 
 ```sh
 htsinfer tests/files/adapter_single.fastq
 ```
 
-**Paired-ended library***
+**Paired-ended library**
 
 ```sh
 htsinfer tests/files/adapter_1.fastq tests/files/adapter_2.fastq
@@ -146,74 +132,13 @@ example library:
 ```
 
 To better understand the output, please refer to the [`Results`
-model][docs-api-results] in the [API documentation][badge-url-docs]. Note that
-`Results` model has several nested child models, such as enumerators of
-possible outcomes. Simply follow the references in each parent model for
-detailed descriptions of each child model's attributes.
+model][docs-api-results] in the [API documentation][badge-url-docs].
 
-## General usage
-
-```sh
-htsinfer [--output-directory PATH]
-         [--temporary-directory PATH]
-         [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-         [--records INT]
-         [--threads INT]
-         [--transcripts FASTA]
-         [--read-layout-adapters PATH]
-         [--read-layout-min-match-percentage FLOAT]
-         [--read-layout-min-frequency-ratio FLOAT]
-         [--library-source-min-match-percentage FLOAT]
-         [--library-source-min-frequency-ratio FLOAT]
-         [--library-type-max-distance INT]
-         [--library-type-mates-cutoff FLOAT]
-         [--read-orientation-min-mapped-reads INT]
-         [--read-orientation-min-fraction FLOAT]
-         [--tax-id INT]
-         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
-         [-h] [--version]
-         PATH [PATH]
-```
-
-## Installation
-
-In order to use the HTSinfer, clone the repository and install the
-dependencies via [Conda][conda]:
-
-```sh
-git clone https://github.com/zavolanlab/htsinfer
-cd htsinfer
-conda env create --file environment.yml
-# Alternatively, to install with development dependencies,
-# run the following instead
-conda env create --file environment-dev.yml
-```
-
-> Note that creating the environment takes non-trivial time and it is strongly
-> recommended that you install [Mamba][mamba] and replace `conda` with `mamba`
-> in the previous command.
-
-Then, activate the `htsinfer` Conda environment with:
-
-```sh
-conda activate htsinfer
-```
-
-If you have installed the development/testing dependencies, you may first want
-to verify that HTSinfer was installed correctly by executing the tests shipped
-with the package:
-
-```sh
-python -m pytest
-```
-
-Otherwise just go ahead and try one of the [examples](#Examples).
-
-## API documentation
+### API documentation
 
 Auto-built API documentation is hosted on [ReadTheDocs][badge-url-docs].
 
-## Contributing
+### Contributing
 
 This project lives off your contributions, be it in the form of bug reports,
 feature requests, discussions, or fixes and other code changes. Please refer
@@ -221,7 +146,7 @@ to the [contributing guidelines](CONTRIBUTING.md) if you are interested to
 contribute. Please mind the [code of conduct](CODE_OF_CONDUCT.md) for all
 interactions with the community.
 
-## Contact
+### Contact
 
 For questions or suggestions regarding the code, please use the
 [issue tracker][issue-tracker]. For any other inquiries, please contact us
@@ -245,6 +170,7 @@ by email: <zavolab-biozentrum@unibas.ch>
 [badge-url-doi-zenodo]: <https://doi.org/10.5281/zenodo.13985958>
 [conda]: <https://docs.conda.io/en/latest/miniconda.html>
 [contact]: <https://zavolan.biozentrum.unibas.ch/>
+[docs-documentation]: <https://htsinfer.readthedocs.io/>
 [docs-api-results]: <https://htsinfer.readthedocs.io/en/latest/modules/htsinfer.html#htsinfer.models.Results>
 [issue-tracker]: <https://github.com/zavolanlab/htsinfer/issues>
 [mamba]: <https://mamba.readthedocs.io/en/latest/installation.html>

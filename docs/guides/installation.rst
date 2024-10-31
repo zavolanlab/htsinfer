@@ -19,12 +19,12 @@ To install `HTSinfer`, first clone the repository and install the dependencies v
 
 .. note::
 
-   Creating the environment may take some time. It is strongly recommended to install `Mamba <https://mamba.readthedocs.io/en/latest/installation.html>`_ and replace ``conda`` with ``mamba`` in the previous commands for faster installation.
+   Creating the environment may take some time. It is strongly recommended to install `Mamba <https://mamba.readthedocs.io/en/latest/installation.html>`_ and replace :code:`conda` with :code:`mamba` in the previous commands for faster installation.
 
 Activate the Conda Environment
 ------------------------------
 
-After the installation is complete, activate the `htsinfer` Conda environment with:
+After the installation is complete, activate the :code:`htsinfer` Conda environment with:
 
 .. code-block:: bash
 
