@@ -1,4 +1,4 @@
-from htsinfer import __version__
+from htsinfer.version import __version__
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -48,9 +48,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
     '_build',
-    'api/yourpackage.rst',
     'setup.py',
-    'Thumbs.db',
     '.DS_Store',
     '.eggs'
 ]
