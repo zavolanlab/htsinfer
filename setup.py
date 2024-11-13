@@ -1,8 +1,8 @@
 """HTSinfer package definition"""
 
-from setuptools import setup, find_packages
+from setuptools import (setup, find_packages)
 
-from htsinfer import __version__
+from htsinfer.version import __version__
 
 # Read long description from file
 with open("README.md", "r", encoding="utf-8") as fh:
