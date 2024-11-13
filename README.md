@@ -3,12 +3,12 @@
 [![license][badge-license]][badge-url-license]
 [![docs][badge-docs]][badge-url-docs]
 [![release_gh][badge-release-gh]][badge-url-release-gh]
-[![release_docker][badge-release-docker]][badge-url-release-docker]
 [![ci][badge-ci]][badge-url-ci]
 [![coverage][badge-coverage]][badge-url-coverage]
+[![release_biocontainer][badge-release-biocontainer]][badge-url-release-biocontainer]
 [![DOI:zenodo][badge-doi-zenodo]][badge-url-doi-zenodo]
 
-HTSinfer infers metadata from Illumina high-throughput sequencing (HTS) data.
+HTSinfer infers RNA-Seq metadata from Illumina high-throughput sequencing (HTS) data.
 
 ## Quick start
 
@@ -16,13 +16,12 @@ For a more in-depth guide please refer to the [HTSinfer documentation][docs-docu
 
 ### Installation
 
-In order to use the HTSinfer, clone the repository and install the
-dependencies via [Conda][conda] or [Mamba][mamba]:
+HTSinfer is available as part of the [Bioconda][bioconda-release] channel, therefore the preferred installation method is via [Mamba][mamba] or [Conda][conda].
+
+To create a new Conda environment with HTSinfer and its dependencies installed, run:
 
 ```sh
-git clone https://github.com/zavolanlab/htsinfer
-cd htsinfer
-conda env create --file environment.yml
+mamba create --name htsinfer bioconda::htsinfer
 ```
 
 Then, activate the `htsinfer` Conda environment with:
@@ -31,27 +30,16 @@ Then, activate the `htsinfer` Conda environment with:
 conda activate htsinfer
 ```
 
+To install HTSinfer in your current environment, run:
+
+```sh
+mamba install bioconda::htsinfer
+```
+
 ### General usage
 
 ```sh
-htsinfer [--output-directory PATH]
-         [--temporary-directory PATH]
-         [--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}]
-         [--records INT]
-         [--threads INT]
-         [--transcripts FASTA]
-         [--read-layout-adapters PATH]
-         [--read-layout-min-match-percentage FLOAT]
-         [--read-layout-min-frequency-ratio FLOAT]
-         [--library-source-min-match-percentage FLOAT]
-         [--library-source-min-frequency-ratio FLOAT]
-         [--library-type-max-distance INT]
-         [--library-type-mates-cutoff FLOAT]
-         [--read-orientation-min-mapped-reads INT]
-         [--read-orientation-min-fraction FLOAT]
-         [--tax-id INT]
-         [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}]
-         [-h] [--version]
+htsinfer [-h] [--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}] [--version]       
          PATH [PATH]
 ```
 
@@ -131,14 +119,13 @@ example library:
 }
 ```
 
-To better understand the output, please refer to the [`Results`
-model][docs-api-results] in the [API documentation][badge-url-docs].
+To better understand the output, please refer to the [`Results`][docs-api-results] model in the [API documentation][badge-url-docs].
 
-### API documentation
+## Versioning
 
-Auto-built API documentation is hosted on [ReadTheDocs][badge-url-docs].
+The project follows the [Semantic Versioning][semver] guidelines for version management. Currently, the service is in its beta phase, meaning API breaking changes or updates may occur without prior notice.
 
-### Contributing
+## Contributing
 
 This project lives off your contributions, be it in the form of bug reports,
 feature requests, discussions, or fixes and other code changes. Please refer
@@ -146,7 +133,7 @@ to the [contributing guidelines](CONTRIBUTING.md) if you are interested to
 contribute. Please mind the [code of conduct](CODE_OF_CONDUCT.md) for all
 interactions with the community.
 
-### Contact
+## Contact
 
 For questions or suggestions regarding the code, please use the
 [issue tracker][issue-tracker]. For any other inquiries, please contact us
@@ -158,17 +145,19 @@ by email: <zavolab-biozentrum@unibas.ch>
 [badge-coverage]: <https://codecov.io/gh/zavolanlab/htsinfer/branch/dev/graph/badge.svg?token=KYGJ9MUPHT>
 [badge-docs]: <https://readthedocs.org/projects/htsinfer/badge/?version=latest>
 [badge-license]: <https://img.shields.io/badge/license-Apache%202.0-blue.svg>
-[badge-release-docker]: <https://img.shields.io/docker/image-size/zavolab/htsinfer?color=C39BD3&label=docker>
+[badge-release-biocontainer]: <https://img.shields.io/badge/BioContainer-%20htsinfer-blue?style=flat.svg>
 [badge-release-gh]: <https://img.shields.io/github/v/tag/zavolanlab/htsinfer?color=C39BD3>
 [badge-doi-zenodo]: <https://zenodo.org/badge/265279928.svg>
 [badge-url-ci]: <https://github.com/zavolanlab/htsinfer/actions?query=workflow%3Aci>
 [badge-url-coverage]: <https://codecov.io/gh/zavolanlab/htsinfer>
 [badge-url-docs]: <https://htsinfer.readthedocs.io/en/latest/?badge=latest>
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
-[badge-url-release-docker]: <https://hub.docker.com/repository/docker/zavolab/htsinfer>
+[badge-url-release-biocontainer]: <https://quay.io/repository/biocontainers/htsinfer>
 [badge-url-release-gh]: <https://github.com/zavolanlab/htsinfer/releases>
 [badge-url-doi-zenodo]: <https://doi.org/10.5281/zenodo.13985958>
 [conda]: <https://docs.conda.io/en/latest/miniconda.html>
+[bioconda-release]: <https://anaconda.org/bioconda/htsinfer>
+[semver]: <https://semver.org/>
 [contact]: <https://zavolan.biozentrum.unibas.ch/>
 [docs-documentation]: <https://htsinfer.readthedocs.io/>
 [docs-api-results]: <https://htsinfer.readthedocs.io/en/latest/modules/htsinfer.html#htsinfer.models.Results>
