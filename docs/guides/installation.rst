@@ -50,7 +50,7 @@ After the installation is complete, activate the :code:`htsinfer` Conda environm
 
    conda activate htsinfer
 
-Verify the Installation (Optional)
+Verify the installation (optional)
 ----------------------------------
 
 If you have installed the development or testing dependencies, you can verify that `HTSinfer` was installed correctly by executing the tests shipped with the package:

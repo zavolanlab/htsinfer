@@ -3,7 +3,7 @@ Usage
 
 This section describes the general usage of `HTSinfer`.
 
-General Usage
+General usage
 -------------
 
 .. code-block:: bash
@@ -30,7 +30,7 @@ General Usage
 
 The above command allows the user to infer metadata for single- or paired-ended RNA-Seq libraries by specifying file paths and relevant parameters. The tool outputs metadata in JSON format to :code:`STDOUT` and logs to :code:`STDERR`.
 
-Command-line Options
+Command-line options
 ---------------------
 
 Available command-line parameters are categorized as follows:
