@@ -35,43 +35,56 @@ Command-line Options
 
 Available command-line parameters are categorized as follows:
 
-.. table:: General Options
-    :widths: 25, 75
+.. list-table:: General Options
+   :widths: 40 60
 
-.. table:: General Options
-   :widths: 25, 75
+   * - :code:`--output-directory`
+     - Path where output data will be saved. 
+   * - :code:`--temporary-directory`
+     - Path for storing temporary files generated during execution.
+   * - :code:`--cleanup-regime`
+     - Specifies which data should be kept after completion. Options are: :code:`DEFAULT, KEEP_ALL, KEEP_NONE, KEEP_RESULTS`
+   * - :code:`--verbosity`
+     - Controls the verbosity level of log output. Options are: :code:`DEBUG, INFO, WARN, ERROR, CRITICAL`
+   * - :code:`-h, --help`
+     - Show help screen and exit.
+   * - :code:`-v, --version`
+     - Show version information and exit.
 
-   | Option | Description |
-   |---|---|
-   | :code:`--output-directory PATH` | Path where output data will be saved. |
-   | :code:`--temporary-directory PATH` | Path for storing temporary files generated during execution. |
-   | :code:`--cleanup-regime {DEFAULT,KEEP_ALL,KEEP_NONE,KEEP_RESULTS}` | Specifies which data should be kept after completion. |
-   | :code:`--verbosity {DEBUG,INFO,WARN,ERROR,CRITICAL}` | Controls the verbosity level of log output. |
-   | :code:`-h, --help` | Show help screen and exit. |
-   | :code:`--version` | Show version information and exit. |
 
-.. table:: Library-specific Options
-   :widths: 25, 75
+.. list-table:: Processing and Performance Options
+   :widths: 40 60
 
-   | Option | Description |
-   |---|---|
-   | `PATH [PATH]` | Path(s) to the RNA-Seq input data. For paired-end libraries, provide paths to both mate files. |
-   | `--transcripts FASTA` | Path to the FASTA file containing transcript sequences for reference. |
-   | `--read-layout-adapters PATH` | Path to a file with 3' adapter sequences (one sequence per line) used to identify adapter content. |
-   | `--read-layout-min-match-percentage FLOAT` | Minimum percentage of reads containing an adapter for it to be considered as the library’s 3’-end adapter. |
-   | `--read-layout-min-frequency-ratio FLOAT` | Minimum frequency ratio between the most and second most frequent adapters to select the 3’-end adapter. |
-   | `--library-source-min-match-percentage FLOAT` | Minimum percentage of reads aligning with a library source for it to be considered representative of the library. |
-   | `--library-source-min-frequency-ratio FLOAT` | Minimum frequency ratio between primary and secondary library sources, ensuring only the most prominent source is identified. |
-   | `--library-type-max-distance INT` | Maximum allowable distance between read pairs to classify the library type. |
-   | `--library-type-mates-cutoff FLOAT` | Ratio cutoff to determine the consistency of mate orientation in paired-end reads. |
-   | `--read-orientation-min-mapped-reads INT` | Minimum number of mapped reads to ensure reliable inference of read orientation. |
-   | `--read-orientation-min-fraction FLOAT` | Minimum fraction (must exceed 0.5) of reads supporting a given orientation to confirm its accuracy. |
+   * - :code:`--records`
+     - Limits the number of input records to process; setting this to 0 will process all records.
+   * - :code:`--threads`
+     - Specifies the number of threads for STAR to optimize performance.
+   * - :code:`--tax-id`
+     - Taxonomy ID for the sample source, aiding in organism-specific analyses.
 
-.. table:: Processing and Performance Options
-   :widths: 25, 75
+.. list-table:: Library-specific Options
+   :widths: 40 60
 
-   | Option | Description |
-   |---|---|
-   | `--records INT` | Limits the number of input records to process; setting this to 0 will process all records. |
-   | `--threads INT` | Specifies the number of threads for concurrent processing to optimize performance. |
-   | `--tax-id INT` | Taxonomy ID for the sample source, aiding in organism-specific analyses. |
+   * - :code:`PATH [PATH]`
+     - Path(s) to the RNA-Seq input data. For paired-end libraries, provide paths to both mate files.
+   * - :code:`--transcripts`
+     - Path to the FASTA file containing transcript sequences for reference.
+   * - :code:`--read-layout-adapters`
+     - Path to a file with 3' adapter sequences (one sequence per line) used to identify adapter content.
+   * - :code:`--read-layout-min-match-percentage`
+     - Minimum percentage of reads containing an adapter for\n it to be considered as the library’s 3’-end adapter.
+   * - :code:`--read-layout-min-frequency-ratio`
+     - Minimum frequency ratio between the most and second most frequent adapters to select the 3’-end adapter.
+   * - :code:`--library-source-min-match-percentage`
+     - Minimum percentage of reads aligning with a library source for it to be considered representative of the library.
+   * - :code:`--library-source-min-frequency-ratio`
+     - Minimum frequency ratio between primary and secondary library sources,
+       ensuring only the most prominent source is identified.
+   * - :code:`--library-type-max-distance`
+     - Maximum allowable distance between read pairs to classify the library type.
+   * - :code:`--library-type-mates-cutoff`
+     - Ratio cutoff to determine the consistency of mate orientation in paired-end reads.
+   * - :code:`--read-orientation-min-mapped-reads`
+     - Minimum number of mapped reads to ensure reliable inference of read orientation.
+   * - :code:`--read-orientation-min-fraction`
+     - Minimum fraction (must exceed 0.5) of reads supporting a given orientation to confirm its accuracy.
