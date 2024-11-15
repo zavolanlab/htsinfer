@@ -328,14 +328,16 @@ class Results(BaseModel):
     functionalities.
 
     Args:
+        library_stats: Read length statistics results.
         library_type: Library type inference results.
         library_source: Library source inference results.
-        orientation: Read orientation inference results.
+        read_orientation: Read orientation inference results.
         read_layout: Read layout inference results.
 
-    Args:
-        type: Library type inference results.
-        source: Library source inference results.
+    Attributes:
+        library_stats: Read length statistics results.
+        library_type: Library type inference results.
+        library_source: Library source inference results.
         read_orientation: Read orientation inference results.
         read_layout: Read layout inference results.
     """
