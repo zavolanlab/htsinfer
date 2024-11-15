@@ -15,10 +15,8 @@ This documentation will guide you through installation and usage. It also contai
 
    Home <self>
 
-Documentation
--------------
-
 .. toctree::
+   :caption: Documentation
    :maxdepth: 1
 
    guides/installation
@@ -26,14 +24,9 @@ Documentation
    guides/examples
 
 .. toctree::
-   :caption: API Overview
+   :caption: API overview
    :maxdepth: 1
 
    modules/modules
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
+   indices_and_tables
 
