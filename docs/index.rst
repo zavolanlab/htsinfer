@@ -6,9 +6,9 @@
 Welcome to the HTSinfer documentation pages!
 ============================================
 
-`HTSinfer` is a command-line tool that infers metadata from Illumina high-throughput sequencing (HTS) data. 
+`HTSinfer` is a command-line tool that infers RNA-Seq metadata from Illumina high-throughput sequencing (HTS) data. 
 
-This documentation will guide you through installation, usage, and the API reference.
+This documentation will guide you through installation and usage. It also contains an API reference.
 
 .. toctree::
    :hidden:
