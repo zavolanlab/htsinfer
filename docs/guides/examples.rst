@@ -87,10 +87,10 @@ Here is a sample output for the paired-ended library:
 Results
 -------
 
-For more details on the output structure, refer to the :code:`Results` model in the API documentation.
-
 - :code:`library_stats`: Read length statistics results, including the minimum, maximum, mean, median and mode.
 - :code:`library_source`: Library source inference results, with the short name and NCBI taxonomy ID of the source organism.
 - :code:`library_type`: Library type inference results, single- or paired-end. In case of paired-end samples, the mate designation.
 - :code:`read_orientation`: Read orientation inference results, based on the fragment library types notation from `Salmon <https://salmon.readthedocs.io/en/latest/library_type.html>`_.
 - :code:`read_layout`: Read layout inference results, including the 3'-adapter sequence and the poly(A) fraction. 
+
+For more details on the output structure, refer to the :code:`Results` model in the API documentation.

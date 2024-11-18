@@ -16,24 +16,10 @@ For a more in-depth guide please refer to the [HTSinfer documentation][docs-docu
 
 ### Installation
 
-HTSinfer is available as part of the [Bioconda][bioconda-release] channel, therefore the preferred installation method is via [Mamba][mamba] or [Conda][conda].
-
-To create a new Conda environment with HTSinfer and its dependencies installed, run:
+HTSinfer is available on [Bioconda][bioconda-release]. To install it in your currently active [Conda][conda] environment, run:
 
 ```sh
-mamba create --name htsinfer bioconda::htsinfer
-```
-
-Then, activate the `htsinfer` Conda environment with:
-
-```sh
-conda activate htsinfer
-```
-
-To install HTSinfer in your current environment, run:
-
-```sh
-mamba install bioconda::htsinfer
+conda install bioconda::htsinfer
 ```
 
 ### General usage
@@ -119,11 +105,13 @@ example library:
 }
 ```
 
-To better understand the output, please refer to the [`Results`][docs-api-results] model in the [API documentation][badge-url-docs].
+To better understand the output, please refer to the [`Results`][docs-results]
+section in the [documentation][badge-url-docs].
 
 ## Versioning
 
-The project follows the [Semantic Versioning][semver] guidelines for version management. Currently, the service is in its beta phase, meaning API breaking changes or updates may occur without prior notice.
+The project follows the [Semantic Versioning][semver] guidelines for version management. 
+Currently, the service is in its beta phase, meaning API breaking changes or updates may occur without prior notice.
 
 ## Contributing
 
@@ -160,6 +148,6 @@ by email: <zavolab-biozentrum@unibas.ch>
 [semver]: <https://semver.org/>
 [contact]: <https://zavolan.biozentrum.unibas.ch/>
 [docs-documentation]: <https://htsinfer.readthedocs.io/>
-[docs-api-results]: <https://htsinfer.readthedocs.io/en/latest/modules/htsinfer.html#htsinfer.models.Results>
+[docs-results]: <https://htsinfer.readthedocs.io/en/latest/guides/examples.html#results>
 [issue-tracker]: <https://github.com/zavolanlab/htsinfer/issues>
 [mamba]: <https://mamba.readthedocs.io/en/latest/installation.html>

@@ -35,8 +35,10 @@ Command-line options
 
 Available command-line parameters are categorized as follows:
 
-.. list-table:: General Options
-   :widths: 40 60
+**General options**
+
+.. list-table::
+   :widths: 30 70
 
    * - :code:`--output-directory`
      - Path where output data will be saved. 
@@ -52,8 +54,10 @@ Available command-line parameters are categorized as follows:
      - Show version information and exit.
 
 
-.. list-table:: Processing and Performance Options
-   :widths: 40 60
+**Processing and performance options**
+
+.. list-table::
+   :widths: 30 70
 
    * - :code:`--records`
      - Limits the number of input records to process; setting this to 0 will process all records.
@@ -62,29 +66,51 @@ Available command-line parameters are categorized as follows:
    * - :code:`--tax-id`
      - Taxonomy ID for the sample source, aiding in organism-specific analyses.
 
-.. list-table:: Library-specific Options
-   :widths: 40 60
+
+**Library-specific options**
+
+.. list-table::
+   :widths: 30 70
 
    * - :code:`PATH [PATH]`
-     - Path(s) to the RNA-Seq input data. For paired-end libraries, provide paths to both mate files.
+     - |  
+       | Path(s) to the RNA-Seq input data. 
+       | For paired-end libraries, provide paths to both mate files.
    * - :code:`--transcripts`
      - Path to the FASTA file containing transcript sequences for reference.
    * - :code:`--read-layout-adapters`
-     - Path to a file with 3' adapter sequences (one sequence per line) used to identify adapter content.
+     - |  
+       | Path to a file with 3' adapter sequences (one sequence per line)
+       | used to identify adapter content.
    * - :code:`--read-layout-min-match-percentage`
-     - Minimum percentage of reads containing an adapter for\n it to be considered as the library’s 3’-end adapter.
+     - |  
+       | Minimum percentage of reads containing an adapter 
+       | for it to be considered as the library’s 3’-end adapter.
    * - :code:`--read-layout-min-frequency-ratio`
-     - Minimum frequency ratio between the most and second most frequent adapters to select the 3’-end adapter.
+     - |  
+       | Minimum frequency ratio between the most and second most
+       | frequent adapters to select the 3’-end adapter.
    * - :code:`--library-source-min-match-percentage`
-     - Minimum percentage of reads aligning with a library source for it to be considered representative of the library.
+     - |  
+       | Minimum percentage of reads aligning with a library source
+       | for it to be considered representative of the library.
    * - :code:`--library-source-min-frequency-ratio`
-     - Minimum frequency ratio between primary and secondary library sources,
-       ensuring only the most prominent source is identified.
+     - |  
+       | Minimum frequency ratio between primary and secondary library sources,
+       | ensuring only the most prominent source is identified.
    * - :code:`--library-type-max-distance`
-     - Maximum allowable distance between read pairs to classify the library type.
+     - |  
+       | Maximum allowable distance between read pairs
+       | to classify the library type.
    * - :code:`--library-type-mates-cutoff`
-     - Ratio cutoff to determine the consistency of mate orientation in paired-end reads.
+     - |  
+       | Ratio cutoff to determine the consistency
+       | of mate orientation in paired-end reads.
    * - :code:`--read-orientation-min-mapped-reads`
-     - Minimum number of mapped reads to ensure reliable inference of read orientation.
+     - |  
+       | Minimum number of mapped reads to ensure
+       | reliable inference of read orientation.
    * - :code:`--read-orientation-min-fraction`
-     - Minimum fraction (must exceed 0.5) of reads supporting a given orientation to confirm its accuracy.
+     - |  
+       | Minimum fraction (must exceed 0.5) of reads
+       | supporting a given orientation to confirm its accuracy.
