@@ -10,10 +10,8 @@ import signal
 import sys
 import tempfile
 
-from htsinfer import (
-    HtsInfer,
-    __version__,
-)
+from htsinfer import HtsInfer
+from htsinfer.version import __version__
 from htsinfer.models import (
     CleanupRegimes,
     LogLevels,
